@@ -1,6 +1,8 @@
 package com.example.demo.repository;
 
-@Repo
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class UserRepository {
     
 }
