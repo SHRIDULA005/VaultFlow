@@ -10,6 +10,8 @@ public class User {
     @Id
     @Column
     private Long id;
-    @Email()
+    @Email(unique=true,nullable=false)
+    private String email;
+
 
 }
