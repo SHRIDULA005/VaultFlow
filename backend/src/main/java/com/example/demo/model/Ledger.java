@@ -11,7 +11,7 @@ public class Ledger {
     @Id
     @Column
     private Long id;
-    @Column
+    @Column(nullable = false)
     private String description;
     @Column
     private Date createdAt;
@@ -20,6 +20,24 @@ public class Ledger {
     public Ledger(Long id, String description, Date createdAt) {
         this.id = id;
         this.description = description;
+        this.createdAt = createdAt;
+    }
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
