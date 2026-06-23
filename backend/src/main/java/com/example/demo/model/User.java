@@ -10,8 +10,14 @@ public class User {
     @Id
     @Column
     private Long id;
-    @Email(unique=true,nullable=false)
+    @Email
+    @Column(unique=true,nullable=false)
     private String email;
+    @Column(nullable=false)
+    private String password;
+    @Column
+    private String role;
+    @Column
 
 
 }
