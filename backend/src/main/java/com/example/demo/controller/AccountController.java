@@ -20,9 +20,11 @@ import com.example.demo.service.AccountService;
 public class AccountController {
     @Autowired
     AccountService ser;
+
     @PostMapping("/post")
     public String postAccount(@RequestBody Account account){
-        String ans=
+        String ans=ser.postData(account);
+        return ans;
     }
 
 
