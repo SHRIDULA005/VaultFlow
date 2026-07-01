@@ -3,6 +3,8 @@ package com.example.demo.service;
 
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +17,8 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    public String postData(Account account){
-        string ans=repo.save(account);
-        return 
+    public List<Account> postData(Account account){
+         return repo.save(account);
     }
 
     public AccountDTO updateAccount(Long id,AccountDTO accountDTO){
