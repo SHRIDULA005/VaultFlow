@@ -20,7 +20,7 @@ public class AccountController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<AccountDTO> updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
-        
+        return Res
 
     }
 }
