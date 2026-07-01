@@ -12,7 +12,5 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    public AccountDTO UpdateAccount(){
-
-    }
+    
 }
