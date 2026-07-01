@@ -3,6 +3,8 @@ package com.example.demo.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Transaction {
@@ -13,9 +15,12 @@ public class Transaction {
     private Double amount;
     @Column(name="referenceId",nullable = false)
     private String referenceId;
-    @Column(name="sourceAccount")
+   @ManyToOne
+    @JoinColumn(name = "source_account_id", nullable = false)
     private Account sourceAccount;
-    @Column(name="targetAccount")
+
+    @ManyToOne
+    @JoinColumn(name = "target_account_id", nullable = false)
     private Account targetAccount;
     @Column(name="status")
     private String status;
