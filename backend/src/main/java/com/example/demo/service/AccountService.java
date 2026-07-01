@@ -16,7 +16,8 @@ public class AccountService {
     AccountRepository repo;
 
     public String postData(Account account){
-        
+        string ans=repo.save(account);
+        return 
     }
 
     public AccountDTO updateAccount(Long id,AccountDTO accountDTO){
