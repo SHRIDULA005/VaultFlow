@@ -17,7 +17,7 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    public string postData(Account account){
+    public String postData(Account account){
          repo.save(account);
          return "inserted succesfully";
     }
