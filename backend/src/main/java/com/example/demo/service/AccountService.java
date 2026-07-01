@@ -22,7 +22,7 @@ public class AccountService {
     }
 
     public List<Account> getallaccount(){
-        
+        return repo.findAll();
     }
 
     public String postData(Account account){
