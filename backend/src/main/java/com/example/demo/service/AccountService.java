@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +16,8 @@ public class AccountService {
     AccountRepository repo;
 
     public Optional<Account> getDataById(Long id){
-        optional<A repo.findById(id);
+        Optional<Account> ans = repo.findById(id);
+        return ans;
     }
 
     public String postData(Account account){
