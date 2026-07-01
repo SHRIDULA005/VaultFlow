@@ -13,8 +13,8 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    public Account getDataById(Long id){
-        repo.fin
+    public Optional<Account> getDataById(Long id){
+        optional<A repo.findById(id);
     }
 
     public String postData(Account account){
