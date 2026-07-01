@@ -17,8 +17,9 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    public List<Account> postData(Account account){
-         return repo.save(account);
+    public string postData(Account account){
+         repo.save(account);
+         return "inserted succesfully";
     }
 
     public AccountDTO updateAccount(Long id,AccountDTO accountDTO){
