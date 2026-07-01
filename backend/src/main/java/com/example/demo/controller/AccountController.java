@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,12 +19,8 @@ public class AccountController {
     AccountService ser;
 
     @PutMapping("/update/{id}")
-    public AccountDTO updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
-        Optional<Account> up=ser.updateAccount(id,accountDTO);
-        if(up.isPresent()){
-            Account data=up.get();
-            data.set
-        }
+    public ResponseEntity<AccountDTO> updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
+        
 
     }
 }
