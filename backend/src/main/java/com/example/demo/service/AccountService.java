@@ -13,8 +13,8 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    private optional<AccountDTO> updateAccount(Long id,AccountDTO acc){
-        return repo.findById(id);
+    private Account updateAccount(Long id,AccountDTO acc){
+        return repo.findById
     }
     
 }
