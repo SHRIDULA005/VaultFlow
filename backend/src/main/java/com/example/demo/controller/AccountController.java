@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -22,7 +24,10 @@ public class AccountController {
     @Autowired
     AccountService ser;
 
-    @GetMapping("")
+    @GetMapping("/get/{id}")
+    public Account getaccountbyid(@PathVariable Long id){
+        Optional<Account> ans=ser.getDataById(id)
+    }
 
     @PostMapping("/post")
     public String postAccount(@RequestBody Account account){
