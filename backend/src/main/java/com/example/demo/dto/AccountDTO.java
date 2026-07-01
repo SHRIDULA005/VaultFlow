@@ -1,8 +1,9 @@
 package com.example.demo.dto;
 
 public class AccountDTO {
-    public Long id;
-    public String accountName;
-    public String accountType;
-    public  
+    private Long id;
+    private String accountName;
+    private String accountType;
+    private Double balance;
+    private Double interestRate; 
 }
