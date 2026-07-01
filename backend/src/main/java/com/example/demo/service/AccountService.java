@@ -13,7 +13,9 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    
+    public Account getDataById(Long id){
+        repo.fin
+    }
 
     public String postData(Account account){
          repo.save(account);
