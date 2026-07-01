@@ -30,6 +30,8 @@ public class AccountController {
         return ans.orElse(null);
     }
 
+
+    @
     @PostMapping("/post")
     public String postAccount(@RequestBody Account account){
         String ans=ser.postData(account);
