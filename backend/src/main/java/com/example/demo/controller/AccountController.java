@@ -22,6 +22,7 @@ public class AccountController {
         Optional<Account> up=ser.updateAccount(id,accountDTO);
         if(up.isPresent()){
             Account data=up.get();
+            data.set
         }
 
     }
