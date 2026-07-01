@@ -14,7 +14,7 @@ public class AccountService {
     AccountRepository repo;
 
     private AccountDTO updateAccount(Long id,AccountDTO acc){
-        AccountDTO accountDTO=repo.findById(id);
+        return repo.findById(id);
     }
     
 }
