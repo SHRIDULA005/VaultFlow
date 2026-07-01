@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.AccountDTO;
 import com.example.demo.model.Account;
 import com.example.demo.repository.AccountRepository;
 
@@ -14,7 +15,7 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    private Optional<Account> updateAccount(Long id,Account acc){
+    private Optional<Account> updateAccount(Long id,AccountDTO acc){
         return repo.findById(id);
     }
     
