@@ -15,5 +15,5 @@ public class AccountDTO {
     private String accountType;
     private Double balance;
     private Long targetAccountId;
-    private string status;
+    private String status;
 }

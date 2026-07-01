@@ -20,6 +20,7 @@ public class AccountController {
     @PutMapping("/update/{id}")
     public AccountDTO updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
         Optional<Account> up=ser.updateAccount(id,accountDTO);
+        
 
     }
 }
