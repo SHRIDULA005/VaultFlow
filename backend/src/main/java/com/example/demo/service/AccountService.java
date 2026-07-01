@@ -12,7 +12,7 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    public List<> getAllTransactions(){
-        
+    public AccountDTO UpdateAccount(){
+
     }
 }
