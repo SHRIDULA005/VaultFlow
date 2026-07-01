@@ -15,7 +15,7 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    private AccountDTO updateAccount(Long id,AccountDTO acc){
+    private Optional<Account> updateAccount(Long id,AccountDTO acc){
         return repo.findById(id);
     }
     
