@@ -12,5 +12,7 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    public List<> get
+    public List<> getAllTransactions(){
+        
+    }
 }
