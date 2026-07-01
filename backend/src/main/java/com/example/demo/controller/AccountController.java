@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,11 @@ public class AccountController {
         return ans.orElse(null);
     }
 
+    @GetMapping("getall")
+    public List<Account> getallaccount(){
+        
+    }
 
-    @
     @PostMapping("/post")
     public String postAccount(@RequestBody Account account){
         String ans=ser.postData(account);
