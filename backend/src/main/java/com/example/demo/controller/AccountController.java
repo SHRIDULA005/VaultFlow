@@ -15,7 +15,7 @@ public class AccountController {
     AccountService ser;
 
     @PutMapping("/update/{id}")
-    public AccountDTO updateAccount(@PathVariable Long id, @RequestBody AccountDTO){
-        AccountDTO up=ser.
+    public AccountDTO updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
+        AccountDTO up=ser.updateAccount(id,accountDTO)
     }
 }
