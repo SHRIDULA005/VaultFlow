@@ -21,6 +21,6 @@ public class AccountController {
     @PutMapping("/update/{id}")
     public ResponseEntity<AccountDTO> updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
         AccountDTO up=ser.updateAccount(id,accountDTO);
-        return ResponseEntity.ok(updated)
+        return ResponseEntity.ok(updatedAccount)
     }
 }
