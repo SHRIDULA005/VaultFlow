@@ -32,10 +32,10 @@
     </dependency>
 
         <!-- Web -->
-        <!-- <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency> -->
+        </dependency>
 
         <!-- JPA -->
         <dependency>
@@ -44,10 +44,10 @@
         </dependency>
 
         <!-- Security -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
+        </dependency> -->
 
         <!-- Explicit security jars for test compilation -->
         <dependency>
