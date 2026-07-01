@@ -33,7 +33,8 @@ public class AccountController {
 
     @GetMapping("getall")
     public List<Account> getallaccount(){
-        
+        List<Account> ans=ser.getallaccount();
+        return ans;
     }
 
     @PostMapping("/post")

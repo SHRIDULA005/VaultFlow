@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,10 @@ public class AccountService {
     public Optional<Account> getDataById(Long id){
         Optional<Account> ans = repo.findById(id);
         return ans;
+    }
+
+    public List<Account> getallaccount(){
+        
     }
 
     public String postData(Account account){
