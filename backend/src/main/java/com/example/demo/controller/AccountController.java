@@ -11,5 +11,6 @@ public class AccountController {
     @Autowired
     AccountService ser;
 
-    @PutMapping("/update/{id}/{name}")
+    @PutMapping("/update/{id}")
+    public 
 }
