@@ -13,6 +13,8 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
-    private AccountDTO updateAccount(Long )
+    private AccountDTO updateAccount(Long id,AccountDTO acc){
+        AccountDTO accountDTO=
+    }
     
 }
