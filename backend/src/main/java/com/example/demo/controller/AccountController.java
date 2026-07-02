@@ -48,4 +48,6 @@ public class AccountController {
         AccountDTO up=ser.updateAccount(id,accountDTO);
         return ResponseEntity.status(HttpStatus.OK).body(up);
     }
+
+    
 }
