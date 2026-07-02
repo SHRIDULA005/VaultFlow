@@ -1,41 +1,41 @@
-package com.example.demo.service;
+// package com.example.demo.service;
 
 
-import java.util.List;
-import java.util.Optional;
+// import java.util.List;
+// import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.stereotype.Service;
 
-import com.example.demo.dto.AccountDTO;
-import com.example.demo.model.Account;
-import com.example.demo.repository.AccountRepository;
+// import com.example.demo.dto.AccountDTO;
+// import com.example.demo.model.Account;
+// import com.example.demo.repository.AccountRepository;
 
-@Service
-public class AccountService {
-    @Autowired
-    AccountRepository repo;
+// @Service
+// public class AccountService {
+//     @Autowired
+//     AccountRepository repo;
 
-    public Optional<Account> getDataById(Long id){
-        Optional<Account> ans = repo.findById(id);
-        return ans;
-    }
+//     public Optional<Account> getDataById(Long id){
+//         Optional<Account> ans = repo.findById(id);
+//         return ans;
+//     }
 
-    public List<Account> getallaccount(){
-        return repo.findAll();
-    }
+//     public List<Account> getallaccount(){
+//         return repo.findAll();
+//     }
 
-    public String postData(Account account){
-         repo.save(account);
-         return "inserted succesfully";
-    }
+//     public String postData(Account account){
+//          repo.save(account);
+//          return "inserted succesfully";
+//     }
 
-    public AccountDTO updateAccount(Long id,AccountDTO accountDTO){
-        accountDTO.setId(id);
-        return accountDTO;
-    }
+//     public AccountDTO updateAccount(Long id,AccountDTO accountDTO){
+//         accountDTO.setId(id);
+//         return accountDTO;
+//     }
     
-    public void deleteuserbyid(Long id){
-        repo.deleteById(id);
-    }
-}
+//     public void deleteuserbyid(Long id){
+//         repo.deleteById(id);
+//     }
+// }
