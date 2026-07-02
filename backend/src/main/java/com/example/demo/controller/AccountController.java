@@ -51,7 +51,7 @@ public class AccountController {
     }
 
     @DeleteMapping("deleteuser/{id}")
-    public String deleteuser(@RequestBody Long id){
+    public String deleteuser(@PathVariable Long id){
         Optional<Account> ans =ser.getDataById(id);
         if(ans.isPresent()){
             ser.deleteuserbyid(id);
