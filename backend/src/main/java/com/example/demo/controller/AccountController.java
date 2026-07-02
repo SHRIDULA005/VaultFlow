@@ -55,7 +55,8 @@ public class AccountController {
         Optional<Account> ans =ser.getDataById(id);
         if(ans.isPresent()){
             ser.deleteuserbyid(id);
+            return "Account deleted";
         }
-        return "user deleted";
+        else return "id not found";
     }
 }
