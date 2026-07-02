@@ -1,12 +1,12 @@
-// package com.example.demo.repository;
+package com.example.demo.repository;
 
-// import org.springframework.data.jpa.repository.JpaRepository;
-// import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-// import com.example.demo.model.Account;
+import com.example.demo.model.Account;
 
-// @Repository
-// public interface AccountRepository extends JpaRepository<Account,Long>{
+@Repository
+public interface AccountRepository extends JpaRepository<Account,Long>{
 
     
-// } 
+} 
