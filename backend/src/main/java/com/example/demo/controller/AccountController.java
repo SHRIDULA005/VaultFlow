@@ -52,7 +52,7 @@ public class AccountController {
 
     @DeleteMapping("deleteuser/{id}")
     public String deleteuser(@RequestBody Long id){
-        Optional<Account>ser.deleteuserbyid(id);
+        Optional<Account> ans=ser.deleteuserbyid(id);
         return "user deleted";
     }
 }
