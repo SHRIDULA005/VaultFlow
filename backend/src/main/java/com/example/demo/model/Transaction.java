@@ -1,105 +1,105 @@
-// package com.example.demo.model;
+package com.example.demo.model;
 
-// import jakarta.persistence.Column;
-// import jakarta.persistence.Entity;
-// import jakarta.persistence.Id;
-// import jakarta.persistence.JoinColumn;
-// import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
-// @Entity
-// public class Transaction {
-//     @Id
-//     @Column(name="id")
-//     private Long id;
-//     @Column(name="amount",nullable = false)
-//     private Double amount;
-//     @Column(name="referenceId",nullable = false)
-//     private String referenceId;
-//    @ManyToOne
-//     @JoinColumn(name = "source_account_id", nullable = false)
-//     private Account sourceAccount;
+@Entity
+public class Transaction {
+    @Id
+    @Column(name="id")
+    private Long id;
+    @Column(name="amount",nullable = false)
+    private Double amount;
+    @Column(name="referenceId",nullable = false)
+    private String referenceId;
+   @ManyToOne
+    @JoinColumn(name = "source_account_id", nullable = false)
+    private Account sourceAccount;
 
-//     @ManyToOne
-//     @JoinColumn(name = "target_account_id", nullable = false)
-//     private Account targetAccount;
-//     @Column(name="status")
-//     private String status;
-
-
-//     public Transaction() {
-//     }
+    @ManyToOne
+    @JoinColumn(name = "target_account_id", nullable = false)
+    private Account targetAccount;
+    @Column(name="status")
+    private String status;
 
 
-//     public Transaction(Long id, Double amount, String referenceId, Account sourceAccount, Account targetAccount,
-//             String status) {
-//         this.id = id;
-//         this.amount = amount;
-//         this.referenceId = referenceId;
-//         this.sourceAccount = sourceAccount;
-//         this.targetAccount = targetAccount;
-//         this.status = status;
-//     }
+    public Transaction() {
+    }
 
 
-//     public Long getId() {
-//         return id;
-//     }
+    public Transaction(Long id, Double amount, String referenceId, Account sourceAccount, Account targetAccount,
+            String status) {
+        this.id = id;
+        this.amount = amount;
+        this.referenceId = referenceId;
+        this.sourceAccount = sourceAccount;
+        this.targetAccount = targetAccount;
+        this.status = status;
+    }
 
 
-//     public void setId(Long id) {
-//         this.id = id;
-//     }
+    public Long getId() {
+        return id;
+    }
 
 
-//     public Double getAmount() {
-//         return amount;
-//     }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
 
-//     public void setAmount(Double amount) {
-//         this.amount = amount;
-//     }
+    public Double getAmount() {
+        return amount;
+    }
 
 
-//     public String getReferenceId() {
-//         return referenceId;
-//     }
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
 
 
-//     public void setReferenceId(String referenceId) {
-//         this.referenceId = referenceId;
-//     }
+    public String getReferenceId() {
+        return referenceId;
+    }
 
 
-//     public Account getSourceAccount() {
-//         return sourceAccount;
-//     }
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
+    }
 
 
-//     public void setSourceAccount(Account sourceAccount) {
-//         this.sourceAccount = sourceAccount;
-//     }
+    public Account getSourceAccount() {
+        return sourceAccount;
+    }
 
 
-//     public Account getTargetAccount() {
-//         return targetAccount;
-//     }
+    public void setSourceAccount(Account sourceAccount) {
+        this.sourceAccount = sourceAccount;
+    }
 
 
-//     public void setTargetAccount(Account targetAccount) {
-//         this.targetAccount = targetAccount;
-//     }
+    public Account getTargetAccount() {
+        return targetAccount;
+    }
 
 
-//     public String getStatus() {
-//         return status;
-//     }
+    public void setTargetAccount(Account targetAccount) {
+        this.targetAccount = targetAccount;
+    }
 
 
-//     public void setStatus(String status) {
-//         this.status = status;
-//     }
+    public String getStatus() {
+        return status;
+    }
+
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
     
     
 
-// }
+}
