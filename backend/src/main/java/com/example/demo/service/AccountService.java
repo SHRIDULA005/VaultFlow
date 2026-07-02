@@ -35,4 +35,7 @@ public class AccountService {
         return accountDTO;
     }
     
+    public void deleteuserbyid(Long id){
+        repo.deleteById(id);
+    }
 }

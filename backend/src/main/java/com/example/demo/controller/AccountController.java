@@ -53,6 +53,6 @@ public class AccountController {
     @DeleteMapping("deleteuser/{id}")
     public String deleteuser(@RequestBody Long id){
         ser.deleteuserbyid(id);
-        return user deleted
+        return "user deleted";
     }
 }
