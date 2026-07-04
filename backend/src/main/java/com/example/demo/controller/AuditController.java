@@ -28,7 +28,7 @@ public class AuditController {
         return ans;
     }
 
-    @GetMapping("getall")
+    @GetMapping("/getall")
     public List<AuditLog> getallaudit(){
         List<AuditLog> ans= ser.getallaudit();
         return ans;

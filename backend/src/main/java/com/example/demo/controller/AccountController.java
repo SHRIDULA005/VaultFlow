@@ -32,7 +32,7 @@ public class AccountController {
         return ans.orElse(null);
     }
 
-    @GetMapping("getall")
+    @GetMapping("/getall")
     public List<Account> getallaccount(){
         List<Account> ans=ser.getallaccount();
         return ans;
@@ -50,7 +50,7 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).body(up);
     }
 
-    @DeleteMapping("deleteuser/{id}")
+    @DeleteMapping("/deleteuser/{id}")
     public String deleteuser(@PathVariable Long id){
         Optional<Account> ans =ser.getDataById(id);
         if(ans.isPresent()){
