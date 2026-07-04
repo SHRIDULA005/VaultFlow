@@ -10,7 +10,8 @@ public class LedgerService {
     @Autowired
     LedgerRepository repo;
 
-    public String postledger(Long id){
-        repo.save
+    public String postledger(Ledg){
+        repo.save(id);
+        return "Ledger added succesfully";
     }
 }
