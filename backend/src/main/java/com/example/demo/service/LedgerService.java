@@ -18,5 +18,8 @@ public class LedgerService {
         return "Ledger added succesfully";
     }
 
-    public List<Ledger> getallledger
+    public List<Ledger> getallledger(){
+        List<Ledger> ans=repo.findAll();
+        return ans;
+    }
 }

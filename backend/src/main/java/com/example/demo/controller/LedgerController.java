@@ -10,13 +10,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.model.Ledger;
 import com.example.demo.service.LedgerService;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 @RestController
 public class LedgerController {
     @Autowired
     LedgerService ser;
 
     @PostMapping("/post")
-    public String postLedger(Ledger l){
+    public String postLedger(@RequestBody Ledger l){
         return ser.postledger(l);
     }
 
@@ -25,4 +27,8 @@ public class LedgerController {
         List<Ledger> ans= ser.getallledger();
         return ans;
     }
+
+    @GetMapping("/get/{id}"
+        
+    )
 }
