@@ -24,6 +24,6 @@ public class AuditService {
     }
 
     public Optional<AuditLog> getauditbyid(Long id){
-        return repo.findById(id;)
+        return repo.findById(id);
     }
 }
