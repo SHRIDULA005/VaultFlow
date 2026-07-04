@@ -34,7 +34,9 @@ public class AuditController {
     }
 
     @GetMapping("get/{id}")
-    public Optional<AuditLog> getauditbyid(@RequestParam Long id){
-        
+    public Optional<AuditLog> getauditbyid(@PathVariable Long id){
+        Optional<AuditLog> ans=getauditbyid(id;
+            
+        )
     }
 }
