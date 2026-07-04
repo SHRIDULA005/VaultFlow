@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,11 @@ public class AuditController {
     @Autowired
     AuditService ser;
 
-    @GetMapping("/getall")
-    public Optional<AuditLog> getallaudit(){
-        Optional<AuditLog> ans= ser.getallaudit();
+    @
+
+    @GetMapping("getall")
+    public List<AuditLog> getallaudit(){
+        List<AuditLog> ans= ser.getallaudit();
         return ans;
     }
 }
