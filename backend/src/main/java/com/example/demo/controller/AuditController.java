@@ -7,15 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.AuditLog;
+import com.example.demo.service.AuditService;
 
 
 @RestController
 public class AuditController {
     @Autowired
-    AuditServ;
+    AuditService ser;
 
     @GetMapping("/getall")
     public Optional<AuditLog> getallaudit(){
-        Optional<AuditLog> ans= 
+        Optional<AuditLog> ans= ser.getallaudit();
+        return ans;
     }
 }
