@@ -20,7 +20,10 @@ public class AuditController {
     AuditService ser;
 
     @PostMapping("/post")
-    public String postauditlog(@RequestBody )
+    public String postauditlog(@RequestBody AuditLog al){
+        String ans=ser.postauditlog(al);
+        return ans;
+    }
 
     @GetMapping("getall")
     public List<AuditLog> getallaudit(){
