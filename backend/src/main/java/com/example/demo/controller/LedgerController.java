@@ -32,6 +32,7 @@ public class LedgerController {
 
     @GetMapping("/get/{id}")
     public Optional<Ledger> getledgerbyid(@PathVariable Long id){
-        Optional<Ledger> ans = ser.getledgerbyid(id);  
+        Optional<Ledger> ans = ser.getledgerbyid(id);
+        return ans;  
     }
 }
