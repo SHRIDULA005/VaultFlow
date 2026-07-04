@@ -14,6 +14,11 @@ public class AuditService {
     @Autowired
     AuditLogRepository repo;
 
+    public String postauditlog(AuditLog al){
+        repo.save(al);
+        return "AuditLog inserted";
+    }
+
     public List<AuditLog> getallaudit(){
         return repo.findAll();
     }
