@@ -33,10 +33,9 @@ public class AuditController {
         return ans;
     }
 
-    @GetMapping("get/{id}")
+    @GetMapping("/get/{id}")
     public Optional<AuditLog> getauditbyid(@PathVariable Long id){
-        Optional<AuditLog> ans=getauditbyid(id;
-            
-        )
+        Optional<AuditLog> ans=getauditbyid(id);
+        ifreturn ans.orElse(null);
     }
 }
