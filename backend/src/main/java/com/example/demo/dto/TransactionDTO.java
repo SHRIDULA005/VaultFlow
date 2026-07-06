@@ -15,4 +15,5 @@ public class TransactionDTO {
     private String referenceid;
     private Long sourceAccountId;
     private Long targetAccountId;
+    private String status;
 }
