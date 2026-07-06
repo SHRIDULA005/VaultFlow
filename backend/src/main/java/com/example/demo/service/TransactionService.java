@@ -18,7 +18,7 @@ public class TransactionService {
         return "inserted succesfully";
     }
 
-    public List<Transaction> getAllTransactions(){
+    public List<TransactionDTO> getAllTransactions(){
         return repo.findAll();
     }
 }
