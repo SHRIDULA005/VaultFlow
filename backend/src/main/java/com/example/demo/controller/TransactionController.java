@@ -32,8 +32,8 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) {
-        TransactionDTO saved = ser.createTransaction(transactionDTO);
+    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO dto) {
+        TransactionDTO saved = ser.createTransaction(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
