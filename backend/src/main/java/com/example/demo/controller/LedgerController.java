@@ -42,11 +42,9 @@ public class LedgerController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<LedgerDTO>> getLedger(){
-        LedgerDTO dto=new LedgerDTO();
-        Ledger ans=ser.getallledger();
-        dto.setId(ans.getId());
-        
+    public ResponseEntity<Page<LedgerDTO>> getAllLedgers(Pageable pageable) {
+        Page<LedgerDTO> ans = ser.getAllLedgers(pageable);
+        return ResponseEntity.ok(ans);
     }
     
 }

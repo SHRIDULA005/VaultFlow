@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.LedgerDTO;
 import com.example.demo.model.Ledger;
 import com.example.demo.repository.LedgerRepository;
 
@@ -27,4 +28,28 @@ public class LedgerService {
     public Optional<Ledger> getledgerbyid(Long id){
         return repo.findById(id);
     }
+
+    @Service
+public class LedgerService {
+
+    @Autowired
+    private LedgerRepository repo;
+
+    public Page<LedgerDTO> getAllLedgers(Pageable pageable) {
+
+        Page<Ledger> ledgers = repo.findAll(pageable);
+
+        return ledgers.map(this::convertToDTO);
+    }
+
+    private LedgerDTO convertToDTO(Ledger ledger) {
+
+        LedgerDTO dto = new LedgerDTO();
+
+        dto.setId(ledger.getId());
+        
+
+        return dto;
+    }
+}
 }
