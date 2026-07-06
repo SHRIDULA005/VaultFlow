@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.query.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +27,7 @@ public class LedgerController {
     }
 
     @GetMapping
-    public Page<LedgerD getallledger(){
+    public List<Ledger> getallledger(){
         List<Ledger> ans= ser.getallledger();
         return ans;
     }
@@ -38,5 +37,8 @@ public class LedgerController {
         Optional<Ledger> ans = ser.getledgerbyid(id);
         return ans;  
     }
+
+    @GetMapping
+    
     
 }
