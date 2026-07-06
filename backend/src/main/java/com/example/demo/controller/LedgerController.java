@@ -44,9 +44,9 @@ public class LedgerController {
     @GetMapping
     public ResponseEntity<Page<LedgerDTO>> getLedger(){
         LedgerDTO dto=new LedgerDTO();
-        List<Ledger> ans=ser.getallledger();
-        dto.setId(ans.get(0));
-
+        Ledger ans=ser.getallledger();
+        dto.setId(ans.getId());
+        
     }
     
 }
