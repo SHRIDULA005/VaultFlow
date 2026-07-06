@@ -30,11 +30,11 @@ public class LedgerController {
         return ser.postledger(l);
     }
 
-    @GetMapping
-    public List<Ledger> getallledger(){
-        List<Ledger> ans= ser.getallledger();
-        return ans;
-    }
+    // @GetMapping
+    // public List<Ledger> getallledger(){
+    //     List<Ledger> ans= ser.Getallledger();
+    //     return ans;
+    // }
 
     @GetMapping("/{id}")
     public Optional<Ledger> getledgerbyid(@PathVariable Long id){

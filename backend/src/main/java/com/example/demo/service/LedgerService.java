@@ -22,10 +22,10 @@ public class LedgerService {
         return "Ledger added succesfully";
     }
 
-    public List<Ledger> getallledger(){
-        List<Ledger> ans=repo.findAll();
-        return ans;
-    }
+    // public List<Ledger> Getallledger(){
+    //     List<Ledger> ans=repo.findAll();
+    //     return ans;
+    // }
 
     public Optional<Ledger> getledgerbyid(Long id){
         return repo.findById(id);
