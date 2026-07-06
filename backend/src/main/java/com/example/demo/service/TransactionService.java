@@ -25,6 +25,7 @@ public class TransactionService {
     dto.setId(transaction.getId());
     dto.setAmount(transaction.getAmount());
     dto.setReferenceId(transaction.getReferenceId());
+    dto.setSourceAccountId(transaction.get)
     dto.setStatus(transaction.getStatus());
 
     return dto;
