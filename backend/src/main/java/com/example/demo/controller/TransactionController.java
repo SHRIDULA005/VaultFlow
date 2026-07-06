@@ -37,7 +37,7 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
-    @DeleteMapping("/api/transactions/{id}")
+    @DeleteMapping("/{id}")
         public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
         ser.deleteTransaction(id);
         return ResponseEntity.ok("Transaction reversed successfully.");
