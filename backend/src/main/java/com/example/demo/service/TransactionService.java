@@ -20,6 +20,6 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> getAllTransactions(){
-        repo.find
+        return repo.;
     }
 }
