@@ -10,5 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthDTO {
-    
+    private String email;
+    private String password;
+    private String role;
+    private String token;
 }
