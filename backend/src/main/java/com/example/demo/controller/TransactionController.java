@@ -24,7 +24,7 @@ public class TransactionController {
     TransactionService ser;
 
     @PostMapping("/post")
-    public String posttracsaction(@RequestBody Transaction data){
+    public String posttracsaction(@RequestB Transaction data){
         String ans=ser.posttransaction(data);
         return ans;
     }
