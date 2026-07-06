@@ -25,13 +25,13 @@ public class TransactionController {
     @Autowired 
     TransactionService ser;
 
-    @PostMapping("/post")
+    @PostMapping
     public String posttracsaction(@RequestBody Transaction data){
         String ans=ser.posttransaction(data);
         return ans;
     }
 
-    @GetMapping("/gettransactions")
+    @GetMapping
     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
         List<TransactionDTO> transactions = ser.getAllTransactions();
         return ResponseEntity.ok(transactions);
