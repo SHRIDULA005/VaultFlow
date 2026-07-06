@@ -43,8 +43,8 @@ public class LedgerService {
         LedgerDTO dto = new LedgerDTO();
 
         dto.setId(ledger.getId());
-        dto.getDescription(ledger.getDescription());
-        dto.setCreatedAt(null);
+        dto.setDescription(ledger.getDescription());
+        dto.setCreatedAt(ledger.getCreatedAt());
 
         return dto;
     }
