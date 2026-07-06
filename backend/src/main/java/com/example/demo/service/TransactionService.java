@@ -25,12 +25,14 @@ public class TransactionService {
     dto.setId(transaction.getId());
     dto.setAmount(transaction.getAmount());
     dto.setReferenceId(transaction.getReferenceId());
-    dto.setSourceAccountId(transaction.getId());
-    dto.setTargetAccountId(transaction.getId());
+
+    dto.setSourceAccountId(transaction.getSourceAccount().getId());
+    dto.setTargetAccountId(transaction.getTargetAccount().getId());
+
     dto.setStatus(transaction.getStatus());
 
     return dto;
-}
+    }
 
     public List<TransactionDTO> getAllTransactions() {
     List<Transaction> transactions = repo.findAll();
