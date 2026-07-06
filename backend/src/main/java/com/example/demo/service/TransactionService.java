@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.TransactionDTO;
 import com.example.demo.model.Transaction;
 import com.example.demo.repository.TransactionRepository;
 
@@ -18,7 +19,22 @@ public class TransactionService {
         return "inserted succesfully";
     }
 
-    public List<TransactionDTO> getAllTransactions(){
-        return repo.findAll();
-    }
+    private TransactionDTO convertToDTO(Transaction transaction) {
+    TransactionDTO dto = new TransactionDTO();
+
+    dto.setId(transaction.getId());
+    dto.setAmount(transaction.getAmount());
+    dto.setReferenceId(transaction.getReferenceId());
+    dto.setStatus(transaction.getStatus());
+
+    return dto;
+}
+
+    public List<TransactionDTO> getAllTransactions() {
+    List<Transaction> transactions = repo.findAll();
+
+    return transactions.stream()
+            .map(this::convertToDTO)
+            .toList();
+}
 }
