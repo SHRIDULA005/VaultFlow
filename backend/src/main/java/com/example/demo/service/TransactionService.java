@@ -14,7 +14,7 @@ public class TransactionService {
     @Autowired
     TransactionRepository repo;
 
-    public String posttransaction(Transaction data){
+    public String createTransaction(Transaction data){
         repo.save(data);
         return "inserted succesfully";
     }

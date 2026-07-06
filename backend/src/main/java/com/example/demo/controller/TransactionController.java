@@ -26,9 +26,15 @@ public class TransactionController {
     TransactionService ser;
 
     @PostMapping
-    public String posttracsaction(@RequestBody Transaction data){
-        String ans=ser.posttransaction(data);
+    public String createTransaction(@RequestBody Transaction data){
+        String ans=ser.createTransaction(data);
         return ans;
+    }
+
+    @PostMapping
+    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) {
+        TransactionDTO saved = ser.createTransaction(transactionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping
