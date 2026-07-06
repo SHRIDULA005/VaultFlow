@@ -42,7 +42,11 @@ public class TransactionService {
             .toList();
     }
 
-    public void deleteTransaction(Long id){
+    public String deleteTransaction(Long id) {
+    if (repo.existsById(id)) {
         repo.deleteById(id);
+        return "Transaction reversed successfully";
     }
+    return "Transaction not found";
+}
 }
