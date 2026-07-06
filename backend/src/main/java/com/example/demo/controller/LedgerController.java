@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.query.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,18 +22,18 @@ public class LedgerController {
     @Autowired
     LedgerService ser;
 
-    @PostMapping("/post")
+    @PostMapping
     public String postLedger(@RequestBody Ledger l){
         return ser.postledger(l);
     }
 
-    @GetMapping("/getall")
-    public List<Ledger> getallledger(){
+    @GetMapping
+    public Page<LedgerD getallledger(){
         List<Ledger> ans= ser.getallledger();
         return ans;
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public Optional<Ledger> getledgerbyid(@PathVariable Long id){
         Optional<Ledger> ans = ser.getledgerbyid(id);
         return ans;  
