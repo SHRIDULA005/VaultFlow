@@ -17,6 +17,6 @@ public class TransactionController {
     @PostMapping("/post")
     public String posttracsaction(@RequestBody Transaction data){
         ser.podttransaction(data);
-        
+        return "Data inserted";
     }
 }
