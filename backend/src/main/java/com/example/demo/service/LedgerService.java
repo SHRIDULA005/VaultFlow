@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.LedgerDTO;
@@ -29,12 +31,6 @@ public class LedgerService {
         return repo.findById(id);
     }
 
-    @Service
-public class LedgerService {
-
-    @Autowired
-    private LedgerRepository repo;
-
     public Page<LedgerDTO> getAllLedgers(Pageable pageable) {
 
         Page<Ledger> ledgers = repo.findAll(pageable);
@@ -47,9 +43,9 @@ public class LedgerService {
         LedgerDTO dto = new LedgerDTO();
 
         dto.setId(ledger.getId());
-        
+        dto.getDescription(ledger.getDescription());
+        dto.setCreatedAt(null);
 
         return dto;
     }
-}
 }
