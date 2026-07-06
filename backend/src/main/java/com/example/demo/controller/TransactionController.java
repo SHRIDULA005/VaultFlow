@@ -25,7 +25,7 @@ public class TransactionController {
         return ans;
     }
 
-    @GetMapping("/transactions")
+    @GetMapping("/gettransactions")
     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
         List<TransactionDTO> transactions = ser.getAllTransactions();
         return ResponseEntity.ok(transactions);
