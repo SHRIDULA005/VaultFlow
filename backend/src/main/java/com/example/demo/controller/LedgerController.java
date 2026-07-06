@@ -42,6 +42,8 @@ public class LedgerController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<LedgerDTO>> 
+    public ResponseEntity<Page<LedgerDTO>> getLedger(){
+        
+    }
     
 }
