@@ -1,8 +1,11 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.TransactionDTO;
 import com.example.demo.model.Transaction;
 import com.example.demo.repository.TransactionRepository;
 
@@ -14,5 +17,9 @@ public class TransactionService {
     public String posttransaction(Transaction data){
         repo.save(data);
         return "inserted succesfully";
+    }
+
+    public List<TransactionDTO> getAllTransactions(){
+        repo.find
     }
 }
