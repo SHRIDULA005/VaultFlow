@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,6 @@ public class TransactionController {
 
     @DeleteMapping("/api/transactions/{id}")
     public ResponseEntity<String> deletetransaction(@PathVariable Long id){
-        
+        Optional<Transaction> ite= ser.deletetransaction(id);
     }
 }
