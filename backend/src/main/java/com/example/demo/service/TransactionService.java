@@ -40,5 +40,9 @@ public class TransactionService {
     return transactions.stream()
             .map(this::convertToDTO)
             .toList();
-}
+    }
+
+    public void deleteTransaction(Long id){
+        repo.deleteById(id);
+    }
 }
