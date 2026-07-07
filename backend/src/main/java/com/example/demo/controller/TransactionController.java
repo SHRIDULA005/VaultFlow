@@ -31,7 +31,8 @@ public class TransactionController {
 
     @GetMapping("/{id")
     public Transaction gettransactionbyid(@PathVariable Long id){
-        Transaction ans=ser.gettransactionbtid(id)
+        Transaction ans=ser.gettransactionbtid(id);
+        return ans;
     }
 
 

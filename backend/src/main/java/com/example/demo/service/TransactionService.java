@@ -68,6 +68,10 @@ public class TransactionService {
                 .toList();
     }
 
+
+    public Transaction gettransactionbyid(Long id){
+        return repo.
+    }
     public void deleteTransaction(Long id) {
         repo.deleteById(id);
     }
