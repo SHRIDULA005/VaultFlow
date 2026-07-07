@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,8 +70,8 @@ public class TransactionService {
     }
 
 
-    public Transaction gettransactionbyid(Long id){
-        return repo.
+    public Optional<Transaction> gettransactionbyid(Long id){
+        return repo.findById(id);
     }
     public void deleteTransaction(Long id) {
         repo.deleteById(id);

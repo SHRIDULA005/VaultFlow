@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,8 +31,8 @@ public class TransactionController {
     }
 
     @GetMapping("/{id")
-    public Transaction gettransactionbyid(@PathVariable Long id){
-        Transaction ans=ser.gettransactionbtid(id);
+    public Optional<Transaction> gettransactionbyid(@PathVariable Long id){
+        Optional<Transaction> ans=ser.gettransactionbyid(id);
         return ans;
     }
 
