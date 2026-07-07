@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.TransactionDTO;
+import com.example.demo.model.Transaction;
 import com.example.demo.service.TransactionService;
 
 @RestController
@@ -28,7 +29,11 @@ public class TransactionController {
         return ResponseEntity.ok(ser.getAllTransactions());
     }
 
-    
+    @GetMapping("/{id")
+    public Transaction gettransactionbyid(@PathVariable Long id){
+        Transaction ans=ser.gettransactionbtid(id)
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
