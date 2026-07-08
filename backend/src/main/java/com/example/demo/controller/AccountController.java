@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.AccountDTO;
@@ -22,23 +23,24 @@ import com.example.demo.model.Account;
 import com.example.demo.service.AccountService;
 
 @RestController
+@RequestMapping("/api/accounts")
 public class AccountController {
     @Autowired
     AccountService ser;
 
-    @GetMapping("/getById/{id}")
+    @GetMapping("{id}")
     public Account getaccountbyid(@PathVariable Long id){
         Optional<Account> ans=ser.getDataById(id);
         return ans.orElse(null);
     }
 
-    @GetMapping("/getall")
+    @GetMapping
     public List<Account> getallaccount(){
         List<Account> ans=ser.getallaccount();
         return ans;
     }
 
-    @PostMapping("/post")
+    @PostMapping
     public String postAccount(@RequestBody Account account){
         String ans=ser.postData(account);
         return ans;
