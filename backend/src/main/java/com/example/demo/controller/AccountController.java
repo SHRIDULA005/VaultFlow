@@ -46,13 +46,13 @@ public class AccountController {
         return ans;
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<AccountDTO> updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
         AccountDTO up=ser.updateAccount(id,accountDTO);
         return ResponseEntity.status(HttpStatus.OK).body(up);
     }
 
-    @DeleteMapping("/deleteuser/{id}")
+    @DeleteMapping("/{id}")
     public String deleteuser(@PathVariable Long id){
         Optional<Account> ans =ser.getDataById(id);
         if(ans.isPresent()){
