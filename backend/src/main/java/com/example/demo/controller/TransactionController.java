@@ -36,7 +36,6 @@ public class TransactionController {
         return ans;
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
         ser.deleteTransaction(id);
