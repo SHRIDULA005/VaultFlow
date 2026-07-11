@@ -30,7 +30,7 @@ public class TransactionController {
         return ResponseEntity.ok(ser.getAllTransactions());
     }
 
-    @GetMapping("/{id")
+    @GetMapping("/{id}")
     public Optional<Transaction> gettransactionbyid(@PathVariable Long id){
         Optional<Transaction> ans=ser.gettransactionbyid(id);
         return ans;
