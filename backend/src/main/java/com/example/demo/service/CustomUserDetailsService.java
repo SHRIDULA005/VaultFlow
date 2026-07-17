@@ -3,12 +3,12 @@ package com.example.demo.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 
 @Service
@@ -18,21 +18,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        Optional<User> user = userRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByEmail(email);
 
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
 
-        User users = user.get();
+        User u = user.get();
 
-        return User.builder()
-                .username(users.getUsername())
-                .password(users.getPassword()) 
-                .roles(users.getRole())        
+        return org.springframework.security.core.userdetails.User
+                .withUsername(u.getEmail())
+                .password(u.getPassword())
+                .roles(u.getRole())   // e.g. "USER" or "ADMIN"
                 .build();
     }
 }
