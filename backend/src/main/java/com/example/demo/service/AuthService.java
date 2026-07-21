@@ -18,15 +18,6 @@ import com.example.App.security.JwtService;
 
 @Service
 public class AuthService {
-    
-}
-package com.example.App.service;
-
-
-
-@Service
-public class AuthService {
-
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -50,3 +41,4 @@ public class AuthService {
         // return "Login Successful";
     }
 }
+
