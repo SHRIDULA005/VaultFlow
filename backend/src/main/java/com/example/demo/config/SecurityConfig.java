@@ -65,8 +65,8 @@ public class SecurityConfig {
                         "/v3/api-docs/**").permitAll()
                     .requestMatchers("/delete/**").hasRole("ADMIN")
                     .anyRequest().authenticated())
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class);
+            .authenticationProvider(authenticationProvider());
+            //.addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
