@@ -20,15 +20,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.demo.service.CustomUserDetailsService;
+
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
-    private C customUserDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
-    private JwtFilter jwtFilter;
+    private JwtRequestFilter jwtFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
