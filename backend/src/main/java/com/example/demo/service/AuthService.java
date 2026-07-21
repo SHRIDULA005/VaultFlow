@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.App.Dto.LoginRequest;
 import com.example.App.security.JwtService;
+import com.example.demo.security.JwtUtil;
 
 @Service
 public class AuthService {
@@ -22,7 +23,7 @@ public class AuthService {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private JwtService jwtService;
+    private JwtUtil jwtService;
     public String login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
