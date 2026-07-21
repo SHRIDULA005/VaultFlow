@@ -1,7 +1,5 @@
 package com.example.demo.service;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,43 +19,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        Optional<User> user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User Not Found"));
 
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User not found");
-        }
-
-        User u = user.get();
-
-        return org.springframework.security.core.userdetails.User
-                .withUsername(u.getEmail())
-                .password(u.getPassword())
-                .roles(u.getRole())   
-                .build();
+        return new CustomUserDetails(user);
     }
 }
-
-// package com.example.demo.service;
- 
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.security.core.userdetails.UserDetailsService;
-// import org.springframework.security.core.userdetails.UsernameNotFoundException;
-// import org.springframework.stereotype.Service;
- 
- 
-// @Service
-// public class CustomUserDetailsService implements UserDetailsService {
- 
-//     @Autowired
-//     private UserRepo repo;
- 
-//     @Override
-//     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
- 
-//         User user = repo.findByEmail(username).orElseThrow(() ->
-//                         new UsernameNotFoundException("User Not Found"));
-//         return new CustomUserDetails(user);
-//     }
- 
-// }
