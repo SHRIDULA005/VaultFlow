@@ -14,7 +14,6 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.stereotype.Service;
 
 import com.example.App.Dto.LoginRequest;
-import com.example.App.security.JwtService;
 import com.example.demo.security.JwtUtil;
 
 @Service
