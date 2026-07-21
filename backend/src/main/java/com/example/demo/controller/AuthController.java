@@ -1,15 +1,6 @@
 package com.example.demo.controller;
 
 import org.springframework.web.bind.annotation.RestController;
-
-
-@RestController
-public class AuthController {
-
-    
-}
-package com.example.App.controller;
- 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +10,15 @@ import com.example.App.Dto.LoginResponse;
 import com.example.App.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+public class AuthController {
+
+    
+}
+
+ 
+
  
 @RestController
 @RequestMapping("/auth")
