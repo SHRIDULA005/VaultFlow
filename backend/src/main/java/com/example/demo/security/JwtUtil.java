@@ -38,6 +38,10 @@ public class JwtUtil {
         return extractAllClaims(token).getExpiration();
     }
 
+    public boolean validateToken(String token) {
+    return !isTokenExpired(token);
+    }  
+    
     public boolean validateToken(String token, UserDetails userDetails) {
 
         String email = extractUsername(token);
