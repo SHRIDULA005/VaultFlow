@@ -21,9 +21,9 @@ public class AuthController {
     //     return ResponseEntity.ok(authService.login(request,req));
     // }
     @PostMapping("/login")
-    public ResponseEntity<String> login() {
-        System.out.println("Inside Login Controller");
-        return ResponseEntity.ok("Login endpoint reached");
+    public String login(@RequestBody LoginRequest request) {
+        return authService.login(request);
+        // return ResponseEntity.ok(new LoginResponse(token));
     }
     
 }
