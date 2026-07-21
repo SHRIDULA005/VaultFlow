@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import com.example.App.Dto.LoginRequest;
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.security.JwtUtil;
 
 @Service

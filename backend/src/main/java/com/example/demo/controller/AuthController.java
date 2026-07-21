@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
  
-import com.example.App.Dto.LoginRequest;
+
 import com.example.App.Dto.LoginResponse;
 import com.example.App.service.AuthService;
-com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.LoginRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 
