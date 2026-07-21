@@ -1,3 +1,13 @@
+package com.example.demo.controller;
+
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+public class AuthController {
+
+    
+}
 package com.example.App.controller;
  
 import org.springframework.beans.factory.annotation.Autowired;
