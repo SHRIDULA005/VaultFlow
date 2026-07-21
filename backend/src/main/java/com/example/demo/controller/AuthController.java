@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.*;
  
 
 import com.example.App.Dto.LoginResponse;
-import com.example.App.service.AuthService;
 import com.example.demo.dto.LoginRequest;
+import com.example.demo.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -15,7 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/auth")
 public class AuthController {
     @Autowired
-    AuthService authService;
+     AuthService authService;
+     com.example.demo.dto.LoginResponse
  
     // @PostMapping("/login")
     // public ResponseEntity<String> login(@RequestBody LoginRequest request,HttpServletRequest req){
