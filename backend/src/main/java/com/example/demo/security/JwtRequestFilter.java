@@ -51,7 +51,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails =
                     customUserDetailsService.loadUserByUsername(email);
 
-            if (jwtUtil.ValidateToken(token, userDetails)) {
+            if (jwtUtil.validateToken(token, userDetails)) {
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
