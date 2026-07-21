@@ -20,9 +20,6 @@ public class JwtUtil {
 
     private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
 
-    /**
-     * Generate JWT Token
-     */
     public String generateToken(UserDetails userDetails) {
 
         return Jwts.builder()
@@ -33,48 +30,26 @@ public class JwtUtil {
                 .compact();
     }
 
-    /**
-     * Extract Username (Email)
-     */
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    /**
-     * Extract Expiration
-     */
     public Date extractExpiration(String token) {
         return extractAllClaims(token).getExpiration();
     }
 
-    /**
-     * Used by the automated test (t26_jwtValidateToken)
-     */
-    public boolean validateToken(String token) {
-        return !isTokenExpired(token);
-    }
-
-    /**
-     * Used by JwtRequestFilter
-     */
     public boolean validateToken(String token, UserDetails userDetails) {
 
-        String username = extractUsername(token);
+        String email = extractUsername(token);
 
-        return username.equals(userDetails.getUsername())
+        return email.equals(userDetails.getUsername())
                 && !isTokenExpired(token);
     }
 
-    /**
-     * Check Token Expiry
-     */
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    /**
-     * Extract Claims
-     */
     private Claims extractAllClaims(String token) {
 
         return Jwts.parserBuilder()
@@ -84,9 +59,6 @@ public class JwtUtil {
                 .getBody();
     }
 
-    /**
-     * Secret Key
-     */
     private Key getSigningKey() {
 
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
