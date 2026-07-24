@@ -38,7 +38,7 @@ public class AuditService {
                 .orElseThrow(() -> new RuntimeException("Audit Log not found"));
 
         existing.setAction(auditLog.getAction());
-        existing.setPerformedBy(auditLog.getPerformedBy());
+        existing.setPeformedBy(auditLog.getPeformedBy());
         existing.setTimestamp(auditLog.getTimestamp());
 
         return repo.save(existing);
