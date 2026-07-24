@@ -1,47 +1,61 @@
 package com.example.demo.controller;
 
-
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.model.AuditLog;
 import com.example.demo.service.AuditService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/audit")
 public class AuditController {
+
     @Autowired
-    AuditService ser;
+    private AuditService auditService;
+
 
     @PostMapping
-    public String postauditlog(@RequestBody AuditLog al){
-        String ans=ser.postauditlog(al);
-        return ans;
+    public ResponseEntity<String> postAuditLog(@Valid @RequestBody AuditLog auditLog) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(auditService.postAuditLog(auditLog));
     }
+
 
     @GetMapping
-    public ResponseEntity<List<AuditLog>> getallaudit(){
-        List<AuditLog> ans= ser.getallaudit();
-        return ResponseEntity.status(HttpStatus.OK).body(ans);
+    public ResponseEntity<List<AuditLog>> getAllAudit() {
+        return ResponseEntity.ok(auditService.getAllAudit());
     }
 
+ 
     @GetMapping("/{id}")
-    public Optional<AuditLog> getauditbyid(@PathVariable Long id){
-        Optional<AuditLog> ans=getauditbyid(id);
-        return ans;
+    public ResponseEntity<AuditLog> getAuditById(@PathVariable Long id) {
+        Optional<AuditLog> audit = auditService.getAuditById(id);
+
+        return audit.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+  
+    @PutMapping("/{id}")
+    public ResponseEntity<AuditLog> updateAudit(
+            @PathVariable Long id,
+            @Valid @RequestBody AuditLog auditLog) {
+
+        AuditLog updated = auditService.updateAudit(id, auditLog);
+        return ResponseEntity.ok(updated);
     }
 
     
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteAudit(@PathVariable Long id) {
+        auditService.deleteAudit(id);
+        return ResponseEntity.ok("Audit deleted successfully.");
+    }
 }
