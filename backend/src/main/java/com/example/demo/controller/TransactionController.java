@@ -12,6 +12,8 @@ import com.example.demo.dto.TransactionDTO;
 import com.example.demo.model.Transaction;
 import com.example.demo.service.TransactionService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionController {
@@ -20,7 +22,7 @@ public class TransactionController {
     private TransactionService ser;
 
     @PostMapping
-    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) {
+    public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
         TransactionDTO saved = ser.createTransaction(transactionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
