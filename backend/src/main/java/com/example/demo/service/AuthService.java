@@ -42,61 +42,61 @@
 //     }
 // }
 
-package com.example.demo.service;
+// package com.example.demo.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.security.authentication.AuthenticationManager;
+// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+// import org.springframework.security.core.Authentication;
+// import org.springframework.security.core.userdetails.UserDetails;
+// import org.springframework.stereotype.Service;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.security.JwtUtil;
+// import com.example.demo.dto.LoginRequest;
+// import com.example.demo.security.JwtUtil;
 
-@Service
-public class AuthService {
+// @Service
+// public class AuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+//     @Autowired
+//     private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+//     @Autowired
+//     private JwtUtil jwtUtil;
 
-    public String login(LoginRequest request) {
+//     public String login(LoginRequest request) {
 
-        try {
+//         try {
 
-            System.out.println("========== LOGIN REQUEST ==========");
-            System.out.println("Email: " + request.getEmail());
+//             System.out.println("========== LOGIN REQUEST ==========");
+//             System.out.println("Email: " + request.getEmail());
 
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()));
+//             Authentication authentication = authenticationManager.authenticate(
+//                     new UsernamePasswordAuthenticationToken(
+//                             request.getEmail(),
+//                             request.getPassword()));
 
-            System.out.println("Authentication Successful");
+//             System.out.println("Authentication Successful");
 
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            System.out.println("Authenticated User: " + userDetails.getUsername());
+//             System.out.println("Authenticated User: " + userDetails.getUsername());
 
-            String token = jwtUtil.generateToken(userDetails);
+//             String token = jwtUtil.generateToken(userDetails);
 
-            System.out.println("JWT Generated Successfully");
-            System.out.println("===================================");
+//             System.out.println("JWT Generated Successfully");
+//             System.out.println("===================================");
 
-            return token;
+//             return token;
 
-        } catch (Exception e) {
+//         } catch (Exception e) {
 
-            System.out.println("========== LOGIN FAILED ==========");
-            System.out.println("Exception Type : " + e.getClass().getSimpleName());
-            System.out.println("Exception Msg  : " + e.getMessage());
-            e.printStackTrace();
-            System.out.println("==================================");
+//             System.out.println("========== LOGIN FAILED ==========");
+//             System.out.println("Exception Type : " + e.getClass().getSimpleName());
+//             System.out.println("Exception Msg  : " + e.getMessage());
+//             e.printStackTrace();
+//             System.out.println("==================================");
 
-            throw e;
-        }
-    }
-}
+//             throw e;
+//         }
+//     }
+// }
