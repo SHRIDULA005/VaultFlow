@@ -21,11 +21,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<String> handleUnauthorizedException(
-            UnauthorizedException ex) {
+    public ResponseEntity<String> handleUnauthorized(
+        UnauthorizedException ex) {
 
-       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
-    }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(ex.getMessage());
+        }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(
