@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(InsufficientFundsException.class)
-    public ResponseEntity<String> handleInsufficientFundsException(
-            InsufficientFundsException ex) {
+    public ResponseEntity<String> handleInsufficientFunds(
+        InsufficientFundsException ex) {
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ex.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
