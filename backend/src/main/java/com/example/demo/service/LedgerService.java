@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,23 +13,22 @@ import com.example.demo.repository.LedgerRepository;
 
 @Service
 public class LedgerService {
-    @Autowired
-    LedgerRepository repo;
 
-    public String postledger(Ledger l){
-        repo.save(l);
+    @Autowired
+    private LedgerRepository repo;
+
+    
+    public String postledger(Ledger ledger) {
+        repo.save(ledger);
         return "Ledger added succesfully";
     }
 
-    // public List<Ledger> Getallledger(){
-    //     List<Ledger> ans=repo.findAll();
-    //     return ans;
-    // }
-
-    public Optional<Ledger> getledgerbyid(Long id){
+    
+    public Optional<Ledger> getledgerbyid(Long id) {
         return repo.findById(id);
     }
 
+    
     public Page<LedgerDTO> getAllLedgers(Pageable pageable) {
 
         Page<Ledger> ledgers = repo.findAll(pageable);
@@ -38,6 +36,7 @@ public class LedgerService {
         return ledgers.map(this::convertToDTO);
     }
 
+    
     private LedgerDTO convertToDTO(Ledger ledger) {
 
         LedgerDTO dto = new LedgerDTO();
@@ -47,5 +46,27 @@ public class LedgerService {
         dto.setCreatedAt(ledger.getCreatedAt());
 
         return dto;
+    }
+
+    
+    public Ledger updateLedger(Long id, Ledger ledger) {
+
+        Ledger existingLedger = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ledger not found"));
+
+        existingLedger.setDescription(ledger.getDescription());
+        existingLedger.setCreatedAt(ledger.getCreatedAt());
+
+        return repo.save(existingLedger);
+    }
+
+    
+    public void deleteLedger(Long id) {
+
+        if (!repo.existsById(id)) {
+            throw new RuntimeException("Ledger not found");
+        }
+
+        repo.deleteById(id);
     }
 }
