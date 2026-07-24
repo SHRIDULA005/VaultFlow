@@ -28,7 +28,7 @@ public class AccountController {
     @Autowired
     AccountService ser;
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Account getaccountbyid(@PathVariable Long id){
         Optional<Account> ans=ser.getDataById(id);
         return ans.orElse(null);
@@ -46,7 +46,7 @@ public class AccountController {
         return ans;
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<AccountDTO> updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
         AccountDTO up=ser.updateAccount(id,accountDTO);
         return ResponseEntity.status(HttpStatus.OK).body(up);
