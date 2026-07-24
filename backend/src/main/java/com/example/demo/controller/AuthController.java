@@ -20,10 +20,16 @@ public class AuthController {
     // public ResponseEntity<String> login(@RequestBody LoginRequest request,HttpServletRequest req){
     //     return ResponseEntity.ok(authService.login(request,req));
     // }
+    // @PostMapping("/login")
+    // public String login(@RequestBody LoginRequest request) {
+    //     return authService.login(request);
+    //     // return ResponseEntity.ok(new LoginResponse(token));
+    // }
+
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-        return authService.login(request);
-        // return ResponseEntity.ok(new LoginResponse(token));
+    public String login() {
+        System.out.println("LOGIN CONTROLLER HIT");
+        return "SUCCESS";
     }
     
 }
