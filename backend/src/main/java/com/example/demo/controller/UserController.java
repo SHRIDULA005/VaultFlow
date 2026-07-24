@@ -17,21 +17,21 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Register User
+    
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
 
         return ResponseEntity.ok(userService.registerUser(user));
     }
 
-    // Get all users
+    
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
 
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // Get user by id
+    
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
 
@@ -41,7 +41,7 @@ public class UserController {
                    .orElse(ResponseEntity.notFound().build());
     }
 
-    // Get user by email
+    
     @GetMapping("/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
 
@@ -51,7 +51,7 @@ public class UserController {
                    .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update user
+   
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(
             @PathVariable Long id,
@@ -60,7 +60,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, user));
     }
 
-    // Delete user
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
 

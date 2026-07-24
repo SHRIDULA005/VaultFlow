@@ -19,31 +19,28 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Register User
+    
     public User registerUser(User user) {
 
-        // Encrypt password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
     }
 
-    // Get all users
+   
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // Get user by id
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    // Get user by email
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    // Update user
+
     public User updateUser(Long id, User updatedUser) {
 
         User existingUser = userRepository.findById(id)
@@ -65,7 +62,6 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    // Delete user
     public String deleteUser(Long id) {
 
         userRepository.deleteById(id);
