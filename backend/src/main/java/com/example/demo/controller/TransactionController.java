@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.TransactionDTO;
@@ -21,8 +22,16 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
+    // @PostMapping
+    // public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
+    //     TransactionDTO saved = transactionService.createTransaction(transactionDTO);
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    // }
     @PostMapping
-    public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<TransactionDTO> createTransaction(
+        @Valid @RequestBody TransactionDTO transactionDTO) {
+
         TransactionDTO saved = transactionService.createTransaction(transactionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
