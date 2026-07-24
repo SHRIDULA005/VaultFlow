@@ -19,33 +19,33 @@ import jakarta.validation.Valid;
 public class TransactionController {
 
     @Autowired
-    private TransactionService ser;
+    private TransactionService transactionService;
 
     @PostMapping
     public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
-        TransactionDTO saved = ser.createTransaction(transactionDTO);
+        TransactionDTO saved = transactionService.createTransaction(transactionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping
     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
-        return ResponseEntity.ok(ser.getAllTransactions());
+        return ResponseEntity.ok(transactionService.getAllTransactions());
     }
 
     @GetMapping("/{id}")
     public Optional<Transaction> gettransactionbyid(@PathVariable Long id){
-        Optional<Transaction> ans=ser.gettransactionbyid(id);
+        Optional<Transaction> ans=transactionService.gettransactionbyid(id);
         return ans;
     }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
-    //     ser.reverseTransaction(id);
-    //     return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
-    // }
-   @DeleteMapping("/{id}")
-    public ResponseEntity<Void> reverseTransaction(@PathVariable Long id) {
-        ser.reverseTransaction(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
+        transactionService.reverseTransaction(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
     }
+//    @DeleteMapping("/{id}")
+//     public ResponseEntity<Void> reverseTransaction(@PathVariable Long id) {
+//         ser.reverseTransaction(id);
+//         return ResponseEntity.noContent().build();
+//     }
 }
