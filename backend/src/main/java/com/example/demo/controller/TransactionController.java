@@ -38,14 +38,14 @@ public class TransactionController {
         return ans;
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
+    //     transactionService.reverseTransaction(id);
+    //     return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
+    // }
+   @DeleteMapping("/{id}")
+    public ResponseEntity<Void> reverseTransaction(@PathVariable Long id) {
         transactionService.reverseTransaction(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
+        return ResponseEntity.noContent().build();
     }
-//    @DeleteMapping("/{id}")
-//     public ResponseEntity<Void> reverseTransaction(@PathVariable Long id) {
-//         ser.reverseTransaction(id);
-//         return ResponseEntity.noContent().build();
-//     }
 }
