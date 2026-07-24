@@ -42,9 +42,8 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Transaction> gettransactionbyid(@PathVariable Long id){
-        Optional<Transaction> ans=transactionService.gettransactionbyid(id);
-        return ans;
+    public Optional<Transaction> getTransactionById(@PathVariable Long id) {
+        return transactionService.getTransactionById(id);
     }
 
     // @DeleteMapping("/{id}")

@@ -71,9 +71,9 @@ public class TransactionService {
                 .toList();
     }
 
-    public Optional<Transaction> gettransactionbyid(Long id) {
-        return repo.findById(id);
-    }
+    public Optional<Transaction> getTransactionById(Long id) {
+    return repo.findById(id);
+}
 
     public void reverseTransaction(Long id) {
         repo.deleteById(id);
