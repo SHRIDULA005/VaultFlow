@@ -28,7 +28,7 @@ public class TransactionController {
     //     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     // }
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('TREASURER')")
     public ResponseEntity<TransactionDTO> createTransaction(
         @Valid @RequestBody TransactionDTO transactionDTO) {
 
