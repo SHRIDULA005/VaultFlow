@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 
 @Entity
-@Table(name = )
+@Table(name = "tbl_users")
 public class User {
     @Id
     @Column
