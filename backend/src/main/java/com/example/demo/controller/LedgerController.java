@@ -3,49 +3,51 @@ package com.example.demo.controller;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.LedgerDTO;
 import com.example.demo.model.Ledger;
 import com.example.demo.service.LedgerService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-
 @RestController
 @RequestMapping("/api/ledgers")
 public class LedgerController {
+
     @Autowired
-    LedgerService ser;
+    private LedgerService ser;
 
     @PostMapping
-    public String postLedger(@RequestBody Ledger l){
-        return ser.postledger(l);
+    public ResponseEntity<String> postLedger(@RequestBody Ledger ledger) {
+        return ResponseEntity.ok(ser.postledger(ledger));
     }
 
-    // @GetMapping
-    // public List<Ledger> getallledger(){
-    //     List<Ledger> ans= ser.Getallledger();
-    //     return ans;
-    // }
-
-    @GetMapping("/{id}")
-    public Optional<Ledger> getledgerbyid(@PathVariable Long id){
-        Optional<Ledger> ans = ser.getledgerbyid(id);
-        return ans;  
-    }
-
+    @PreAuthorize("hasRole('AUDITOR')")
     @GetMapping
     public ResponseEntity<Page<LedgerDTO>> getAllLedgers(Pageable pageable) {
-        Page<LedgerDTO> ans = ser.getAllLedgers(pageable);
-        return ResponseEntity.ok(ans);
+        return ResponseEntity.ok(ser.getAllLedgers(pageable));
     }
-    
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<Ledger>> getLedgerById(@PathVariable Long id) {
+        return ResponseEntity.ok(ser.getledgerbyid(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Ledger> updateLedger(
+            @PathVariable Long id,
+            @RequestBody Ledger ledger) {
+
+        return ResponseEntity.ok(ser.updateLedger(id, ledger));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteLedger(@PathVariable Long id) {
+
+        ser.deleteLedger(id);
+        return ResponseEntity.ok("Ledger deleted successfully.");
+    }
 }
