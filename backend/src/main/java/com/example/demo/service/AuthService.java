@@ -67,6 +67,7 @@ public class AuthService {
 
         try {
 
+            System.out.println("========== LOGIN REQUEST ==========");
             System.out.println("Email: " + request.getEmail());
 
             Authentication authentication = authenticationManager.authenticate(
@@ -78,16 +79,22 @@ public class AuthService {
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
+            System.out.println("Authenticated User: " + userDetails.getUsername());
+
             String token = jwtUtil.generateToken(userDetails);
 
             System.out.println("JWT Generated Successfully");
+            System.out.println("===================================");
 
             return token;
 
         } catch (Exception e) {
 
-            System.out.println("Login Failed");
+            System.out.println("========== LOGIN FAILED ==========");
+            System.out.println("Exception Type : " + e.getClass().getSimpleName());
+            System.out.println("Exception Msg  : " + e.getMessage());
             e.printStackTrace();
+            System.out.println("==================================");
 
             throw e;
         }
