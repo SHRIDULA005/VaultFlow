@@ -73,7 +73,7 @@ public class TransactionService {
     public Optional<Transaction> gettransactionbyid(Long id){
         return repo.findById(id);
     }
-    public void deleteTransaction(Long id) {
+    public void reverseTransaction(Long id) {
         repo.deleteById(id);
     }
 }

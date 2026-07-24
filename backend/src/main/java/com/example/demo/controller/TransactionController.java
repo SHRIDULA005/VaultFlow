@@ -39,8 +39,8 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
-        ser.deleteTransaction(id);
+    public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
+        ser.reverseTransaction(id);
         return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
     }
 }
