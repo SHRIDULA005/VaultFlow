@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleUnauthorizedException(
             UnauthorizedException ex) {
 
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
