@@ -43,7 +43,7 @@ public class TransactionController {
     //     ser.reverseTransaction(id);
     //     return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
     // }
-    @DeleteMapping("/{id}")
+   @DeleteMapping("/{id}")
     public ResponseEntity<Void> reverseTransaction(@PathVariable Long id) {
         ser.reverseTransaction(id);
         return ResponseEntity.noContent().build();
