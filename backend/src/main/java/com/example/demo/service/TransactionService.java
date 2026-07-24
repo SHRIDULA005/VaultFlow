@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.TransactionDTO;
@@ -21,6 +22,7 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepo;
 
+    @PreAuthorize("hasRole('USER')")
     public TransactionDTO createTransaction(TransactionDTO dto) {
 
         Transaction transaction = new Transaction();
@@ -69,10 +71,10 @@ public class TransactionService {
                 .toList();
     }
 
-
-    public Optional<Transaction> gettransactionbyid(Long id){
+    public Optional<Transaction> gettransactionbyid(Long id) {
         return repo.findById(id);
     }
+
     public void reverseTransaction(Long id) {
         repo.deleteById(id);
     }
