@@ -40,7 +40,7 @@ public class AccountController {
         return ans;
     }
 
-    @PostMapping("/post")
+    @PostMapping
     public String postAccount(@RequestBody Account account){
         String ans=ser.postData(account);
         return ans;
