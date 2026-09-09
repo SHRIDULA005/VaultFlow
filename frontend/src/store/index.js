@@ -1,18 +1,17 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
 
-import App from "./App";
-import store from "./store/store";
+import authReducer from "./slices/authSlice";
+import accountReducer from "./slices/accountSlice";
+import ledgerReducer from "./slices/ledgerSlice";
+import transactionReducer from "./slices/transactionSlice";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root")
-);
+const store = configureStore({
+  reducer: {
+    auth: authReducer,
+    accounts: accountReducer,
+    ledgers: ledgerReducer,
+    transactions: transactionReducer,
+  },
+});
 
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>
-);
+export default store;
