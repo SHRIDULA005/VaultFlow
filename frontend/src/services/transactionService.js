@@ -1,40 +1,30 @@
-import api from "./api";
+import axios from "axios";
 
-export const getAllTransactions = async () => {
-  const response = await api.get("/transactions");
-  return response.data;
+const TransactionService = {
+    getAllTransactions: () => {
+        return axios.get("/api/transactions")
+            .then((response) => response.data);
+    },
+
+    getByLedger: (ledgerId) => {
+        return axios.get(`/api/transactions/ledger/${ledgerId}`)
+            .then((response) => response.data);
+    },
+
+    createTransaction: (transaction) => {
+        return axios.post("/api/transactions", transaction)
+            .then((response) => response.data);
+    },
+
+    updateTransaction: (id, transaction) => {
+        return axios.put(`/api/transactions/${id}`, transaction)
+            .then((response) => response.data);
+    },
+
+    deleteTransaction: (id) => {
+        return axios.delete(`/api/transactions/${id}`)
+            .then((response) => response.data);
+    }
 };
 
-export const getByLedger = async (ledgerId) => {
-  const response = await api.get(
-    `/transactions/ledger/${ledgerId}`
-  );
-
-  return response.data;
-};
-
-export const createTransaction = async (transactionData) => {
-  const response = await api.post(
-    "/transactions",
-    transactionData
-  );
-
-  return response.data;
-};
-
-export const reverseTransaction = async (transactionId) => {
-  const response = await api.post(
-    `/transactions/${transactionId}/reverse`
-  );
-
-  return response.data;
-};
-
-const transactionService = {
-  getAllTransactions,
-  getByLedger,
-  createTransaction,
-  reverseTransaction,
-};
-
-export default transactionService;
+export default TransactionService;
