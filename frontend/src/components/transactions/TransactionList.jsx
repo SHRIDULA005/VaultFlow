@@ -6,35 +6,36 @@ const TransactionList = () => {
     const [ledgerId, setLedgerId] = useState("");
     const [search, setSearch] = useState("");
 
-    // T10: Load all transactions once when component mounts
+    // T10 — runs once when component mounts
     useEffect(() => {
         TransactionService.getAllTransactions()
             .then((response) => {
                 setTransactions(response || []);
             })
             .catch((error) => {
-                console.error("Unable to load transactions:", error);
+                console.error("Failed to load transactions:", error);
             });
     }, []);
 
-    // T11: Load transactions when Ledger ID changes
+    // T11 — runs whenever Ledger ID changes
     useEffect(() => {
-        if (ledgerId.trim() !== "") {
-            TransactionService.getByLedger(ledgerId)
-                .then((response) => {
-                    setTransactions(response || []);
-                })
-                .catch((error) => {
-                    console.error("Unable to load ledger transactions:", error);
-                });
+        if (!ledgerId) {
+            return;
         }
+
+        TransactionService.getByLedger(ledgerId)
+            .then((response) => {
+                setTransactions(response || []);
+            })
+            .catch((error) => {
+                console.error("Failed to load ledger transactions:", error);
+            });
     }, [ledgerId]);
 
     return (
         <div>
-            <h2>Transactions</h2>
+            <h2>Transaction List</h2>
 
-            {/* T29 */}
             <input
                 type="text"
                 placeholder="Search by Transaction ID or Account Name"
@@ -42,7 +43,6 @@ const TransactionList = () => {
                 onChange={(e) => setSearch(e.target.value)}
             />
 
-            {/* T11 */}
             <label htmlFor="ledgerFilter">
                 Filter by Ledger
             </label>
@@ -52,27 +52,28 @@ const TransactionList = () => {
                 type="text"
                 value={ledgerId}
                 onChange={(e) => setLedgerId(e.target.value)}
-                placeholder="Ledger ID"
             />
 
             <div>
-                {transactions.length === 0 ? (
-                    <p>No transactions found.</p>
-                ) : (
-                    transactions.map((transaction) => (
-                        <div key={transaction.id}>
-                            <p>
-                                Transaction ID: {transaction.id}
-                            </p>
-                            <p>
-                                Amount: {transaction.amount}
-                            </p>
-                            <p>
-                                Status: {transaction.status}
-                            </p>
-                        </div>
-                    ))
-                )}
+                {transactions.map((transaction) => (
+                    <div key={transaction.id}>
+                        <p>
+                            Transaction ID: {transaction.id}
+                        </p>
+
+                        <p>
+                            Amount: {transaction.amount}
+                        </p>
+
+                        <p>
+                            Reference ID: {transaction.referenceId}
+                        </p>
+
+                        <p>
+                            Status: {transaction.status}
+                        </p>
+                    </div>
+                ))}
             </div>
         </div>
     );
