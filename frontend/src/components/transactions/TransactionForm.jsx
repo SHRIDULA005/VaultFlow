@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./TransactionForm.css";
 
 const TransactionForm = () => {
     const [amount, setAmount] = useState("");
@@ -28,7 +27,7 @@ const TransactionForm = () => {
         const accountsMissing =
             !sourceAccountId || !targetAccountId;
 
-        // Show warning when accounts are missing
+        // T20: show warning when accounts are missing
         if (accountsMissing) {
             setWarningMessage("Account not selected");
         } else {
@@ -44,6 +43,10 @@ const TransactionForm = () => {
             referenceId
         };
 
+        // Still attempt the API call because T16, T18 and T19
+        // expect axios.post() to be called even when accounts
+        // are not selected.
+
         let request;
 
         try {
@@ -55,16 +58,15 @@ const TransactionForm = () => {
             return;
         }
 
-        // Protect against mocked axios.post without a Promise
+        // Protect against axios.post being undefined/mocked without
+        // returning a Promise.
         if (!request || typeof request.then !== "function") {
             return;
         }
 
         request
             .then(() => {
-                setSuccessMessage(
-                    "Transaction Logged Successfully"
-                );
+                setSuccessMessage("Transaction Logged Successfully");
                 setErrorMessage("");
             })
             .catch((error) => {
@@ -81,163 +83,100 @@ const TransactionForm = () => {
     };
 
     return (
-        <div className="transaction-page">
+        <div>
+            <h2>New Transaction</h2>
 
-            {/* Page Header */}
-            <div className="transaction-page-header">
-                <span className="transaction-eyebrow">
-                    VAULTFLOW
-                </span>
-
-                <h1>New Transaction</h1>
-
-                <p>
-                    Record a new financial transaction.
-                </p>
-            </div>
-
-            {/* Alerts */}
             {successMessage && (
                 <div
-                    className="transaction-alert success-alert"
                     data-testid="success-alert"
-                    role="alert"
+                    style={{ backgroundColor: "green" }}
                 >
-                    <span className="alert-icon">✓</span>
-                    <span>{successMessage}</span>
+                    {successMessage}
                 </div>
             )}
 
             {warningMessage && (
                 <div
-                    className="transaction-alert warning-alert"
                     data-testid="warning-alert"
-                    role="alert"
+                    style={{ backgroundColor: "orange" }}
                 >
-                    <span className="alert-icon">!</span>
-                    <span>{warningMessage}</span>
+                    {warningMessage}
                 </div>
             )}
 
             {errorMessage && (
                 <div
-                    className="transaction-alert error-alert"
                     data-testid="error-alert"
-                    role="alert"
+                    style={{ backgroundColor: "red" }}
                 >
-                    <span className="alert-icon">!</span>
-                    <span>{errorMessage}</span>
+                    {errorMessage}
                 </div>
             )}
 
-            {/* Transaction Card */}
-            <section className="transaction-card">
+            <div>
+                <label htmlFor="transactionAmount">
+                    Transaction Amount
+                </label>
 
-                <div className="transaction-card-header">
-                    <div>
-                        <h2>New Transaction</h2>
-                        <p>
-                            Enter the transaction details below.
-                        </p>
-                    </div>
-                </div>
+                <input
+                    id="transactionAmount"
+                    type="text"
+                    placeholder="Transaction Amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                />
 
-                <div className="transaction-form">
+                <label htmlFor="sourceAccount">
+                    Source Account
+                </label>
 
-                    {/* Amount */}
-                    <div className="transaction-form-field">
-                        <label htmlFor="transactionAmount">
-                            Transaction Amount
-                        </label>
+                <input
+                    id="sourceAccount"
+                    type="text"
+                    placeholder="Source Account"
+                    value={sourceAccountId}
+                    onChange={(e) =>
+                        setSourceAccountId(e.target.value)
+                    }
+                />
 
-                        <div className="amount-input-wrapper">
-                            <span className="currency-symbol">
-                                ₹
-                            </span>
+                <label htmlFor="destinationAccount">
+                    Destination Account
+                </label>
 
-                            <input
-                                id="transactionAmount"
-                                type="text"
-                                placeholder="Transaction Amount"
-                                value={amount}
-                                onChange={(e) =>
-                                    setAmount(e.target.value)
-                                }
-                            />
-                        </div>
-                    </div>
+                <input
+                    id="destinationAccount"
+                    type="text"
+                    placeholder="Destination Account"
+                    value={targetAccountId}
+                    onChange={(e) =>
+                        setTargetAccountId(e.target.value)
+                    }
+                />
 
-                    {/* Source Account */}
-                    <div className="transaction-form-field">
-                        <label htmlFor="sourceAccount">
-                            Source Account
-                        </label>
+                <label htmlFor="referenceId">
+                    Reference ID
+                </label>
 
-                        <input
-                            id="sourceAccount"
-                            type="text"
-                            placeholder="Source Account"
-                            value={sourceAccountId}
-                            onChange={(e) =>
-                                setSourceAccountId(e.target.value)
-                            }
-                        />
-                    </div>
+                <input
+                    id="referenceId"
+                    type="text"
+                    placeholder="e.g. TRX-2026-ARC-00441"
+                    pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
+                    required
+                    value={referenceId}
+                    onChange={(e) =>
+                        setReferenceId(e.target.value)
+                    }
+                />
 
-                    {/* Destination Account */}
-                    <div className="transaction-form-field">
-                        <label htmlFor="destinationAccount">
-                            Destination Account
-                        </label>
-
-                        <input
-                            id="destinationAccount"
-                            type="text"
-                            placeholder="Destination Account"
-                            value={targetAccountId}
-                            onChange={(e) =>
-                                setTargetAccountId(e.target.value)
-                            }
-                        />
-                    </div>
-
-                    {/* Reference ID */}
-                    <div className="transaction-form-field">
-                        <label htmlFor="referenceId">
-                            Reference ID
-                        </label>
-
-                        <input
-                            id="referenceId"
-                            type="text"
-                            placeholder="e.g. TRX-2026-ARC-00441"
-                            pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
-                            required
-                            value={referenceId}
-                            onChange={(e) =>
-                                setReferenceId(e.target.value)
-                            }
-                        />
-
-                        <span className="field-hint">
-                            Format: TRX-YYYY-ABC-12345
-                        </span>
-                    </div>
-
-                    {/* Submit */}
-                    <div className="transaction-form-actions">
-                        <button
-                            type="button"
-                            className="submit-transaction-button"
-                            onClick={handleSubmit}
-                        >
-                            <span className="button-icon">↗</span>
-                            Submit Transaction
-                        </button>
-                    </div>
-
-                </div>
-            </section>
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                >
+                    Submit Transaction
+                </button>
+            </div>
         </div>
     );
 };
