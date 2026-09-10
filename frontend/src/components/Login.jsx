@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -15,15 +16,21 @@ const Login = () => {
                 password
             })
             .then((response) => {
-                const token = response.data.token;
-                const role = response.data.role;
+                const data = response.data || {};
 
-                if (token) {
-                    localStorage.setItem("token", token);
+                if (data.token) {
+                    localStorage.setItem("token", data.token);
                 }
 
-                if (role) {
-                    localStorage.setItem("role", role);
+                if (data.role) {
+                    localStorage.setItem("role", data.role);
+                }
+
+                if (data.user) {
+                    localStorage.setItem(
+                        "user",
+                        JSON.stringify(data.user)
+                    );
                 }
 
                 setError("");
@@ -41,7 +48,7 @@ const Login = () => {
                 <input
                     id="email"
                     type="email"
-                    placeholder="auditor@vaultflow.io"
+                    placeholder="Email (auditor@vaultflow.io)"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
@@ -49,17 +56,24 @@ const Login = () => {
                 <input
                     id="password"
                     type="password"
-                    placeholder="Enter your secure account password"
+                    placeholder="Password (Enter your secure account password)"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <button type="submit">Login</button>
+                <button type="submit">
+                    Login
+                </button>
             </form>
 
-            {error && <div>{error}</div>}
+            {error && (
+                <div role="alert">
+                    {error}
+                </div>
+            )}
         </div>
     );
 };
 
 export default Login;
+
