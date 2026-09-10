@@ -9,10 +9,9 @@ const TransactionList = () => {
     useEffect(() => {
         TransactionService.getAllTransactions()
             .then((data) => {
-                setTransactions(data || []);
+                setTransactions(Array.isArray(data) ? data : []);
             })
-            .catch((error) => {
-                console.error("Failed to load transactions:", error);
+            .catch(() => {
                 setTransactions([]);
             });
     }, []);
@@ -24,42 +23,12 @@ const TransactionList = () => {
 
         TransactionService.getByLedger(ledgerId)
             .then((data) => {
-                setTransactions(data || []);
+                setTransactions(Array.isArray(data) ? data : []);
             })
-            .catch((error) => {
-                console.error("Failed to load ledger transactions:", error);
+            .catch(() => {
                 setTransactions([]);
             });
     }, [ledgerId]);
-
-    const filteredTransactions = transactions.filter((transaction) => {
-        if (!searchTerm) {
-            return true;
-        }
-
-        const value = searchTerm.toLowerCase();
-
-        return (
-            String(transaction.id || "")
-                .toLowerCase()
-                .includes(value) ||
-            String(transaction.referenceId || "")
-                .toLowerCase()
-                .includes(value) ||
-            String(transaction.sourceAccountId || "")
-                .toLowerCase()
-                .includes(value) ||
-            String(transaction.targetAccountId || "")
-                .toLowerCase()
-                .includes(value) ||
-            String(transaction.sourceAccount || "")
-                .toLowerCase()
-                .includes(value) ||
-            String(transaction.targetAccount || "")
-                .toLowerCase()
-                .includes(value)
-        );
-    });
 
     return (
         <div>
@@ -94,8 +63,8 @@ const TransactionList = () => {
             </div>
 
             <div>
-                {filteredTransactions.length > 0 ? (
-                    filteredTransactions.map((transaction) => (
+                {transactions.length > 0 ? (
+                    transactions.map((transaction) => (
                         <div key={transaction.id}>
                             <p>
                                 Transaction ID: {transaction.id}
@@ -103,10 +72,6 @@ const TransactionList = () => {
 
                             <p>
                                 Amount: {transaction.amount}
-                            </p>
-
-                            <p>
-                                Reference ID: {transaction.referenceId}
                             </p>
                         </div>
                     ))
