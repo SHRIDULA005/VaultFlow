@@ -7,22 +7,25 @@ const LedgerList = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
-        axios
-            .get("/api/ledgers")
-            .then((response) => {
+        const token = localStorage.getItem("token");
 
-                /*
-                 * Backend returns Page<LedgerDTO>.
-                 * Therefore the actual ledger array is
-                 * inside response.data.content.
-                 *
-                 * This also supports a normal array response.
-                 */
+        axios
+            .get("/api/ledgers", {
+                headers: token
+                    ? {
+                          Authorization: `Bearer ${token}`
+                      }
+                    : {}
+            })
+            .then((response) => {
                 const data = response.data;
 
                 if (Array.isArray(data)) {
                     setLedgers(data);
-                } else if (data && Array.isArray(data.content)) {
+                } else if (
+                    data &&
+                    Array.isArray(data.content)
+                ) {
                     setLedgers(data.content);
                 } else {
                     setLedgers([]);
@@ -39,6 +42,11 @@ const LedgerList = () => {
                         "Session expired. Please log in again"
                     );
                 } else {
+                    console.error(
+                        "Unable to load ledgers:",
+                        error
+                    );
+
                     setLedgers([]);
                 }
             });
@@ -80,7 +88,6 @@ const LedgerList = () => {
                             className="ledger-card"
                             key={ledger.id}
                         >
-
                             <div className="ledger-card-top">
 
                                 <div>
