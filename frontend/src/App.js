@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+
 import {
     BrowserRouter,
     Routes,
@@ -25,13 +26,19 @@ import "./App.css";
 
 /* =========================================================
    PROTECTED ROUTE
-   ========================================================= */
+========================================================= */
 
 function ProtectedRoute({ children }) {
+
     const token = localStorage.getItem("token");
 
     if (!token) {
-        return <Navigate to="/login" replace />;
+        return (
+            <Navigate
+                to="/login"
+                replace
+            />
+        );
     }
 
     return children;
@@ -40,30 +47,39 @@ function ProtectedRoute({ children }) {
 
 /* =========================================================
    LOGIN PAGE
-   ========================================================= */
+========================================================= */
 
 function LoginPage({ onLogin }) {
+
     const token = localStorage.getItem("token");
 
-    /*
-     * If a token already exists, the user is already authenticated.
-     */
     if (token) {
-        return <Navigate to="/" replace />;
+        return (
+            <Navigate
+                to="/"
+                replace
+            />
+        );
     }
 
-    return <Login onLogin={onLogin} />;
+    return (
+        <Login
+            onLogin={onLogin}
+        />
+    );
 }
 
 
 /* =========================================================
    DASHBOARD
-   ========================================================= */
+========================================================= */
 
 function Dashboard() {
+
     const navigate = useNavigate();
 
-    const role = localStorage.getItem("role") || "USER";
+    const role =
+        localStorage.getItem("role") || "USER";
 
     return (
         <div className="page-container">
@@ -71,17 +87,21 @@ function Dashboard() {
             <div className="page-header">
 
                 <div>
+
                     <span className="page-eyebrow">
                         OVERVIEW
                     </span>
 
-                    <h1>Dashboard</h1>
+                    <h1>
+                        Dashboard
+                    </h1>
 
                     <p className="page-description">
                         Welcome back to VaultFlow. Manage your
-                        accounts, transactions and ledgers from one
-                        secure workspace.
+                        accounts, transactions and ledgers from
+                        one secure workspace.
                     </p>
+
                 </div>
 
             </div>
@@ -100,9 +120,17 @@ function Dashboard() {
                     </div>
 
                     <div>
-                        <p>Total Balance</p>
-                        <h2>₹0.00</h2>
-                        <span>No account data yet</span>
+                        <p>
+                            Total Balance
+                        </p>
+
+                        <h2>
+                            ₹0.00
+                        </h2>
+
+                        <span>
+                            No account data yet
+                        </span>
                     </div>
 
                 </div>
@@ -115,9 +143,17 @@ function Dashboard() {
                     </div>
 
                     <div>
-                        <p>Accounts</p>
-                        <h2>0</h2>
-                        <span>Active accounts</span>
+                        <p>
+                            Accounts
+                        </p>
+
+                        <h2>
+                            0
+                        </h2>
+
+                        <span>
+                            Active accounts
+                        </span>
                     </div>
 
                 </div>
@@ -130,9 +166,17 @@ function Dashboard() {
                     </div>
 
                     <div>
-                        <p>Transactions</p>
-                        <h2>0</h2>
-                        <span>Total transactions</span>
+                        <p>
+                            Transactions
+                        </p>
+
+                        <h2>
+                            0
+                        </h2>
+
+                        <span>
+                            Total transactions
+                        </span>
                     </div>
 
                 </div>
@@ -145,9 +189,17 @@ function Dashboard() {
                     </div>
 
                     <div>
-                        <p>Ledgers</p>
-                        <h2>0</h2>
-                        <span>Available ledgers</span>
+                        <p>
+                            Ledgers
+                        </p>
+
+                        <h2>
+                            0
+                        </h2>
+
+                        <span>
+                            Available ledgers
+                        </span>
                     </div>
 
                 </div>
@@ -164,11 +216,15 @@ function Dashboard() {
                 <div className="section-heading">
 
                     <div>
-                        <h2>Quick Actions</h2>
+
+                        <h2>
+                            Quick Actions
+                        </h2>
 
                         <p>
                             Frequently used VaultFlow operations.
                         </p>
+
                     </div>
 
                 </div>
@@ -179,19 +235,24 @@ function Dashboard() {
                     <button
                         className="quick-action-card"
                         onClick={() =>
-                            navigate("/accounts/new")
+                            navigate("/accounts")
                         }
                     >
+
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
-                            <strong>Create Account</strong>
+
+                            <strong>
+                                Create Account
+                            </strong>
 
                             <small>
                                 Add a new financial account
                             </small>
+
                         </span>
 
                     </button>
@@ -203,16 +264,21 @@ function Dashboard() {
                             navigate("/transactions/new")
                         }
                     >
+
                         <span className="quick-action-icon">
                             ⇄
                         </span>
 
                         <span>
-                            <strong>New Transaction</strong>
+
+                            <strong>
+                                New Transaction
+                            </strong>
 
                             <small>
                                 Record a financial transaction
                             </small>
+
                         </span>
 
                     </button>
@@ -224,16 +290,21 @@ function Dashboard() {
                             navigate("/ledgers/new")
                         }
                     >
+
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
-                            <strong>Create Ledger</strong>
+
+                            <strong>
+                                Create Ledger
+                            </strong>
 
                             <small>
                                 Create and manage a ledger
                             </small>
+
                         </span>
 
                     </button>
@@ -252,12 +323,16 @@ function Dashboard() {
                 <div className="section-heading">
 
                     <div>
-                        <h2>Recent Activity</h2>
+
+                        <h2>
+                            Recent Activity
+                        </h2>
 
                         <p>
-                            Your latest financial activity will
-                            appear here.
+                            Your latest financial activity
+                            will appear here.
                         </p>
+
                     </div>
 
                     <button
@@ -278,11 +353,14 @@ function Dashboard() {
                         ◷
                     </div>
 
-                    <h3>No recent activity</h3>
+                    <h3>
+                        No recent activity
+                    </h3>
 
                     <p>
-                        Transactions and account activity will
-                        appear here once you start using VaultFlow.
+                        Transactions and account activity
+                        will appear here once you start
+                        using VaultFlow.
                     </p>
 
                     <button
@@ -311,13 +389,17 @@ function Dashboard() {
                         SECURE SESSION
                     </span>
 
-                    <h2>VaultFlow Security</h2>
+                    <h2>
+                        VaultFlow Security
+                    </h2>
 
                     <p>
                         You are currently signed in as{" "}
-                        <strong>{role}</strong>.
-                        Your authenticated session is protected
-                        by the VaultFlow security layer.
+                        <strong>
+                            {role}
+                        </strong>
+                        . Your authenticated session is
+                        protected by the VaultFlow security layer.
                     </p>
 
                 </div>
@@ -342,13 +424,14 @@ function Dashboard() {
 
 /* =========================================================
    PAGE WRAPPER
-   ========================================================= */
+========================================================= */
 
 function PageWrapper({
     title,
     description,
     children,
 }) {
+
     return (
         <div className="page-container">
 
@@ -360,7 +443,9 @@ function PageWrapper({
                         VAULTFLOW
                     </span>
 
-                    <h1>{title}</h1>
+                    <h1>
+                        {title}
+                    </h1>
 
                     {description && (
                         <p className="page-description">
@@ -384,7 +469,7 @@ function PageWrapper({
 
 /* =========================================================
    APPLICATION LAYOUT
-   ========================================================= */
+========================================================= */
 
 function ApplicationLayout({ onLogout }) {
 
@@ -395,6 +480,10 @@ function ApplicationLayout({ onLogout }) {
         localStorage.getItem("role") || "USER";
 
 
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
+
     const handleLogout = () => {
 
         localStorage.removeItem("token");
@@ -403,11 +492,18 @@ function ApplicationLayout({ onLogout }) {
 
         onLogout();
 
-        navigate("/login", {
-            replace: true,
-        });
+        navigate(
+            "/login",
+            {
+                replace: true,
+            }
+        );
     };
 
+
+    /* =====================================================
+       ACTIVE NAVIGATION
+    ===================================================== */
 
     const isActive = (path) => {
 
@@ -419,7 +515,11 @@ function ApplicationLayout({ onLogout }) {
     };
 
 
-    const pageTitle = () => {
+    /* =====================================================
+       PAGE TITLE
+    ===================================================== */
+
+    const getPageTitle = () => {
 
         if (location.pathname === "/") {
             return "Dashboard";
@@ -465,7 +565,9 @@ function ApplicationLayout({ onLogout }) {
 
                     <div className="brand-text">
 
-                        <h2>VaultFlow</h2>
+                        <h2>
+                            VaultFlow
+                        </h2>
 
                         <span>
                             Financial Management
@@ -573,7 +675,7 @@ function ApplicationLayout({ onLogout }) {
 
 
                 {/* =================================================
-                    SIDEBAR USER
+                    USER AREA
                 ================================================= */}
 
                 <div className="sidebar-bottom">
@@ -647,7 +749,7 @@ function ApplicationLayout({ onLogout }) {
                         </span>
 
                         <strong>
-                            {pageTitle()}
+                            {getPageTitle()}
                         </strong>
 
                     </div>
@@ -668,6 +770,7 @@ function ApplicationLayout({ onLogout }) {
                             className="header-logout"
                             onClick={handleLogout}
                             title="Logout"
+                            type="button"
                         >
                             ↪
                         </button>
@@ -830,48 +933,16 @@ function ApplicationLayout({ onLogout }) {
 
 /* =========================================================
    MAIN APP
-   ========================================================= */
+========================================================= */
 
 function App() {
 
     const [authenticated, setAuthenticated] =
         useState(
-            () =>
-                Boolean(
-                    localStorage.getItem("token")
-                )
+            Boolean(
+                localStorage.getItem("token")
+            )
         );
-
-
-    useEffect(() => {
-
-        const handleStorageChange = () => {
-
-            setAuthenticated(
-                Boolean(
-                    localStorage.getItem("token")
-                )
-            );
-
-        };
-
-
-        window.addEventListener(
-            "storage",
-            handleStorageChange
-        );
-
-
-        return () => {
-
-            window.removeEventListener(
-                "storage",
-                handleStorageChange
-            );
-
-        };
-
-    }, []);
 
 
     const handleLogin = () => {
@@ -903,7 +974,6 @@ function App() {
                             />
                         }
                     />
-
 
                     <Route
                         path="*"
