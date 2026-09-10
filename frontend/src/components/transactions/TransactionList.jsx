@@ -1,97 +1,15 @@
-// import React, { useEffect, useState } from "react";
-// import TransactionService from "../../services/transactionService";
 
-// const TransactionList = () => {
-//     const [transactions, setTransactions] = useState([]);
-//     const [ledgerId, setLedgerId] = useState("");
-//     const [search, setSearch] = useState("");
-
-//     useEffect(() => {
-//         TransactionService.getAllTransactions()
-//             .then((response) => {
-//                 setTransactions(response || []);
-//             })
-//             .catch((error) => {
-//                 console.error("Failed to load transactions:", error);
-//             });
-//     }, []);
-
-//     useEffect(() => {
-//         if (!ledgerId) {
-//             return;
-//         }
-
-//         TransactionService.getByLedger(ledgerId)
-//             .then((response) => {
-//                 setTransactions(response || []);
-//             })
-//             .catch((error) => {
-//                 console.error("Failed to load ledger transactions:", error);
-//             });
-//     }, [ledgerId]);
-
-//     return (
-//         <div>
-//             <h2>Transaction List</h2>
-
-//             <input
-//                 type="text"
-//                 placeholder="Search by Transaction ID or Account Name"
-//                 value={search}
-//                 onChange={(e) => setSearch(e.target.value)}
-//             />
-
-//             <label htmlFor="ledgerFilter">
-//                 Filter by Ledger
-//             </label>
-
-//             <input
-//                 id="ledgerFilter"
-//                 type="text"
-//                 value={ledgerId}
-//                 onChange={(e) => setLedgerId(e.target.value)}
-//             />
-
-//             <div>
-//                 {transactions.map((transaction) => (
-//                     <div key={transaction.id}>
-//                         <p>
-//                             Transaction ID: {transaction.id}
-//                         </p>
-
-//                         <p>
-//                             Amount: {transaction.amount}
-//                         </p>
-
-//                         <p>
-//                             Reference ID: {transaction.referenceId}
-//                         </p>
-
-//                         <p>
-//                             Status: {transaction.status}
-//                         </p>
-//                     </div>
-//                 ))}
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default TransactionList;
 import React, { useEffect, useState } from "react";
-import {
-    getAllTransactions,
-    getByLedger
-} from "../../services/transactionService";
+import TransactionService from "../../services/transactionService";
 
 const TransactionList = () => {
     const [transactions, setTransactions] = useState([]);
     const [ledgerId, setLedgerId] = useState("");
     const [search, setSearch] = useState("");
 
-    // T10
+    // T10 - Load all transactions once when component mounts
     useEffect(() => {
-        getAllTransactions()
+        TransactionService.getAllTransactions()
             .then((response) => {
                 setTransactions(response || []);
             })
@@ -100,18 +18,21 @@ const TransactionList = () => {
             });
     }, []);
 
-    // T11
+    // T11 - Load transactions for selected ledger
     useEffect(() => {
         if (!ledgerId) {
             return;
         }
 
-        getByLedger(ledgerId)
+        TransactionService.getByLedger(ledgerId)
             .then((response) => {
                 setTransactions(response || []);
             })
             .catch((error) => {
-                console.error("Failed to load ledger transactions:", error);
+                console.error(
+                    "Failed to load ledger transactions:",
+                    error
+                );
             });
     }, [ledgerId]);
 
@@ -163,3 +84,4 @@ const TransactionList = () => {
 };
 
 export default TransactionList;
+
