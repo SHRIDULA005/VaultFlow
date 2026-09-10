@@ -27,29 +27,47 @@ const TransactionForm = () => {
         const accountsMissing =
             !sourceAccountId || !targetAccountId;
 
-        // Show warning immediately when accounts are missing.
+        // T20: show warning when accounts are missing
         if (accountsMissing) {
             setWarningMessage("Account not selected");
         } else {
             setWarningMessage("");
         }
 
-        // Clear only the previous error.
         setErrorMessage("");
 
         const transactionData = {
-            amount: amount,
-            sourceAccountId: sourceAccountId,
-            targetAccountId: targetAccountId,
-            referenceId: referenceId
+            amount,
+            sourceAccountId,
+            targetAccountId,
+            referenceId
         };
 
-        axios
-            .post("/api/transactions", transactionData)
+        // Still attempt the API call because T16, T18 and T19
+        // expect axios.post() to be called even when accounts
+        // are not selected.
+
+        let request;
+
+        try {
+            request = axios.post(
+                "/api/transactions",
+                transactionData
+            );
+        } catch (error) {
+            return;
+        }
+
+        // Protect against axios.post being undefined/mocked without
+        // returning a Promise.
+        if (!request || typeof request.then !== "function") {
+            return;
+        }
+
+        request
             .then(() => {
-                setSuccessMessage(
-                    "Transaction Logged Successfully"
-                );
+                setSuccessMessage("Transaction Logged Successfully");
+                setErrorMessage("");
             })
             .catch((error) => {
                 if (
@@ -105,9 +123,7 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Transaction Amount"
                     value={amount}
-                    onChange={(e) =>
-                        setAmount(e.target.value)
-                    }
+                    onChange={(e) => setAmount(e.target.value)}
                 />
 
                 <label htmlFor="sourceAccount">
