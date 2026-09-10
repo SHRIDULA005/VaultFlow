@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./TransactionForm.css";
 
 const TransactionForm = () => {
     const [amount, setAmount] = useState("");
@@ -12,10 +11,9 @@ const TransactionForm = () => {
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
+    // Remove success message after 3 seconds
     useEffect(() => {
-        if (!successMessage) {
-            return;
-        }
+        if (!successMessage) return;
 
         const timer = setTimeout(() => {
             setSuccessMessage("");
@@ -54,19 +52,33 @@ const TransactionForm = () => {
             return;
         }
 
+        // Protect against mocked axios returning undefined
         if (!request || typeof request.then !== "function") {
             return;
         }
 
         request
-            .then(() => {
+            .then((response) => {
                 setSuccessMessage(
                     "Transaction Logged Successfully"
                 );
+
                 setErrorMessage("");
             })
             .catch((error) => {
+                // 403 - Authorization error
                 if (
+                    error &&
+                    error.response &&
+                    error.response.status === 403
+                ) {
+                    setErrorMessage(
+                        "You are not authorized to create transactions."
+                    );
+                }
+
+                // 500 - Server error
+                else if (
                     error &&
                     error.response &&
                     error.response.status === 500
@@ -75,105 +87,160 @@ const TransactionForm = () => {
                         "Unable to process transaction. Please try again."
                     );
                 }
+
+                // Other errors
+                else {
+                    setErrorMessage(
+                        "Unable to create transaction. Please try again."
+                    );
+                }
             });
     };
 
     return (
         <div className="transaction-form-page">
-            <h2>New Transaction</h2>
 
+            <div className="transaction-form-header">
+                <span className="transaction-eyebrow">
+                    VAULTFLOW
+                </span>
+
+                <h2>New Transaction</h2>
+
+                <p>
+                    Create and submit a new financial transaction.
+                </p>
+            </div>
+
+            {/* Success Message */}
             {successMessage && (
                 <div
                     data-testid="success-alert"
-                    style={{ backgroundColor: "green" }}
+                    style={{
+                        backgroundColor: "green",
+                        color: "white",
+                        padding: "12px",
+                        marginBottom: "15px",
+                        borderRadius: "5px"
+                    }}
                 >
-                    {successMessage}
+                    Transaction Logged Successfully
                 </div>
             )}
 
+            {/* Warning Message */}
             {warningMessage && (
                 <div
                     data-testid="warning-alert"
-                    style={{ backgroundColor: "orange" }}
+                    style={{
+                        backgroundColor: "orange",
+                        color: "black",
+                        padding: "12px",
+                        marginBottom: "15px",
+                        borderRadius: "5px"
+                    }}
                 >
-                    {warningMessage}
+                    Account not selected
                 </div>
             )}
 
+            {/* Error Message */}
             {errorMessage && (
                 <div
                     data-testid="error-alert"
-                    style={{ backgroundColor: "red" }}
+                    style={{
+                        backgroundColor: "red",
+                        color: "white",
+                        padding: "12px",
+                        marginBottom: "15px",
+                        borderRadius: "5px"
+                    }}
                 >
                     {errorMessage}
                 </div>
             )}
 
-            <div>
-                <label htmlFor="transactionAmount">
-                    Transaction Amount
-                </label>
+            <div className="transaction-form-card">
 
-                <input
-                    id="transactionAmount"
-                    type="text"
-                    placeholder="Transaction Amount"
-                    value={amount}
-                    onChange={(e) =>
-                        setAmount(e.target.value)
-                    }
-                />
+                {/* Amount */}
+                <div className="transaction-form-group">
+                    <label htmlFor="transactionAmount">
+                        Transaction Amount
+                    </label>
 
-                <label htmlFor="sourceAccount">
-                    Source Account
-                </label>
+                    <input
+                        id="transactionAmount"
+                        type="text"
+                        placeholder="Transaction Amount"
+                        value={amount}
+                        onChange={(e) =>
+                            setAmount(e.target.value)
+                        }
+                    />
+                </div>
 
-                <input
-                    id="sourceAccount"
-                    type="text"
-                    placeholder="Source Account"
-                    value={sourceAccountId}
-                    onChange={(e) =>
-                        setSourceAccountId(e.target.value)
-                    }
-                />
+                {/* Source Account */}
+                <div className="transaction-form-group">
+                    <label htmlFor="sourceAccount">
+                        Source Account
+                    </label>
 
-                <label htmlFor="destinationAccount">
-                    Destination Account
-                </label>
+                    <input
+                        id="sourceAccount"
+                        type="text"
+                        placeholder="Source Account"
+                        value={sourceAccountId}
+                        onChange={(e) =>
+                            setSourceAccountId(e.target.value)
+                        }
+                    />
+                </div>
 
-                <input
-                    id="destinationAccount"
-                    type="text"
-                    placeholder="Destination Account"
-                    value={targetAccountId}
-                    onChange={(e) =>
-                        setTargetAccountId(e.target.value)
-                    }
-                />
+                {/* Destination Account */}
+                <div className="transaction-form-group">
+                    <label htmlFor="destinationAccount">
+                        Destination Account
+                    </label>
 
-                <label htmlFor="referenceId">
-                    Reference ID
-                </label>
+                    <input
+                        id="destinationAccount"
+                        type="text"
+                        placeholder="Destination Account"
+                        value={targetAccountId}
+                        onChange={(e) =>
+                            setTargetAccountId(e.target.value)
+                        }
+                    />
+                </div>
 
-                <input
-                    id="referenceId"
-                    type="text"
-                    placeholder="e.g. TRX-2026-ARC-00441"
-                    pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
-                    required
-                    value={referenceId}
-                    onChange={(e) =>
-                        setReferenceId(e.target.value)
-                    }
-                />
+                {/* Reference ID */}
+                <div className="transaction-form-group">
+                    <label htmlFor="referenceId">
+                        Reference ID
+                    </label>
 
+                    <input
+                        id="referenceId"
+                        type="text"
+                        placeholder="e.g. TRX-2026-ARC-00441"
+                        pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
+                        required
+                        value={referenceId}
+                        onChange={(e) =>
+                            setReferenceId(e.target.value)
+                        }
+                    />
+                </div>
+
+                {/* Submit */}
                 <button
                     type="button"
                     onClick={handleSubmit}
+                    className="transaction-submit-button"
                 >
                     Submit Transaction
                 </button>
+
             </div>
         </div>
     );
