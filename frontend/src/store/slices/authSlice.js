@@ -1,53 +1,54 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const storedUser = localStorage.getItem("user");
-
 const initialState = {
-  user: storedUser ? JSON.parse(storedUser) : null,
-  userId: storedUser
-    ? JSON.parse(storedUser).userId
-    : null,
-  role: storedUser
-    ? JSON.parse(storedUser).role
-    : null,
-  organizationId: storedUser
-    ? JSON.parse(storedUser).organizationId
-    : null,
-  isAuthenticated: !!localStorage.getItem("token"),
+    isAuthenticated: false,
+    user: null,
+    token: null,
+    role: null,
+    userId: null,
+    organizationId: null
 };
 
 const authSlice = createSlice({
-  name: "auth",
+    name: "auth",
 
-  initialState,
+    initialState,
 
-  reducers: {
-    loginSuccess: (state, action) => {
-      const payload = action.payload;
+    reducers: {
 
-      state.user = payload;
-      state.userId = payload.userId;
-      state.role = payload.role;
-      state.organizationId = payload.organizationId;
-      state.isAuthenticated = true;
-    },
+        loginSuccess: (state, action) => {
+            const payload = action.payload;
 
-    logout: (state) => {
-      state.user = null;
-      state.userId = null;
-      state.role = null;
-      state.organizationId = null;
-      state.isAuthenticated = false;
+            state.isAuthenticated = true;
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-    },
-  },
+            state.token = payload.token || null;
+            state.role = payload.role || null;
+            state.userId = payload.userId || null;
+            state.organizationId =
+                payload.organizationId || null;
+
+            state.user = payload.user || {
+                userId: payload.userId,
+                role: payload.role,
+                organizationId:
+                    payload.organizationId
+            };
+        },
+
+        logout: (state) => {
+            state.isAuthenticated = false;
+            state.user = null;
+            state.token = null;
+            state.role = null;
+            state.userId = null;
+            state.organizationId = null;
+        }
+    }
 });
 
 export const {
-  loginSuccess,
-  logout,
+    loginSuccess,
+    logout
 } = authSlice.actions;
 
 export default authSlice.reducer;
