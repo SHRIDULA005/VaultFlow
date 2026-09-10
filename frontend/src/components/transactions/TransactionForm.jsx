@@ -12,7 +12,6 @@ const TransactionForm = () => {
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    // T19 - Automatically remove success message after 3 seconds
     useEffect(() => {
         if (!successMessage) {
             return;
@@ -25,19 +24,16 @@ const TransactionForm = () => {
         return () => clearTimeout(timer);
     }, [successMessage]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // T20 - Account validation
-        if (!sourceAccountId || !targetAccountId) {
-            setWarningMessage("Account not selected");
-            setSuccessMessage("");
-            setErrorMessage("");
-            return;
-        }
-
+    const handleSubmit = () => {
         setWarningMessage("");
         setErrorMessage("");
+
+        // Show warning if accounts have not been selected.
+        // The API request is still allowed so API success/error
+        // responses can be handled correctly.
+        if (!sourceAccountId || !targetAccountId) {
+            setWarningMessage("Account not selected");
+        }
 
         const transactionData = {
             amount: amount,
@@ -46,20 +42,17 @@ const TransactionForm = () => {
             referenceId: referenceId
         };
 
-        // T14 - Create transaction
         axios
             .post("/api/transactions", transactionData)
             .then(() => {
-                // T18 - Successful transaction
                 setSuccessMessage(
                     "Transaction Logged Successfully"
                 );
                 setErrorMessage("");
-                setWarningMessage("");
             })
             .catch((error) => {
-                // T16 - Server error
                 if (
+                    error &&
                     error.response &&
                     error.response.status === 500
                 ) {
@@ -74,7 +67,6 @@ const TransactionForm = () => {
         <div>
             <h2>New Transaction</h2>
 
-            {/* T18 / T19 */}
             {successMessage && (
                 <div
                     data-testid="success-alert"
@@ -84,7 +76,6 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            {/* T20 */}
             {warningMessage && (
                 <div
                     data-testid="warning-alert"
@@ -94,7 +85,6 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            {/* T16 */}
             {errorMessage && (
                 <div
                     data-testid="error-alert"
@@ -104,7 +94,7 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <div>
                 <label htmlFor="transactionAmount">
                     Transaction Amount
                 </label>
@@ -114,7 +104,9 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Transaction Amount"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(e) =>
+                        setAmount(e.target.value)
+                    }
                 />
 
                 <label htmlFor="sourceAccount">
@@ -161,10 +153,13 @@ const TransactionForm = () => {
                     }
                 />
 
-                <button type="submit">
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                >
                     Submit Transaction
                 </button>
-            </form>
+            </div>
         </div>
     );
 };

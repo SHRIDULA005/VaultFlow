@@ -7,18 +7,19 @@ const TransactionList = () => {
     const [ledgerId, setLedgerId] = useState("");
     const [search, setSearch] = useState("");
 
-    // T10 - Load all transactions once when component mounts
     useEffect(() => {
         TransactionService.getAllTransactions()
             .then((response) => {
                 setTransactions(response || []);
             })
             .catch((error) => {
-                console.error("Failed to load transactions:", error);
+                console.error(
+                    "Failed to load transactions:",
+                    error
+                );
             });
     }, []);
 
-    // T11 - Load transactions for selected ledger
     useEffect(() => {
         if (!ledgerId) {
             return;
@@ -55,7 +56,9 @@ const TransactionList = () => {
                 id="ledgerFilter"
                 type="text"
                 value={ledgerId}
-                onChange={(e) => setLedgerId(e.target.value)}
+                onChange={(e) =>
+                    setLedgerId(e.target.value)
+                }
             />
 
             <div>
