@@ -27,12 +27,6 @@ const TransactionForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // T20 - account validation
-        if (!sourceAccountId || !targetAccountId) {
-            setWarningMessage("Account not selected");
-            return;
-        }
-
         const transactionData = {
             amount: amount,
             sourceAccountId: sourceAccountId,
