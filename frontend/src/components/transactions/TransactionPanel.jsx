@@ -1,21 +1,20 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const TransactionPanel = () => {
     const [isOpen, setIsOpen] = useState(false);
     const panelRef = useRef(null);
 
+    useEffect(() => {
+        if (isOpen && panelRef.current) {
+            panelRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }, [isOpen]);
+
     const handleOpen = () => {
         setIsOpen(true);
-
-        // Scroll after React renders the panel
-        requestAnimationFrame(() => {
-            if (panelRef.current) {
-                panelRef.current.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            }
-        });
     };
 
     return (
