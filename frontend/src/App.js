@@ -26,7 +26,7 @@
 import React, { useState } from "react";
 import "./App.css";
 
-import Navbar from "./components/Navbar";
+import Navbar from "./components/layout/Navbar";
 import AccountForm from "./components/accounts/AccountForm";
 import LedgerForm from "./components/ledgers/LedgerForm";
 import LedgerList from "./components/ledgers/LedgerList";
