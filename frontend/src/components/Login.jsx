@@ -1,64 +1,24 @@
-import React, { useState } from "react";
-import axios from "axios";
+return (
+    <div className="login-page">
 
-const Login = ({ onLogin }) => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+        <div className="login-card">
 
-    const handleLogin = () => {
-        axios
-            .post("/auth/login", {
-                email,
-                password
-            })
-            .then((response) => {
+            <div className="login-logo">
+                VF
+            </div>
 
-                // Your backend returns the JWT directly as a string
-                const token =
-                    typeof response.data === "string"
-                        ? response.data
-                        : response.data.token;
+            <h1>VaultFlow</h1>
 
-                // Role is supported if backend ever returns an object
-                const role =
-                    typeof response.data === "object"
-                        ? response.data.role
-                        : null;
+            <p className="login-subtitle">
+                Secure Financial Management
+            </p>
 
-                if (!token) {
-                    setError("Invalid email or password");
-                    return;
-                }
+            <div className="login-form">
 
-                localStorage.setItem("token", token);
+                <label htmlFor="email">
+                    Email Address
+                </label>
 
-                if (role) {
-                    localStorage.setItem("role", role);
-                }
-
-                setError("");
-
-                // Tell App that login was successful
-                if (onLogin) {
-                    onLogin();
-                }
-
-                // Move to dashboard
-                window.history.pushState({}, "", "/");
-                window.dispatchEvent(new Event("popstate"));
-            })
-            .catch((error) => {
-                console.error("Login error:", error);
-                setError("Invalid email or password");
-            });
-    };
-
-    return (
-        <div>
-            <h2>VaultFlow Login</h2>
-
-            <form>
                 <input
                     id="email"
                     type="email"
@@ -66,6 +26,10 @@ const Login = ({ onLogin }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
+
+                <label htmlFor="password">
+                    Password
+                </label>
 
                 <input
                     id="password"
@@ -81,11 +45,24 @@ const Login = ({ onLogin }) => {
                 >
                     Login
                 </button>
-            </form>
 
-            {error && <div>{error}</div>}
+                {error && (
+                    <div className="login-error">
+                        {error}
+                    </div>
+                )}
+
+            </div>
+
+            <p className="login-footer">
+                Secure access to your VaultFlow account
+            </p>
+
+            <div className="login-security">
+                🔒 Protected by JWT authentication
+            </div>
+
         </div>
-    );
-};
 
-export default Login;
+    </div>
+);
