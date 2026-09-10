@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -7,30 +6,22 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-
+    const handleLogin = () => {
         axios
             .post("/auth/login", {
                 email,
                 password
             })
             .then((response) => {
-                const data = response.data || {};
+                const token = response.data.token;
+                const role = response.data.role;
 
-                if (data.token) {
-                    localStorage.setItem("token", data.token);
+                if (token) {
+                    localStorage.setItem("token", token);
                 }
 
-                if (data.role) {
-                    localStorage.setItem("role", data.role);
-                }
-
-                if (data.user) {
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify(data.user)
-                    );
+                if (role) {
+                    localStorage.setItem("role", role);
                 }
 
                 setError("");
@@ -44,7 +35,7 @@ const Login = () => {
         <div>
             <h2>VaultFlow Login</h2>
 
-            <form onSubmit={handleLogin}>
+            <form>
                 <input
                     id="email"
                     type="email"
@@ -61,19 +52,17 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <button type="submit">
+                <button
+                    type="button"
+                    onClick={handleLogin}
+                >
                     Login
                 </button>
             </form>
 
-            {error && (
-                <div role="alert">
-                    {error}
-                </div>
-            )}
+            {error && <div>{error}</div>}
         </div>
     );
 };
 
 export default Login;
-
