@@ -29,16 +29,10 @@ import "./App.css";
 ========================================================= */
 
 function ProtectedRoute({ children }) {
-
     const token = localStorage.getItem("token");
 
     if (!token) {
-        return (
-            <Navigate
-                to="/login"
-                replace
-            />
-        );
+        return <Navigate to="/login" replace />;
     }
 
     return children;
@@ -50,23 +44,13 @@ function ProtectedRoute({ children }) {
 ========================================================= */
 
 function LoginPage({ onLogin }) {
-
     const token = localStorage.getItem("token");
 
     if (token) {
-        return (
-            <Navigate
-                to="/"
-                replace
-            />
-        );
+        return <Navigate to="/" replace />;
     }
 
-    return (
-        <Login
-            onLogin={onLogin}
-        />
-    );
+    return <Login onLogin={onLogin} />;
 }
 
 
@@ -75,158 +59,92 @@ function LoginPage({ onLogin }) {
 ========================================================= */
 
 function Dashboard() {
-
     const navigate = useNavigate();
 
-    const role =
-        localStorage.getItem("role") || "USER";
+    const role = localStorage.getItem("role") || "USER";
 
     return (
         <div className="page-container">
 
             <div className="page-header">
-
                 <div>
-
                     <span className="page-eyebrow">
                         OVERVIEW
                     </span>
 
-                    <h1>
-                        Dashboard
-                    </h1>
+                    <h1>Dashboard</h1>
 
                     <p className="page-description">
                         Welcome back to VaultFlow. Manage your
                         accounts, transactions and ledgers from
                         one secure workspace.
                     </p>
-
                 </div>
-
             </div>
 
 
-            {/* =================================================
-                STATISTICS
-            ================================================= */}
+            {/* STATISTICS */}
 
             <div className="stats-grid">
 
                 <div className="stat-card">
-
-                    <div className="stat-icon">
-                        ₹
-                    </div>
+                    <div className="stat-icon">₹</div>
 
                     <div>
-                        <p>
-                            Total Balance
-                        </p>
-
-                        <h2>
-                            ₹0.00
-                        </h2>
-
-                        <span>
-                            No account data yet
-                        </span>
+                        <p>Total Balance</p>
+                        <h2>₹0.00</h2>
+                        <span>No account data yet</span>
                     </div>
-
                 </div>
 
 
                 <div className="stat-card">
-
-                    <div className="stat-icon">
-                        A
-                    </div>
+                    <div className="stat-icon">A</div>
 
                     <div>
-                        <p>
-                            Accounts
-                        </p>
-
-                        <h2>
-                            0
-                        </h2>
-
-                        <span>
-                            Active accounts
-                        </span>
+                        <p>Accounts</p>
+                        <h2>0</h2>
+                        <span>Active accounts</span>
                     </div>
-
                 </div>
 
 
                 <div className="stat-card">
-
-                    <div className="stat-icon">
-                        T
-                    </div>
+                    <div className="stat-icon">T</div>
 
                     <div>
-                        <p>
-                            Transactions
-                        </p>
-
-                        <h2>
-                            0
-                        </h2>
-
-                        <span>
-                            Total transactions
-                        </span>
+                        <p>Transactions</p>
+                        <h2>0</h2>
+                        <span>Total transactions</span>
                     </div>
-
                 </div>
 
 
                 <div className="stat-card">
-
-                    <div className="stat-icon">
-                        L
-                    </div>
+                    <div className="stat-icon">L</div>
 
                     <div>
-                        <p>
-                            Ledgers
-                        </p>
-
-                        <h2>
-                            0
-                        </h2>
-
-                        <span>
-                            Available ledgers
-                        </span>
+                        <p>Ledgers</p>
+                        <h2>0</h2>
+                        <span>Available ledgers</span>
                     </div>
-
                 </div>
 
             </div>
 
 
-            {/* =================================================
-                QUICK ACTIONS
-            ================================================= */}
+            {/* QUICK ACTIONS */}
 
             <section className="dashboard-section">
 
                 <div className="section-heading">
-
                     <div>
-
-                        <h2>
-                            Quick Actions
-                        </h2>
+                        <h2>Quick Actions</h2>
 
                         <p>
                             Frequently used VaultFlow operations.
                         </p>
-
                     </div>
-
                 </div>
 
 
@@ -234,17 +152,14 @@ function Dashboard() {
 
                     <button
                         className="quick-action-card"
-                        onClick={() =>
-                            navigate("/accounts")
-                        }
+                        onClick={() => navigate("/accounts")}
+                        type="button"
                     >
-
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
-
                             <strong>
                                 Create Account
                             </strong>
@@ -252,9 +167,7 @@ function Dashboard() {
                             <small>
                                 Add a new financial account
                             </small>
-
                         </span>
-
                     </button>
 
 
@@ -263,14 +176,13 @@ function Dashboard() {
                         onClick={() =>
                             navigate("/transactions/new")
                         }
+                        type="button"
                     >
-
                         <span className="quick-action-icon">
                             ⇄
                         </span>
 
                         <span>
-
                             <strong>
                                 New Transaction
                             </strong>
@@ -278,9 +190,7 @@ function Dashboard() {
                             <small>
                                 Record a financial transaction
                             </small>
-
                         </span>
-
                     </button>
 
 
@@ -289,14 +199,13 @@ function Dashboard() {
                         onClick={() =>
                             navigate("/ledgers/new")
                         }
+                        type="button"
                     >
-
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
-
                             <strong>
                                 Create Ledger
                             </strong>
@@ -304,9 +213,7 @@ function Dashboard() {
                             <small>
                                 Create and manage a ledger
                             </small>
-
                         </span>
-
                     </button>
 
                 </div>
@@ -314,25 +221,19 @@ function Dashboard() {
             </section>
 
 
-            {/* =================================================
-                RECENT ACTIVITY
-            ================================================= */}
+            {/* RECENT ACTIVITY */}
 
             <section className="dashboard-section">
 
                 <div className="section-heading">
 
                     <div>
-
-                        <h2>
-                            Recent Activity
-                        </h2>
+                        <h2>Recent Activity</h2>
 
                         <p>
                             Your latest financial activity
                             will appear here.
                         </p>
-
                     </div>
 
                     <button
@@ -340,6 +241,7 @@ function Dashboard() {
                         onClick={() =>
                             navigate("/transactions")
                         }
+                        type="button"
                     >
                         View Transactions →
                     </button>
@@ -368,6 +270,7 @@ function Dashboard() {
                         onClick={() =>
                             navigate("/transactions/new")
                         }
+                        type="button"
                     >
                         Create Transaction
                     </button>
@@ -377,9 +280,7 @@ function Dashboard() {
             </section>
 
 
-            {/* =================================================
-                SECURITY
-            ================================================= */}
+            {/* SECURITY */}
 
             <section className="security-card">
 
@@ -395,15 +296,12 @@ function Dashboard() {
 
                     <p>
                         You are currently signed in as{" "}
-                        <strong>
-                            {role}
-                        </strong>
-                        . Your authenticated session is
+                        <strong>{role}</strong>.
+                        Your authenticated session is
                         protected by the VaultFlow security layer.
                     </p>
 
                 </div>
-
 
                 <div className="security-status">
 
@@ -431,7 +329,6 @@ function PageWrapper({
     description,
     children,
 }) {
-
     return (
         <div className="page-container">
 
@@ -480,9 +377,7 @@ function ApplicationLayout({ onLogout }) {
         localStorage.getItem("role") || "USER";
 
 
-    /* =====================================================
-       LOGOUT
-    ===================================================== */
+    /* LOGOUT */
 
     const handleLogout = () => {
 
@@ -492,18 +387,13 @@ function ApplicationLayout({ onLogout }) {
 
         onLogout();
 
-        navigate(
-            "/login",
-            {
-                replace: true,
-            }
-        );
+        navigate("/login", {
+            replace: true,
+        });
     };
 
 
-    /* =====================================================
-       ACTIVE NAVIGATION
-    ===================================================== */
+    /* ACTIVE NAVIGATION */
 
     const isActive = (path) => {
 
@@ -515,9 +405,7 @@ function ApplicationLayout({ onLogout }) {
     };
 
 
-    /* =====================================================
-       PAGE TITLE
-    ===================================================== */
+    /* PAGE TITLE */
 
     const getPageTitle = () => {
 
@@ -549,7 +437,6 @@ function ApplicationLayout({ onLogout }) {
 
     return (
         <div className="app-shell">
-
 
             {/* =================================================
                 SIDEBAR
@@ -591,9 +478,8 @@ function ApplicationLayout({ onLogout }) {
                                 ? "nav-item active"
                                 : "nav-item"
                         }
-                        onClick={() =>
-                            navigate("/")
-                        }
+                        onClick={() => navigate("/")}
+                        type="button"
                     >
                         <span>⌂</span>
                         Dashboard
@@ -609,6 +495,7 @@ function ApplicationLayout({ onLogout }) {
                         onClick={() =>
                             navigate("/accounts")
                         }
+                        type="button"
                     >
                         <span>▣</span>
                         Accounts
@@ -624,6 +511,7 @@ function ApplicationLayout({ onLogout }) {
                         onClick={() =>
                             navigate("/transactions")
                         }
+                        type="button"
                     >
                         <span>⇄</span>
                         Transactions
@@ -639,6 +527,7 @@ function ApplicationLayout({ onLogout }) {
                         onClick={() =>
                             navigate("/ledgers")
                         }
+                        type="button"
                     >
                         <span>▤</span>
                         Ledgers
@@ -664,6 +553,7 @@ function ApplicationLayout({ onLogout }) {
                                         "/transactions/approval"
                                     )
                                 }
+                                type="button"
                             >
                                 <span>✓</span>
                                 Approvals
@@ -674,9 +564,7 @@ function ApplicationLayout({ onLogout }) {
                 </nav>
 
 
-                {/* =================================================
-                    USER AREA
-                ================================================= */}
+                {/* USER AREA */}
 
                 <div className="sidebar-bottom">
 
@@ -704,6 +592,7 @@ function ApplicationLayout({ onLogout }) {
                     <button
                         className="logout-button"
                         onClick={handleLogout}
+                        type="button"
                     >
                         <span>↪</span>
                         Logout
@@ -719,7 +608,6 @@ function ApplicationLayout({ onLogout }) {
             ================================================= */}
 
             <main className="main-content">
-
 
                 {/* TOP HEADER */}
 
@@ -744,9 +632,7 @@ function ApplicationLayout({ onLogout }) {
                             VaultFlow
                         </span>
 
-                        <span>
-                            /
-                        </span>
+                        <span>/</span>
 
                         <strong>
                             {getPageTitle()}
@@ -780,7 +666,7 @@ function ApplicationLayout({ onLogout }) {
                 </header>
 
 
-                {/* PAGE CONTENT */}
+                {/* ROUTES */}
 
                 <div className="page-content">
 
@@ -790,9 +676,7 @@ function ApplicationLayout({ onLogout }) {
 
                         <Route
                             path="/"
-                            element={
-                                <Dashboard />
-                            }
+                            element={<Dashboard />}
                         />
 
 
@@ -908,7 +792,7 @@ function ApplicationLayout({ onLogout }) {
                         />
 
 
-                        {/* UNKNOWN ROUTE */}
+                        {/* UNKNOWN */}
 
                         <Route
                             path="*"
@@ -946,16 +830,12 @@ function App() {
 
 
     const handleLogin = () => {
-
         setAuthenticated(true);
-
     };
 
 
     const handleLogout = () => {
-
         setAuthenticated(false);
-
     };
 
 
