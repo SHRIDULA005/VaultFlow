@@ -6,7 +6,6 @@ const TransactionList = () => {
     const [ledgerId, setLedgerId] = useState("");
     const [search, setSearch] = useState("");
 
-    // T10 — runs once when component mounts
     useEffect(() => {
         TransactionService.getAllTransactions()
             .then((response) => {
@@ -17,7 +16,6 @@ const TransactionList = () => {
             });
     }, []);
 
-    // T11 — runs whenever Ledger ID changes
     useEffect(() => {
         if (!ledgerId) {
             return;
