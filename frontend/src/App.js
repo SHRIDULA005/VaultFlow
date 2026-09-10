@@ -1,32 +1,9 @@
-// import logo from './logo.svg';
-// import './App.css';
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;
-import React, { useState } from "react";
-import "./App.css";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/layout/Navbar";
+import Login from "./components/Login";
+
 import AccountForm from "./components/accounts/AccountForm";
 import LedgerForm from "./components/ledgers/LedgerForm";
 import LedgerList from "./components/ledgers/LedgerList";
@@ -34,493 +11,267 @@ import TransactionForm from "./components/transactions/TransactionForm";
 import TransactionList from "./components/transactions/TransactionList";
 import TransactionPanel from "./components/transactions/TransactionPanel";
 
-function App() {
-    const [activePage, setActivePage] = useState("dashboard");
+import "./App.css";
 
-    const role = localStorage.getItem("role");
-    const isAdmin = role === "ADMIN" || role === "TREASURER";
-
-    const renderPage = () => {
-        switch (activePage) {
-            case "accounts":
-                return (
-                    <section className="page-section">
-                        <div className="page-heading">
-                            <div>
-                                <span className="eyebrow">
-                                    ACCOUNT MANAGEMENT
-                                </span>
-                                <h1>Accounts</h1>
-                                <p>
-                                    Create and manage your financial accounts.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="content-grid">
-                            <div className="card">
-                                <AccountForm />
-                            </div>
-
-                            <div className="card info-card">
-                                <div className="card-icon">₿</div>
-                                <h3>Secure Account Management</h3>
-                                <p>
-                                    Manage checking, savings and current
-                                    accounts from one secure workspace.
-                                </p>
-
-                                <div className="mini-stat">
-                                    <span>Account security</span>
-                                    <strong>Protected</strong>
-                                </div>
-
-                                <div className="mini-stat">
-                                    <span>Access level</span>
-                                    <strong>{role || "USER"}</strong>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                );
-
-            case "ledgers":
-                return (
-                    <section className="page-section">
-                        <div className="page-heading">
-                            <div>
-                                <span className="eyebrow">
-                                    FINANCIAL RECORDS
-                                </span>
-                                <h1>Ledgers</h1>
-                                <p>
-                                    View and manage your organization's ledgers.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="content-grid">
-                            <div className="card">
-                                <LedgerForm editMode={true} />
-                            </div>
-
-                            <div className="card">
-                                <LedgerList />
-                            </div>
-                        </div>
-                    </section>
-                );
-
-            case "transactions":
-                return (
-                    <section className="page-section">
-                        <div className="page-heading">
-                            <div>
-                                <span className="eyebrow">
-                                    TRANSACTION CENTER
-                                </span>
-                                <h1>Transactions</h1>
-                                <p>
-                                    Monitor, create and search financial
-                                    transactions.
-                                </p>
-                            </div>
-
-                            <div className="heading-action">
-                                <TransactionPanel />
-                            </div>
-                        </div>
-
-                        <div className="card transaction-form-card">
-                            <TransactionForm />
-                        </div>
-
-                        <div className="card transaction-list-card">
-                            <TransactionList />
-                        </div>
-                    </section>
-                );
-
-            case "dashboard":
-            default:
-                return (
-                    <section className="page-section">
-                        <div className="page-heading dashboard-heading">
-                            <div>
-                                <span className="eyebrow">
-                                    VAULTFLOW FINANCIAL PLATFORM
-                                </span>
-                                <h1>Welcome back</h1>
-                                <p>
-                                    Monitor your financial operations from one
-                                    secure dashboard.
-                                </p>
-                            </div>
-
-                            <div className="status-pill">
-                                <span className="status-dot"></span>
-                                System Operational
-                            </div>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <div className="stat-top">
-                                    <span>Total Balance</span>
-                                    <span className="stat-icon">₹</span>
-                                </div>
-
-                                <h2>₹ 12,48,500</h2>
-
-                                <p className="positive">
-                                    ↑ 8.4% this month
-                                </p>
-                            </div>
-
-                            <div className="stat-card">
-                                <div className="stat-top">
-                                    <span>Total Accounts</span>
-                                    <span className="stat-icon">◉</span>
-                                </div>
-
-                                <h2>24</h2>
-
-                                <p>
-                                    Active financial accounts
-                                </p>
-                            </div>
-
-                            <div className="stat-card">
-                                <div className="stat-top">
-                                    <span>Transactions</span>
-                                    <span className="stat-icon">↗</span>
-                                </div>
-
-                                <h2>186</h2>
-
-                                <p>
-                                    Processed this month
-                                </p>
-                            </div>
-
-                            <div className="stat-card">
-                                <div className="stat-top">
-                                    <span>Pending Approval</span>
-                                    <span className="stat-icon">!</span>
-                                </div>
-
-                                <h2>7</h2>
-
-                                <p className="warning-text">
-                                    Requires attention
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="dashboard-grid">
-                            <div className="card quick-actions">
-                                <div className="card-header">
-                                    <div>
-                                        <span className="eyebrow">
-                                            QUICK ACTIONS
-                                        </span>
-                                        <h2>Financial Operations</h2>
-                                    </div>
-                                </div>
-
-                                <div className="action-grid">
-                                    <button
-                                        className="action-button"
-                                        onClick={() =>
-                                            setActivePage("accounts")
-                                        }
-                                    >
-                                        <span className="action-icon">
-                                            +
-                                        </span>
-                                        <span>
-                                            <strong>Create Account</strong>
-                                            <small>
-                                                Add a new financial account
-                                            </small>
-                                        </span>
-                                    </button>
-
-                                    <button
-                                        className="action-button"
-                                        onClick={() =>
-                                            setActivePage("transactions")
-                                        }
-                                    >
-                                        <span className="action-icon">
-                                            ↗
-                                        </span>
-                                        <span>
-                                            <strong>New Transaction</strong>
-                                            <small>
-                                                Initiate a transaction
-                                            </small>
-                                        </span>
-                                    </button>
-
-                                    <button
-                                        className="action-button"
-                                        onClick={() =>
-                                            setActivePage("ledgers")
-                                        }
-                                    >
-                                        <span className="action-icon">
-                                            #
-                                        </span>
-                                        <span>
-                                            <strong>Manage Ledgers</strong>
-                                            <small>
-                                                View ledger records
-                                            </small>
-                                        </span>
-                                    </button>
-
-                                    <button
-                                        className="action-button"
-                                        onClick={() =>
-                                            setActivePage("transactions")
-                                        }
-                                    >
-                                        <span className="action-icon">
-                                            ⌕
-                                        </span>
-                                        <span>
-                                            <strong>Search Transactions</strong>
-                                            <small>
-                                                Find transaction records
-                                            </small>
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="card security-card">
-                                <div className="security-circle">
-                                    ✓
-                                </div>
-
-                                <span className="eyebrow">
-                                    SECURITY
-                                </span>
-
-                                <h2>Your vault is protected</h2>
-
-                                <p>
-                                    Authentication and transaction access are
-                                    secured using role-based authorization.
-                                </p>
-
-                                <div className="security-item">
-                                    <span>Current role</span>
-                                    <strong>{role || "USER"}</strong>
-                                </div>
-
-                                <div className="security-item">
-                                    <span>Session</span>
-                                    <strong className="session-active">
-                                        Active
-                                    </strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card recent-card">
-                            <div className="card-header">
-                                <div>
-                                    <span className="eyebrow">
-                                        ACTIVITY
-                                    </span>
-                                    <h2>Recent Transactions</h2>
-                                </div>
-
-                                <button
-                                    className="text-button"
-                                    onClick={() =>
-                                        setActivePage("transactions")
-                                    }
-                                >
-                                    View all →
-                                </button>
-                            </div>
-
-                            <div className="transaction-table">
-                                <div className="table-row table-header">
-                                    <span>Transaction</span>
-                                    <span>Account</span>
-                                    <span>Amount</span>
-                                    <span>Status</span>
-                                </div>
-
-                                <div className="table-row">
-                                    <span>
-                                        <strong>TRX-2026-ARC-00441</strong>
-                                        <small>Today, 10:42 AM</small>
-                                    </span>
-
-                                    <span>ACC-8812</span>
-
-                                    <span className="amount">
-                                        ₹50,000
-                                    </span>
-
-                                    <span className="badge approved">
-                                        Approved
-                                    </span>
-                                </div>
-
-                                <div className="table-row">
-                                    <span>
-                                        <strong>TRX-2026-ARC-00438</strong>
-                                        <small>Today, 09:18 AM</small>
-                                    </span>
-
-                                    <span>ACC-9945</span>
-
-                                    <span className="amount">
-                                        ₹12,500
-                                    </span>
-
-                                    <span className="badge pending">
-                                        Pending
-                                    </span>
-                                </div>
-
-                                <div className="table-row">
-                                    <span>
-                                        <strong>TRX-2026-ARC-00432</strong>
-                                        <small>Yesterday, 04:31 PM</small>
-                                    </span>
-
-                                    <span>ACC-7721</span>
-
-                                    <span className="amount">
-                                        ₹8,750
-                                    </span>
-
-                                    <span className="badge approved">
-                                        Approved
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                );
-        }
-    };
+const Dashboard = () => {
+    const role = localStorage.getItem("role") || "USER";
 
     return (
-        <div className="vf-app">
-            <header className="topbar">
-                <div className="brand">
-                    <div className="brand-mark">V</div>
+        <div className="dashboard-layout">
+            <aside className="sidebar">
+                <div className="sidebar-title">MAIN MENU</div>
 
+                <a className="sidebar-item active" href="/">
+                    <span>⌂</span>
+                    Dashboard
+                </a>
+
+                <a className="sidebar-item" href="/accounts">
+                    <span>◎</span>
+                    Accounts
+                </a>
+
+                <a className="sidebar-item" href="/transactions">
+                    <span>↗</span>
+                    Transactions
+                </a>
+
+                <a className="sidebar-item" href="/ledgers">
+                    <span>#</span>
+                    Ledgers
+                </a>
+            </aside>
+
+            <main className="dashboard-content">
+                <div className="dashboard-heading">
                     <div>
-                        <div className="brand-name">VaultFlow</div>
-                        <div className="brand-subtitle">
-                            Financial Management
-                        </div>
+                        <p className="eyebrow">
+                            VAULTFLOW FINANCIAL PLATFORM
+                        </p>
+
+                        <h1>Welcome back</h1>
+
+                        <p className="subtitle">
+                            Monitor your financial operations from one secure
+                            dashboard.
+                        </p>
+                    </div>
+
+                    <div className="system-status">
+                        <span>●</span> System Operational
                     </div>
                 </div>
 
-                <Navbar isAdmin={isAdmin} />
-            </header>
-
-            <div className="app-layout">
-                <aside className="sidebar">
-                    <div className="sidebar-section">
-                        <span className="sidebar-label">
-                            MAIN MENU
-                        </span>
-
-                        <button
-                            className={
-                                activePage === "dashboard"
-                                    ? "sidebar-link active"
-                                    : "sidebar-link"
-                            }
-                            onClick={() =>
-                                setActivePage("dashboard")
-                            }
-                        >
-                            <span>⌂</span>
-                            Dashboard
-                        </button>
-
-                        <button
-                            className={
-                                activePage === "accounts"
-                                    ? "sidebar-link active"
-                                    : "sidebar-link"
-                            }
-                            onClick={() =>
-                                setActivePage("accounts")
-                            }
-                        >
-                            <span>◉</span>
-                            Accounts
-                        </button>
-
-                        <button
-                            className={
-                                activePage === "transactions"
-                                    ? "sidebar-link active"
-                                    : "sidebar-link"
-                            }
-                            onClick={() =>
-                                setActivePage("transactions")
-                            }
-                        >
-                            <span>↗</span>
-                            Transactions
-                        </button>
-
-                        <button
-                            className={
-                                activePage === "ledgers"
-                                    ? "sidebar-link active"
-                                    : "sidebar-link"
-                            }
-                            onClick={() =>
-                                setActivePage("ledgers")
-                            }
-                        >
-                            <span>#</span>
-                            Ledgers
-                        </button>
-                    </div>
-
-                    <div className="sidebar-bottom">
-                        <div className="sidebar-user">
-                            <div className="user-avatar">
-                                {role
-                                    ? role.charAt(0)
-                                    : "U"}
-                            </div>
-
-                            <div>
-                                <strong>
-                                    {role || "User"}
-                                </strong>
-
-                                <small>
-                                    VaultFlow Member
-                                </small>
-                            </div>
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <div className="stat-top">
+                            <span>Total Balance</span>
+                            <div className="stat-icon">₹</div>
                         </div>
-                    </div>
-                </aside>
 
-                <main className="main-content">
-                    {renderPage()}
-                </main>
-            </div>
+                        <h2>₹ 12,48,500</h2>
+                        <p className="positive">↑ 8.4% this month</p>
+                    </div>
+
+                    <div className="stat-card">
+                        <div className="stat-top">
+                            <span>Total Accounts</span>
+                            <div className="stat-icon">◎</div>
+                        </div>
+
+                        <h2>24</h2>
+                        <p>Active financial accounts</p>
+                    </div>
+
+                    <div className="stat-card">
+                        <div className="stat-top">
+                            <span>Transactions</span>
+                            <div className="stat-icon">↗</div>
+                        </div>
+
+                        <h2>186</h2>
+                        <p>Processed this month</p>
+                    </div>
+
+                    <div className="stat-card">
+                        <div className="stat-top">
+                            <span>Pending Approval</span>
+                            <div className="stat-icon">!</div>
+                        </div>
+
+                        <h2>7</h2>
+                        <p className="warning-text">Requires attention</p>
+                    </div>
+                </div>
+
+                <div className="dashboard-lower">
+                    <section className="quick-actions card">
+                        <p className="eyebrow">QUICK ACTIONS</p>
+                        <h2>Financial Operations</h2>
+
+                        <div className="actions-grid">
+                            <a href="/accounts" className="action-card">
+                                <div className="action-icon">+</div>
+                                <div>
+                                    <strong>Create Account</strong>
+                                    <span>Add a new financial account</span>
+                                </div>
+                            </a>
+
+                            <a href="/transactions" className="action-card">
+                                <div className="action-icon">↗</div>
+                                <div>
+                                    <strong>New Transaction</strong>
+                                    <span>Initiate a transaction</span>
+                                </div>
+                            </a>
+
+                            <a href="/ledgers" className="action-card">
+                                <div className="action-icon">#</div>
+                                <div>
+                                    <strong>Manage Ledgers</strong>
+                                    <span>View ledger records</span>
+                                </div>
+                            </a>
+
+                            <a
+                                href="/transactions"
+                                className="action-card"
+                            >
+                                <div className="action-icon">⌕</div>
+                                <div>
+                                    <strong>Search Transactions</strong>
+                                    <span>Find transaction records</span>
+                                </div>
+                            </a>
+                        </div>
+                    </section>
+
+                    <section className="security-card">
+                        <div className="security-icon">✓</div>
+
+                        <p className="eyebrow">SECURITY</p>
+
+                        <h2>Your vault is protected</h2>
+
+                        <p>
+                            Authentication and transaction access are secured
+                            using role-based authorization.
+                        </p>
+
+                        <div className="role-row">
+                            <span>Current role</span>
+                            <strong>{role}</strong>
+                        </div>
+                    </section>
+                </div>
+            </main>
         </div>
     );
-}
+};
+
+const ProtectedRoute = ({ children }) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return children;
+};
+
+const App = () => {
+    const [authenticated, setAuthenticated] = useState(
+        !!localStorage.getItem("token")
+    );
+
+    useEffect(() => {
+        const checkAuth = () => {
+            setAuthenticated(!!localStorage.getItem("token"));
+        };
+
+        window.addEventListener("storage", checkAuth);
+
+        return () => {
+            window.removeEventListener("storage", checkAuth);
+        };
+    }, []);
+
+    return (
+        <BrowserRouter>
+            {authenticated && <Navbar />}
+
+            <Routes>
+                <Route
+                    path="/login"
+                    element={
+                        authenticated ? (
+                            <Navigate to="/" replace />
+                        ) : (
+                            <Login
+                                onLogin={() => setAuthenticated(true)}
+                            />
+                        )
+                    }
+                />
+
+                <Route
+                    path="/"
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/accounts"
+                    element={
+                        <ProtectedRoute>
+                            <div className="page-container">
+                                <AccountForm />
+                            </div>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/transactions"
+                    element={
+                        <ProtectedRoute>
+                            <div className="page-container">
+                                <TransactionPanel />
+                                <TransactionForm />
+                                <TransactionList />
+                            </div>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/ledgers"
+                    element={
+                        <ProtectedRoute>
+                            <div className="page-container">
+                                <LedgerForm />
+                                <LedgerList />
+                            </div>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="*"
+                    element={
+                        <Navigate
+                            to={authenticated ? "/" : "/login"}
+                            replace
+                        />
+                    }
+                />
+            </Routes>
+        </BrowserRouter>
+    );
+};
 
 export default App;
