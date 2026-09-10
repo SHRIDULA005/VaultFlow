@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const Login = () => {
+const Login = ({ onLogin }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -13,20 +13,43 @@ const Login = () => {
                 password
             })
             .then((response) => {
-                const token = response.data.token;
-                const role = response.data.role;
 
-                if (token) {
-                    localStorage.setItem("token", token);
+                // Your backend returns the JWT directly as a string
+                const token =
+                    typeof response.data === "string"
+                        ? response.data
+                        : response.data.token;
+
+                // Role is supported if backend ever returns an object
+                const role =
+                    typeof response.data === "object"
+                        ? response.data.role
+                        : null;
+
+                if (!token) {
+                    setError("Invalid email or password");
+                    return;
                 }
+
+                localStorage.setItem("token", token);
 
                 if (role) {
                     localStorage.setItem("role", role);
                 }
 
                 setError("");
+
+                // Tell App that login was successful
+                if (onLogin) {
+                    onLogin();
+                }
+
+                // Move to dashboard
+                window.history.pushState({}, "", "/");
+                window.dispatchEvent(new Event("popstate"));
             })
-            .catch(() => {
+            .catch((error) => {
+                console.error("Login error:", error);
                 setError("Invalid email or password");
             });
     };
