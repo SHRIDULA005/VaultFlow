@@ -23,48 +23,32 @@ export const getByLedger = (ledgerId) => {
 };
 
 export const createTransaction = (transaction) => {
-    const request = axios.post(
+    return axios.post(
         "/api/transactions",
         transaction
     );
-
-    if (!request || typeof request.then !== "function") {
-        return Promise.resolve([]);
-    }
-
-    return request.then((response) => response.data);
 };
 
-export const updateTransaction = (id, transaction) => {
-    const request = axios.put(
+export const approveTransaction = (id) => {
+    return axios.put(
         `/api/transactions/${id}`,
-        transaction
+        {
+            status: "APPROVED"
+        }
     );
-
-    if (!request || typeof request.then !== "function") {
-        return Promise.resolve([]);
-    }
-
-    return request.then((response) => response.data);
 };
 
 export const deleteTransaction = (id) => {
-    const request = axios.delete(
+    return axios.delete(
         `/api/transactions/${id}`
     );
-
-    if (!request || typeof request.then !== "function") {
-        return Promise.resolve([]);
-    }
-
-    return request.then((response) => response.data);
 };
 
 const TransactionService = {
     getAllTransactions,
     getByLedger,
     createTransaction,
-    updateTransaction,
+    approveTransaction,
     deleteTransaction
 };
 
