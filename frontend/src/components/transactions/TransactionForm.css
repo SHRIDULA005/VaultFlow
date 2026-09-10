@@ -1,144 +1,60 @@
-/* ================================
-   Transaction Form Page
-================================ */
+/* =========================================
+   NEW TRANSACTION PAGE
+   ========================================= */
 
 .transaction-form-page {
     min-height: 100%;
-    padding: 32px;
-    background: #f5f7fb;
+    padding: 36px 42px;
+    background: #f6f8fc;
     box-sizing: border-box;
 }
 
 
-/* ================================
-   Header
-================================ */
+/* =========================================
+   PAGE HEADER
+   ========================================= */
 
 .transaction-form-header {
-    margin-bottom: 28px;
+    max-width: 900px;
+    margin: 0 auto 28px;
 }
 
 .transaction-eyebrow {
     display: inline-block;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: #64748b;
     margin-bottom: 8px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
 }
 
 .transaction-form-header h2 {
     margin: 0;
-    font-size: 30px;
-    font-weight: 700;
     color: #172033;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 .transaction-form-header p {
-    margin: 8px 0 0;
+    margin: 9px 0 0;
     color: #64748b;
     font-size: 15px;
 }
 
 
-/* ================================
-   Form Card
-================================ */
-
-.transaction-form-card {
-    width: 100%;
-    max-width: 720px;
-    padding: 30px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-    box-sizing: border-box;
-}
-
-
-/* ================================
-   Form Groups
-================================ */
-
-.transaction-form-group {
-    margin-bottom: 22px;
-}
-
-.transaction-form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #334155;
-}
-
-.transaction-form-group input {
-    width: 100%;
-    height: 46px;
-    padding: 0 14px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #1e293b;
-    font-size: 14px;
-    outline: none;
-    box-sizing: border-box;
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.transaction-form-group input::placeholder {
-    color: #94a3b8;
-}
-
-.transaction-form-group input:focus {
-    border-color: #475569;
-    box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.12);
-}
-
-
-/* ================================
-   Submit Button
-================================ */
-
-.transaction-submit-button {
-    width: 100%;
-    height: 48px;
-    margin-top: 6px;
-    border: none;
-    border-radius: 8px;
-    background: #172033;
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition:
-        background 0.2s ease,
-        transform 0.1s ease,
-        box-shadow 0.2s ease;
-}
-
-.transaction-submit-button:hover {
-    background: #273449;
-    box-shadow: 0 5px 14px rgba(23, 32, 51, 0.18);
-}
-
-.transaction-submit-button:active {
-    transform: translateY(1px);
-}
-
-
-/* ================================
-   Success / Warning / Error
-================================ */
+/* =========================================
+   ALERT MESSAGES
+   ========================================= */
 
 .transaction-form-page [data-testid="success-alert"],
 .transaction-form-page [data-testid="warning-alert"],
 .transaction-form-page [data-testid="error-alert"] {
     width: 100%;
-    max-width: 720px;
+    max-width: 900px;
+    margin: 0 auto 18px;
+    padding: 14px 18px !important;
+    border-radius: 10px;
     box-sizing: border-box;
     font-size: 14px;
     font-weight: 600;
@@ -148,68 +64,271 @@
 /* Success */
 
 .transaction-form-page [data-testid="success-alert"] {
-    background-color: #dcfce7 !important;
-    color: #166534 !important;
-    border: 1px solid #86efac;
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+    border: 1px solid #a7f3d0;
 }
 
 
 /* Warning */
 
 .transaction-form-page [data-testid="warning-alert"] {
-    background-color: #fef3c7 !important;
-    color: #92400e !important;
-    border: 1px solid #fcd34d;
+    background: #fffbeb !important;
+    color: #b45309 !important;
+    border: 1px solid #fde68a;
 }
 
 
 /* Error */
 
 .transaction-form-page [data-testid="error-alert"] {
-    background-color: #fee2e2 !important;
-    color: #991b1b !important;
-    border: 1px solid #fca5a5;
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+    border: 1px solid #fecaca;
 }
 
 
-/* ================================
-   Responsive Design
-================================ */
+/* =========================================
+   MAIN FORM CARD
+   ========================================= */
 
-@media (max-width: 768px) {
+.transaction-form-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 34px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+
+/* =========================================
+   FORM GROUP
+   ========================================= */
+
+.transaction-form-group {
+    margin-bottom: 24px;
+}
+
+.transaction-form-group:last-of-type {
+    margin-bottom: 28px;
+}
+
+.transaction-form-group label {
+    display: block;
+    margin-bottom: 9px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   INPUT FIELDS
+   ========================================= */
+
+.transaction-form-group input {
+    width: 100%;
+    height: 50px;
+    padding: 0 15px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    outline: none;
+    box-sizing: border-box;
+
+    color: #172033;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.transaction-form-group input::placeholder {
+    color: #94a3b8;
+}
+
+
+/* Input hover */
+
+.transaction-form-group input:hover {
+    border-color: #94a3b8;
+}
+
+
+/* Input focus */
+
+.transaction-form-group input:focus {
+    border-color: #334155;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.10);
+}
+
+
+/* =========================================
+   AMOUNT FIELD
+   ========================================= */
+
+#transactionAmount {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#transactionAmount::placeholder {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+
+/* =========================================
+   REFERENCE ID
+   ========================================= */
+
+#referenceId {
+    letter-spacing: 0.3px;
+}
+
+
+/* =========================================
+   SUBMIT BUTTON
+   ========================================= */
+
+.transaction-submit-button {
+    width: 100%;
+    height: 52px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #172033;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.1s ease,
+        box-shadow 0.2s ease;
+}
+
+.transaction-submit-button:hover {
+    background: #273449;
+    box-shadow: 0 8px 18px rgba(23, 32, 51, 0.16);
+}
+
+.transaction-submit-button:active {
+    transform: translateY(1px);
+}
+
+.transaction-submit-button:focus-visible {
+    outline: 3px solid rgba(71, 85, 105, 0.25);
+    outline-offset: 2px;
+}
+
+
+/* =========================================
+   FORM SPACING / VISUAL SECTIONS
+   ========================================= */
+
+.transaction-form-card::before {
+    content: "Transaction Details";
+    display: block;
+
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+
+    border-bottom: 1px solid #eef0f4;
+
+    color: #172033;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   RESPONSIVE - TABLET
+   ========================================= */
+
+@media (max-width: 900px) {
+
     .transaction-form-page {
-        padding: 20px;
-    }
-
-    .transaction-form-header h2 {
-        font-size: 26px;
+        padding: 28px 24px;
     }
 
     .transaction-form-card {
-        padding: 22px;
+        padding: 28px;
     }
 }
 
 
-@media (max-width: 480px) {
+/* =========================================
+   RESPONSIVE - MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
     .transaction-form-page {
-        padding: 15px;
+        padding: 22px 16px;
+    }
+
+    .transaction-form-header {
+        margin-bottom: 22px;
     }
 
     .transaction-form-header h2 {
-        font-size: 23px;
+        font-size: 27px;
+    }
+
+    .transaction-form-header p {
+        font-size: 14px;
     }
 
     .transaction-form-card {
-        padding: 18px;
-        border-radius: 10px;
+        padding: 22px 18px;
+        border-radius: 12px;
+    }
+
+    .transaction-form-card::before {
+        font-size: 16px;
+    }
+
+    .transaction-form-group {
+        margin-bottom: 20px;
     }
 
     .transaction-form-group input {
-        height: 44px;
+        height: 48px;
     }
 
     .transaction-submit-button {
-        height: 46px;
+        height: 50px;
+    }
+}
+
+
+/* =========================================
+   VERY SMALL SCREENS
+   ========================================= */
+
+@media (max-width: 380px) {
+
+    .transaction-form-page {
+        padding: 18px 12px;
+    }
+
+    .transaction-form-card {
+        padding: 18px 14px;
+    }
+
+    .transaction-form-header h2 {
+        font-size: 24px;
     }
 }
