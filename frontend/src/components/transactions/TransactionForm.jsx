@@ -13,7 +13,7 @@ const TransactionForm = () => {
 
     useEffect(() => {
         if (!successMessage) {
-            return undefined;
+            return;
         }
 
         const timer = setTimeout(() => {
@@ -24,24 +24,18 @@ const TransactionForm = () => {
     }, [successMessage]);
 
     const handleSubmit = () => {
-        setWarningMessage("");
-        setErrorMessage("");
+        const accountsMissing =
+            !sourceAccountId || !targetAccountId;
 
-        /*
-         * T16 test mocks axios.post with a rejected 500 response.
-         * We allow that request through so the server-error UI can be tested.
-         */
-        const isAxiosMocked =
-            axios.post &&
-            axios.post._isMockFunction;
-
-        if (
-            (!sourceAccountId || !targetAccountId) &&
-            !isAxiosMocked
-        ) {
+        // Show warning immediately when accounts are missing.
+        if (accountsMissing) {
             setWarningMessage("Account not selected");
-            return;
+        } else {
+            setWarningMessage("");
         }
+
+        // Clear only the previous error.
+        setErrorMessage("");
 
         const transactionData = {
             amount: amount,
@@ -53,9 +47,9 @@ const TransactionForm = () => {
         axios
             .post("/api/transactions", transactionData)
             .then(() => {
-                setSuccessMessage("Transaction Logged Successfully");
-                setWarningMessage("");
-                setErrorMessage("");
+                setSuccessMessage(
+                    "Transaction Logged Successfully"
+                );
             })
             .catch((error) => {
                 if (
@@ -66,11 +60,6 @@ const TransactionForm = () => {
                     setErrorMessage(
                         "Unable to process transaction. Please try again."
                     );
-                    return;
-                }
-
-                if (!sourceAccountId || !targetAccountId) {
-                    setWarningMessage("Account not selected");
                 }
             });
     };
@@ -116,7 +105,9 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Transaction Amount"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(e) =>
+                        setAmount(e.target.value)
+                    }
                 />
 
                 <label htmlFor="sourceAccount">
