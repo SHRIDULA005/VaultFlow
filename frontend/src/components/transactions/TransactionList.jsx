@@ -7,13 +7,20 @@ const TransactionList = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        TransactionService.getAllTransactions()
-            .then((data) => {
-                setTransactions(Array.isArray(data) ? data : []);
-            })
-            .catch(() => {
-                setTransactions([]);
-            });
+        const result =
+            TransactionService.getAllTransactions();
+
+        if (result && typeof result.then === "function") {
+            result
+                .then((data) => {
+                    setTransactions(
+                        Array.isArray(data) ? data : []
+                    );
+                })
+                .catch(() => {
+                    setTransactions([]);
+                });
+        }
     }, []);
 
     useEffect(() => {
@@ -21,13 +28,20 @@ const TransactionList = () => {
             return;
         }
 
-        TransactionService.getByLedger(ledgerId)
-            .then((data) => {
-                setTransactions(Array.isArray(data) ? data : []);
-            })
-            .catch(() => {
-                setTransactions([]);
-            });
+        const result =
+            TransactionService.getByLedger(ledgerId);
+
+        if (result && typeof result.then === "function") {
+            result
+                .then((data) => {
+                    setTransactions(
+                        Array.isArray(data) ? data : []
+                    );
+                })
+                .catch(() => {
+                    setTransactions([]);
+                });
+        }
     }, [ledgerId]);
 
     return (
@@ -44,7 +58,9 @@ const TransactionList = () => {
                     type="text"
                     placeholder="Search by Transaction ID or Account Name"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) =>
+                        setSearchTerm(e.target.value)
+                    }
                 />
             </div>
 
@@ -58,7 +74,9 @@ const TransactionList = () => {
                     type="text"
                     placeholder="Ledger ID"
                     value={ledgerId}
-                    onChange={(e) => setLedgerId(e.target.value)}
+                    onChange={(e) =>
+                        setLedgerId(e.target.value)
+                    }
                 />
             </div>
 
@@ -67,11 +85,13 @@ const TransactionList = () => {
                     transactions.map((transaction) => (
                         <div key={transaction.id}>
                             <p>
-                                Transaction ID: {transaction.id}
+                                Transaction ID:{" "}
+                                {transaction.id}
                             </p>
 
                             <p>
-                                Amount: {transaction.amount}
+                                Amount:{" "}
+                                {transaction.amount}
                             </p>
                         </div>
                     ))

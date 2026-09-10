@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -28,11 +27,10 @@ const TransactionForm = () => {
         setWarningMessage("");
         setErrorMessage("");
 
-        // Show warning if accounts have not been selected.
-        // The API request is still allowed so API success/error
-        // responses can be handled correctly.
+        // Do NOT call the API when accounts are not selected.
         if (!sourceAccountId || !targetAccountId) {
             setWarningMessage("Account not selected");
+            return;
         }
 
         const transactionData = {
@@ -45,9 +43,7 @@ const TransactionForm = () => {
         axios
             .post("/api/transactions", transactionData)
             .then(() => {
-                setSuccessMessage(
-                    "Transaction Logged Successfully"
-                );
+                setSuccessMessage("Transaction Logged Successfully");
                 setErrorMessage("");
             })
             .catch((error) => {
@@ -104,9 +100,7 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Transaction Amount"
                     value={amount}
-                    onChange={(e) =>
-                        setAmount(e.target.value)
-                    }
+                    onChange={(e) => setAmount(e.target.value)}
                 />
 
                 <label htmlFor="sourceAccount">
@@ -165,4 +159,3 @@ const TransactionForm = () => {
 };
 
 export default TransactionForm;
-
