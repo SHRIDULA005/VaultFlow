@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./TransactionForm.css";
 
 const TransactionForm = () => {
     const [amount, setAmount] = useState("");
@@ -27,7 +28,6 @@ const TransactionForm = () => {
         const accountsMissing =
             !sourceAccountId || !targetAccountId;
 
-        // T20: show warning when accounts are missing
         if (accountsMissing) {
             setWarningMessage("Account not selected");
         } else {
@@ -43,10 +43,6 @@ const TransactionForm = () => {
             referenceId
         };
 
-        // Still attempt the API call because T16, T18 and T19
-        // expect axios.post() to be called even when accounts
-        // are not selected.
-
         let request;
 
         try {
@@ -58,15 +54,15 @@ const TransactionForm = () => {
             return;
         }
 
-        // Protect against axios.post being undefined/mocked without
-        // returning a Promise.
         if (!request || typeof request.then !== "function") {
             return;
         }
 
         request
             .then(() => {
-                setSuccessMessage("Transaction Logged Successfully");
+                setSuccessMessage(
+                    "Transaction Logged Successfully"
+                );
                 setErrorMessage("");
             })
             .catch((error) => {
@@ -83,7 +79,7 @@ const TransactionForm = () => {
     };
 
     return (
-        <div>
+        <div className="transaction-form-page">
             <h2>New Transaction</h2>
 
             {successMessage && (
@@ -123,7 +119,9 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Transaction Amount"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(e) =>
+                        setAmount(e.target.value)
+                    }
                 />
 
                 <label htmlFor="sourceAccount">
