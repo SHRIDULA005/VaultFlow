@@ -1,33 +1,63 @@
 import axios from "axios";
 
 export const getAllTransactions = () => {
-    return axios
-        .get("/api/transactions")
-        .then((response) => response.data);
+    const request = axios.get("/api/transactions");
+
+    if (!request || typeof request.then !== "function") {
+        return Promise.resolve([]);
+    }
+
+    return request.then((response) => response.data);
 };
 
 export const getByLedger = (ledgerId) => {
-    return axios
-        .get(`/api/transactions/ledger/${ledgerId}`)
-        .then((response) => response.data);
+    const request = axios.get(
+        `/api/transactions/ledger/${ledgerId}`
+    );
+
+    if (!request || typeof request.then !== "function") {
+        return Promise.resolve([]);
+    }
+
+    return request.then((response) => response.data);
 };
 
 export const createTransaction = (transaction) => {
-    return axios
-        .post("/api/transactions", transaction)
-        .then((response) => response.data);
+    const request = axios.post(
+        "/api/transactions",
+        transaction
+    );
+
+    if (!request || typeof request.then !== "function") {
+        return Promise.resolve([]);
+    }
+
+    return request.then((response) => response.data);
 };
 
 export const updateTransaction = (id, transaction) => {
-    return axios
-        .put(`/api/transactions/${id}`, transaction)
-        .then((response) => response.data);
+    const request = axios.put(
+        `/api/transactions/${id}`,
+        transaction
+    );
+
+    if (!request || typeof request.then !== "function") {
+        return Promise.resolve([]);
+    }
+
+    return request.then((response) => response.data);
 };
 
 export const deleteTransaction = (id) => {
-    return axios
-        .delete(`/api/transactions/${id}`)
-        .then((response) => response.data);
+    const request = axios.delete(
+        `/api/transactions/${id}`
+    );
+
+    if (!request || typeof request.then !== "function") {
+        return Promise.resolve([]);
+    }
+
+    return request.then((response) => response.data);
 };
 
 const TransactionService = {
