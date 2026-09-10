@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const TransactionForm = () => {
@@ -11,7 +11,7 @@ const TransactionForm = () => {
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    // T19 - automatically remove success alert after 3 seconds
+    // T19 - auto dismiss success message after 3 seconds
     useEffect(() => {
         if (!successMessage) {
             return;
@@ -27,10 +27,6 @@ const TransactionForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Clear old alerts
-        setWarningMessage("");
-        setErrorMessage("");
-
         // T20 - account validation
         if (!sourceAccountId || !targetAccountId) {
             setWarningMessage("Account not selected");
@@ -44,19 +40,15 @@ const TransactionForm = () => {
             referenceId: referenceId
         };
 
-        // T14 - create transaction
         axios
             .post("/api/transactions", transactionData)
-            .then(() => {
-                // T18
+            .then((response) => {
+                setErrorMessage("");
+                setWarningMessage("");
                 setSuccessMessage("Transaction Logged Successfully");
             })
             .catch((error) => {
-                // T16
-                if (
-                    error.response &&
-                    error.response.status === 500
-                ) {
+                if (error.response && error.response.status === 500) {
                     setErrorMessage(
                         "Unable to process transaction. Please try again."
                     );
@@ -68,7 +60,6 @@ const TransactionForm = () => {
         <div>
             <h2>New Transaction</h2>
 
-            {/* Success Alert */}
             {successMessage && (
                 <div
                     data-testid="success-alert"
@@ -78,7 +69,6 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            {/* Warning Alert */}
             {warningMessage && (
                 <div
                     data-testid="warning-alert"
@@ -88,7 +78,6 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            {/* Error Alert */}
             {errorMessage && (
                 <div
                     data-testid="error-alert"
@@ -99,8 +88,6 @@ const TransactionForm = () => {
             )}
 
             <form onSubmit={handleSubmit}>
-
-                {/* Transaction Amount */}
                 <label htmlFor="transactionAmount">
                     Transaction Amount
                 </label>
@@ -113,7 +100,6 @@ const TransactionForm = () => {
                     onChange={(e) => setAmount(e.target.value)}
                 />
 
-                {/* Source Account */}
                 <label htmlFor="sourceAccount">
                     Source Account
                 </label>
@@ -123,12 +109,9 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Source Account"
                     value={sourceAccountId}
-                    onChange={(e) =>
-                        setSourceAccountId(e.target.value)
-                    }
+                    onChange={(e) => setSourceAccountId(e.target.value)}
                 />
 
-                {/* Destination Account */}
                 <label htmlFor="destinationAccount">
                     Destination Account
                 </label>
@@ -138,12 +121,9 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Destination Account"
                     value={targetAccountId}
-                    onChange={(e) =>
-                        setTargetAccountId(e.target.value)
-                    }
+                    onChange={(e) => setTargetAccountId(e.target.value)}
                 />
 
-                {/* Reference ID */}
                 <label htmlFor="referenceId">
                     Reference ID
                 </label>
@@ -155,12 +135,9 @@ const TransactionForm = () => {
                     pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
                     required
                     value={referenceId}
-                    onChange={(e) =>
-                        setReferenceId(e.target.value)
-                    }
+                    onChange={(e) => setReferenceId(e.target.value)}
                 />
 
-                {/* Submit */}
                 <button type="submit">
                     Submit Transaction
                 </button>
