@@ -6,8 +6,8 @@ import {
     Navigate
 } from "react-router-dom";
 
-import Sidebar from "./components/layout/Sidebar";
-import TopHeader from "./components/layout/TopHeader";
+// import Sidebar from "./components/layout/Sidebar";
+// import TopHeader from "./components/layout/TopHeader";
 import Login from "./components/Login";
 
 import AccountForm from "./components/accounts/AccountForm";
