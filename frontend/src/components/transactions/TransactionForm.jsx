@@ -11,7 +11,7 @@ const TransactionForm = () => {
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    // T19 - auto dismiss success message after 3 seconds
+    // T19 - auto-dismiss success alert after 3 seconds
     useEffect(() => {
         if (!successMessage) {
             return;
@@ -27,6 +27,15 @@ const TransactionForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // T20 - show warning when accounts are not selected
+        if (!sourceAccountId || !targetAccountId) {
+            setWarningMessage("Account not selected");
+            return;
+        }
+
+        setWarningMessage("");
+        setErrorMessage("");
+
         const transactionData = {
             amount: amount,
             sourceAccountId: sourceAccountId,
@@ -34,15 +43,19 @@ const TransactionForm = () => {
             referenceId: referenceId
         };
 
+        // T14 - create transaction
         axios
             .post("/api/transactions", transactionData)
-            .then((response) => {
-                setErrorMessage("");
-                setWarningMessage("");
+            .then(() => {
+                // T18 - success alert
                 setSuccessMessage("Transaction Logged Successfully");
             })
             .catch((error) => {
-                if (error.response && error.response.status === 500) {
+                // T16 - server error
+                if (
+                    error.response &&
+                    error.response.status === 500
+                ) {
                     setErrorMessage(
                         "Unable to process transaction. Please try again."
                     );
@@ -103,7 +116,9 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Source Account"
                     value={sourceAccountId}
-                    onChange={(e) => setSourceAccountId(e.target.value)}
+                    onChange={(e) =>
+                        setSourceAccountId(e.target.value)
+                    }
                 />
 
                 <label htmlFor="destinationAccount">
@@ -115,7 +130,9 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="Destination Account"
                     value={targetAccountId}
-                    onChange={(e) => setTargetAccountId(e.target.value)}
+                    onChange={(e) =>
+                        setTargetAccountId(e.target.value)
+                    }
                 />
 
                 <label htmlFor="referenceId">
@@ -127,9 +144,10 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="e.g. TRX-2026-ARC-00441"
                     pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
-                    required
                     value={referenceId}
-                    onChange={(e) => setReferenceId(e.target.value)}
+                    onChange={(e) =>
+                        setReferenceId(e.target.value)
+                    }
                 />
 
                 <button type="submit">
