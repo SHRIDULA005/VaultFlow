@@ -1,0 +1,137 @@
+.ledger-form-page {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.ledger-form-header {
+    margin-bottom: 28px;
+}
+
+.ledger-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #6366f1;
+}
+
+.ledger-form-header h2 {
+    margin: 0;
+    font-size: 30px;
+    color: #1f2937;
+}
+
+.ledger-form-header p {
+    margin: 8px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.ledger-form-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.ledger-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.ledger-field label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.ledger-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ledger-field input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.ledger-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.ledger-submit-button,
+.ledger-edit-button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ledger-submit-button {
+    background: #2563eb;
+    color: white;
+}
+
+.ledger-submit-button:hover {
+    background: #1d4ed8;
+}
+
+.ledger-edit-button {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.ledger-edit-button:hover {
+    background: #e5e7eb;
+}
+
+.ledger-success {
+    margin-bottom: 18px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ledger-error {
+    margin-bottom: 18px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .ledger-form-page {
+        padding: 20px;
+    }
+
+    .ledger-form-card {
+        padding: 20px;
+    }
+
+    .ledger-form-actions {
+        flex-direction: column;
+    }
+}
