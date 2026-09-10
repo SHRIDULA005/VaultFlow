@@ -1,25 +1,3 @@
-// import api from "./api";
-
-// export const getAccounts = async () => {
-//   const response = await api.get("/accounts");
-//   return response.data;
-// };
-
-// export const createAccount = async (accountData) => {
-//   const response = await api.post(
-//     "/accounts",
-//     accountData
-//   );
-
-//   return response.data;
-// };
-
-// const accountService = {
-//   getAccounts,
-//   createAccount,
-// };
-
-// export default accountService;
 import api from "./api";
 
 export const getAccounts = async () => {
@@ -28,11 +6,7 @@ export const getAccounts = async () => {
 };
 
 export const createAccount = async (accountData) => {
-    const response = await api.post(
-        "/accounts",
-        accountData
-    );
-
+    const response = await api.post("/accounts/post", accountData);
     return response.data;
 };
 
