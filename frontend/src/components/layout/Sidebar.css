@@ -1,0 +1,168 @@
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 250px;
+
+    background: #0f172a;
+    color: white;
+
+    padding: 24px 16px;
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 1000;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 4px 8px 28px;
+}
+
+.sidebar-logo {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 10px;
+    background: #2563eb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 800;
+}
+
+.sidebar-brand strong {
+    display: block;
+    font-size: 17px;
+}
+
+.sidebar-brand span {
+    display: block;
+    margin-top: 3px;
+
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.sidebar-section {
+    margin-top: 12px;
+}
+
+.sidebar-heading {
+    padding: 8px 12px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    color: #64748b;
+    letter-spacing: 0.08em;
+}
+
+.sidebar-link {
+    min-height: 44px;
+
+    padding: 0 12px;
+    margin: 3px 0;
+
+    border-radius: 8px;
+
+    color: #cbd5e1;
+    text-decoration: none;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    font-size: 14px;
+
+    transition: all 0.2s;
+}
+
+.sidebar-link span {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-link:hover {
+    background: #1e293b;
+    color: white;
+}
+
+.sidebar-link.active {
+    background: #2563eb;
+    color: white;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.sidebar-user {
+    border-top: 1px solid #1e293b;
+
+    padding: 18px 8px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+    background: #1e40af;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sidebar-user strong {
+    display: block;
+    font-size: 12px;
+}
+
+.sidebar-user span {
+    display: block;
+    margin-top: 3px;
+
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.sidebar-logout {
+    width: 100%;
+    min-height: 44px;
+
+    border: 1px solid #334155;
+    border-radius: 8px;
+
+    background: transparent;
+    color: #cbd5e1;
+
+    cursor: pointer;
+}
+
+.sidebar-logout:hover {
+    background: #1e293b;
+    color: white;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        width: 210px;
+    }
+}
