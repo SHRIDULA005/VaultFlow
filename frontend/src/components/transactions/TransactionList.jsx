@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import TransactionService from "../../services/transactionService";
+import {
+    getAllTransactions,
+    getByLedger
+} from "../../services/transactionService";
 
 const TransactionList = () => {
     const [transactions, setTransactions] = useState([]);
@@ -7,8 +10,7 @@ const TransactionList = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        const result =
-            TransactionService.getAllTransactions();
+        const result = getAllTransactions();
 
         if (result && typeof result.then === "function") {
             result
@@ -28,8 +30,7 @@ const TransactionList = () => {
             return;
         }
 
-        const result =
-            TransactionService.getByLedger(ledgerId);
+        const result = getByLedger(ledgerId);
 
         if (result && typeof result.then === "function") {
             result
@@ -85,13 +86,11 @@ const TransactionList = () => {
                     transactions.map((transaction) => (
                         <div key={transaction.id}>
                             <p>
-                                Transaction ID:{" "}
-                                {transaction.id}
+                                Transaction ID: {transaction.id}
                             </p>
 
                             <p>
-                                Amount:{" "}
-                                {transaction.amount}
+                                Amount: {transaction.amount}
                             </p>
                         </div>
                     ))
