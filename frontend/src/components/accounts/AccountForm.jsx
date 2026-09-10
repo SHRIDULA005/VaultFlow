@@ -3,463 +3,297 @@ import accountService from "../../services/accountService";
 import "./AccountForm.css";
 
 const AccountForm = () => {
-    const [accountName, setAccountName] = useState("");
-    const [accountType, setAccountType] = useState("Checking");
-    const [interestRate, setInterestRate] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [accountType, setAccountType] = useState("CHECKING");
+  const [interestRate, setInterestRate] = useState("");
 
-    const [accounts, setAccounts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-    const [successMessage, setSuccessMessage] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-    /* =====================================================
-       LOAD ACCOUNTS
-    ===================================================== */
+  // Load all accounts
+  const loadAccounts = async () => {
+    try {
+      setLoading(true);
 
-    const loadAccounts = async () => {
-        try {
-            setLoading(true);
+      const data = await accountService.getAccounts();
 
-            const data = await accountService.getAccounts();
+      setAccounts(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error loading accounts:", error);
+      setErrorMessage("Unable to load accounts.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (Array.isArray(data)) {
-                setAccounts(data);
-            } else {
-                setAccounts([]);
-            }
-        } catch (error) {
-            console.error("Unable to load accounts:", error);
-            setAccounts([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+  useEffect(() => {
+    loadAccounts();
+  }, []);
 
-    useEffect(() => {
-        loadAccounts();
-    }, []);
+  // Create account
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    /* =====================================================
-       FORM HANDLERS
-    ===================================================== */
+    setSuccessMessage("");
+    setErrorMessage("");
 
-    const handleAccountNameChange = (e) => {
-        setAccountName(e.target.value);
-        setSuccessMessage("");
-        setErrorMessage("");
-    };
+    if (!accountName.trim()) {
+      setErrorMessage("Please enter an account name.");
+      return;
+    }
 
-    const handleAccountTypeChange = (e) => {
-        setAccountType(e.target.value);
-        setSuccessMessage("");
-        setErrorMessage("");
+    try {
+      setSaving(true);
 
-        if (e.target.value !== "Savings") {
-            setInterestRate("");
-        }
-    };
+      const accountData = {
+        accountName: accountName.trim(),
+        accountType: accountType,
+      };
 
-    /* =====================================================
-       CREATE ACCOUNT
-    ===================================================== */
+      // Interest rate is only required for Savings
+      if (accountType === "SAVINGS" && interestRate !== "") {
+        accountData.interestRate = Number(interestRate);
+      }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+      console.log("Creating account:", accountData);
 
-        setSuccessMessage("");
-        setErrorMessage("");
+      await accountService.createAccount(accountData);
 
-        if (!accountName.trim()) {
-            setErrorMessage("Please enter an account name.");
-            return;
-        }
+      setSuccessMessage("Account created successfully.");
 
-        const accountData = {
-            accountName: accountName.trim(),
-            accountType,
-        };
+      // Clear form
+      setAccountName("");
+      setAccountType("CHECKING");
+      setInterestRate("");
 
-        if (accountType === "Savings" && interestRate !== "") {
-            accountData.interestRate = Number(interestRate);
-        }
+      // Reload accounts so the newly created account appears below
+      await loadAccounts();
+    } catch (error) {
+      console.error("Error creating account:", error);
 
-        try {
-            setSaving(true);
+      if (error.response) {
+        console.error("Backend response:", error.response.data);
+        console.error("Status:", error.response.status);
+      }
 
-            await accountService.createAccount(accountData);
+      setErrorMessage("Unable to create an account.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
-            setSuccessMessage(
-                "Account created successfully."
-            );
+  return (
+    <div className="account-page">
 
-            setAccountName("");
-            setAccountType("Checking");
-            setInterestRate("");
+      {/* Create Account Section */}
+      <section className="account-create-section">
+        <div className="account-section-heading">
+          <div>
+            <h2>Create Account</h2>
+            <p>Create a new VaultFlow account.</p>
+          </div>
+        </div>
 
-            await loadAccounts();
-        } catch (error) {
-            console.error("Unable to create account:", error);
+        {successMessage && (
+          <div className="success-alert" role="alert">
+            {successMessage}
+          </div>
+        )}
 
-            setErrorMessage(
-                "Unable to create account. Please try again."
-            );
-        } finally {
-            setSaving(false);
-        }
-    };
+        {errorMessage && (
+          <div className="error-alert" role="alert">
+            {errorMessage}
+          </div>
+        )}
 
-    /* =====================================================
-       DISPLAY HELPERS
-    ===================================================== */
+        <form className="account-form" onSubmit={handleSubmit}>
 
-    const getAccountName = (account) => {
-        return (
-            account.accountName ||
-            account.name ||
-            "Unnamed Account"
-        );
-    };
+          {/* Account Name */}
+          <div className="form-field">
+            <label htmlFor="accountName">
+              Account Name
+            </label>
 
-    const getAccountType = (account) => {
-        return (
-            account.accountType ||
-            account.type ||
-            "Account"
-        );
-    };
+            <input
+              id="accountName"
+              type="text"
+              placeholder="Enter account name"
+              value={accountName}
+              onChange={(event) => setAccountName(event.target.value)}
+            />
 
-    const getBalance = (account) => {
-        const balance = Number(account.balance || 0);
+            {accountName.trim() && (
+              <div
+                className="field-preview"
+                data-testid="account-name-preview"
+              >
+                Preview: <strong>{accountName}</strong>
+              </div>
+            )}
+          </div>
 
-        return balance.toLocaleString("en-IN", {
-            style: "currency",
-            currency: "INR",
-            minimumFractionDigits: 2,
-        });
-    };
+          {/* Account Type */}
+          <div className="form-field">
+            <label htmlFor="accountType">
+              Account Type
+            </label>
 
-    /* =====================================================
-       UI
-    ===================================================== */
+            <select
+              id="accountType"
+              value={accountType}
+              onChange={(event) => setAccountType(event.target.value)}
+            >
+              <option value="CHECKING">Checking</option>
+              <option value="SAVINGS">Savings</option>
+              <option value="LOAN">Loan</option>
+              <option value="INVESTMENT">Investment</option>
+              <option value="PAYROLL">Payroll</option>
+            </select>
+          </div>
 
-    return (
-        <div className="account-page">
+          {/* Interest Rate - Savings only */}
+          {accountType === "SAVINGS" && (
+            <div className="form-field">
+              <label htmlFor="interestRate">
+                Interest Rate
+              </label>
 
-            {/* =================================================
-                CREATE ACCOUNT
-            ================================================= */}
+              <div className="input-with-suffix">
+                <input
+                  id="interestRate"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Enter interest rate"
+                  value={interestRate}
+                  onChange={(event) =>
+                    setInterestRate(event.target.value)
+                  }
+                />
 
-            <section className="account-create-section">
+                <span>%</span>
+              </div>
+            </div>
+          )}
 
-                <div className="account-section-heading">
-                    <div>
-                        <span className="section-eyebrow">
-                            NEW ACCOUNT
-                        </span>
+          {/* Submit */}
+          <div className="account-form-actions">
+            <button
+              type="submit"
+              className="account-create-button"
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <span className="button-spinner"></span>
+                  Creating...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </button>
+          </div>
+        </form>
+      </section>
 
-                        <h2>Create Account</h2>
+      {/* Accounts List */}
+      <section className="account-list-section">
 
-                        <p>
-                            Add a new financial account to
-                            your VaultFlow workspace.
-                        </p>
-                    </div>
+        <div className="account-section-heading">
+          <div>
+            <h2>Accounts</h2>
+            <p>
+              {accounts.length}{" "}
+              {accounts.length === 1 ? "account" : "accounts"} available
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="account-loading">
+            Loading accounts...
+          </div>
+        ) : accounts.length === 0 ? (
+          <div className="account-empty">
+            <h3>No accounts found</h3>
+            <p>
+              Create your first account using the form above.
+            </p>
+          </div>
+        ) : (
+          <div className="accounts-grid">
+
+            {accounts.map((account) => (
+              <div
+                className="account-card"
+                key={account.id}
+              >
+                <div className="account-card-header">
+
+                  <div className="account-card-icon">
+                    {account.accountType === "SAVINGS"
+                      ? "S"
+                      : account.accountType === "LOAN"
+                      ? "L"
+                      : account.accountType === "INVESTMENT"
+                      ? "I"
+                      : account.accountType === "PAYROLL"
+                      ? "P"
+                      : "C"}
+                  </div>
+
+                  <div>
+                    <h3>
+                      {account.accountName || account.name}
+                    </h3>
+
+                    <span className="account-type">
+                      {account.accountType || "CHECKING"}
+                    </span>
+                  </div>
                 </div>
 
+                <div className="account-card-body">
 
-                {successMessage && (
-                    <div
-                        className="account-alert account-success"
-                        role="alert"
-                    >
-                        <span>✓</span>
-                        {successMessage}
-                    </div>
-                )}
+                  <div className="account-balance-label">
+                    Balance
+                  </div>
 
+                  <div className="account-balance">
+                    {Number(account.balance || 0).toLocaleString(
+                      "en-IN",
+                      {
+                        style: "currency",
+                        currency: "INR",
+                        minimumFractionDigits: 2,
+                      }
+                    )}
+                  </div>
 
-                {errorMessage && (
-                    <div
-                        className="account-alert account-error"
-                        role="alert"
-                    >
-                        <span>!</span>
-                        {errorMessage}
-                    </div>
-                )}
-
-
-                <form
-                    className="account-form"
-                    onSubmit={handleSubmit}
-                >
-
-                    <div className="form-field">
-
-                        <label htmlFor="accountName">
-                            Account Name
-                        </label>
-
-                        <input
-                            id="accountName"
-                            type="text"
-                            placeholder="Account Name"
-                            value={accountName}
-                            onChange={handleAccountNameChange}
-                        />
-
-                        <div className="field-preview">
-
-                            <span>
-                                Account Name Preview
-                            </span>
-
-                            <strong
-                                data-testid="account-name-preview"
-                            >
-                                {accountName || "Your account name"}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div className="form-field">
-
-                        <label htmlFor="accountType">
-                            Account Type
-                        </label>
-
-                        <select
-                            id="accountType"
-                            value={accountType}
-                            onChange={handleAccountTypeChange}
-                        >
-                            <option value="Checking">
-                                Checking
-                            </option>
-
-                            <option value="Savings">
-                                Savings
-                            </option>
-
-                            <option value="Current">
-                                Current
-                            </option>
-                        </select>
-
-                    </div>
-
-
-                    {accountType === "Savings" && (
-                        <div className="form-field">
-
-                            <label htmlFor="interestRate">
-                                Interest Rate
-                            </label>
-
-                            <div className="input-with-suffix">
-
-                                <input
-                                    id="interestRate"
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    placeholder="Interest Rate"
-                                    value={interestRate}
-                                    onChange={(e) =>
-                                        setInterestRate(
-                                            e.target.value
-                                        )
-                                    }
-                                />
-
-                                <span>%</span>
-
-                            </div>
-
-                        </div>
+                  {account.accountType === "SAVINGS" &&
+                    account.interestRate !== null &&
+                    account.interestRate !== undefined && (
+                      <div className="account-interest">
+                        Interest Rate:{" "}
+                        <strong>
+                          {account.interestRate}%
+                        </strong>
+                      </div>
                     )}
 
-
-                    <div className="account-form-actions">
-
-                        <button
-                            type="submit"
-                            className="account-create-button"
-                            disabled={saving}
-                        >
-                            {saving ? (
-                                <>
-                                    <span className="button-spinner"></span>
-                                    Creating...
-                                </>
-                            ) : (
-                                <>
-                                    <span>+</span>
-                                    Create Account
-                                </>
-                            )}
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </section>
-
-
-            {/* =================================================
-                ACCOUNT LIST
-            ================================================= */}
-
-            <section className="accounts-list-section">
-
-                <div className="account-section-heading">
-
-                    <div>
-                        <span className="section-eyebrow">
-                            YOUR FINANCES
-                        </span>
-
-                        <h2>Your Accounts</h2>
-
-                        <p>
-                            View the financial accounts connected
-                            to your VaultFlow workspace.
-                        </p>
-                    </div>
-
-                    <div className="account-count">
-                        {accounts.length}
-                        <span>
-                            {accounts.length === 1
-                                ? " Account"
-                                : " Accounts"}
-                        </span>
-                    </div>
-
                 </div>
+              </div>
+            ))}
 
-
-                {loading ? (
-
-                    <div className="accounts-state">
-
-                        <div className="loading-spinner"></div>
-
-                        <p>
-                            Loading your accounts...
-                        </p>
-
-                    </div>
-
-                ) : accounts.length === 0 ? (
-
-                    <div className="accounts-empty">
-
-                        <div className="empty-account-icon">
-                            $
-                        </div>
-
-                        <h3>
-                            No accounts yet
-                        </h3>
-
-                        <p>
-                            Create your first account above.
-                            It will appear here once it is
-                            successfully saved.
-                        </p>
-
-                    </div>
-
-                ) : (
-
-                    <div className="accounts-grid">
-
-                        {accounts.map((account, index) => (
-
-                            <article
-                                className="account-card"
-                                key={
-                                    account.id ||
-                                    account.accountId ||
-                                    index
-                                }
-                            >
-
-                                <div className="account-card-top">
-
-                                    <div className="account-icon">
-                                        $
-                                    </div>
-
-                                    <span className="account-status">
-                                        Active
-                                    </span>
-
-                                </div>
-
-
-                                <div className="account-card-body">
-
-                                    <h3>
-                                        {getAccountName(account)}
-                                    </h3>
-
-                                    <span className="account-type">
-                                        {getAccountType(account)}
-                                    </span>
-
-                                </div>
-
-
-                                <div className="account-card-balance">
-
-                                    <span>
-                                        Current Balance
-                                    </span>
-
-                                    <strong>
-                                        {getBalance(account)}
-                                    </strong>
-
-                                </div>
-
-
-                                {getAccountType(account)
-                                    .toLowerCase() ===
-                                    "savings" &&
-                                    account.interestRate != null && (
-                                        <div className="account-interest">
-
-                                            <span>
-                                                Interest Rate
-                                            </span>
-
-                                            <strong>
-                                                {account.interestRate}%
-                                            </strong>
-
-                                        </div>
-                                    )}
-
-                            </article>
-
-                        ))}
-
-                    </div>
-
-                )}
-
-            </section>
-
-        </div>
-    );
+          </div>
+        )}
+      </section>
+    </div>
+  );
 };
 
 export default AccountForm;
