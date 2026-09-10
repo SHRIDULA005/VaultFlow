@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -11,7 +12,7 @@ const TransactionForm = () => {
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    // T19 - auto-dismiss success alert after 3 seconds
+    // T19 - Automatically remove success message after 3 seconds
     useEffect(() => {
         if (!successMessage) {
             return;
@@ -27,9 +28,11 @@ const TransactionForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // T20 - show warning when accounts are not selected
+        // T20 - Account validation
         if (!sourceAccountId || !targetAccountId) {
             setWarningMessage("Account not selected");
+            setSuccessMessage("");
+            setErrorMessage("");
             return;
         }
 
@@ -43,15 +46,19 @@ const TransactionForm = () => {
             referenceId: referenceId
         };
 
-        // T14 - create transaction
+        // T14 - Create transaction
         axios
             .post("/api/transactions", transactionData)
             .then(() => {
-                // T18 - success alert
-                setSuccessMessage("Transaction Logged Successfully");
+                // T18 - Successful transaction
+                setSuccessMessage(
+                    "Transaction Logged Successfully"
+                );
+                setErrorMessage("");
+                setWarningMessage("");
             })
             .catch((error) => {
-                // T16 - server error
+                // T16 - Server error
                 if (
                     error.response &&
                     error.response.status === 500
@@ -67,6 +74,7 @@ const TransactionForm = () => {
         <div>
             <h2>New Transaction</h2>
 
+            {/* T18 / T19 */}
             {successMessage && (
                 <div
                     data-testid="success-alert"
@@ -76,6 +84,7 @@ const TransactionForm = () => {
                 </div>
             )}
 
+            {/* T20 */}
             {warningMessage && (
                 <div
                     data-testid="warning-alert"
@@ -85,6 +94,7 @@ const TransactionForm = () => {
                 </div>
             )}
 
+            {/* T16 */}
             {errorMessage && (
                 <div
                     data-testid="error-alert"
@@ -144,6 +154,7 @@ const TransactionForm = () => {
                     type="text"
                     placeholder="e.g. TRX-2026-ARC-00441"
                     pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
+                    required
                     value={referenceId}
                     onChange={(e) =>
                         setReferenceId(e.target.value)
@@ -159,3 +170,4 @@ const TransactionForm = () => {
 };
 
 export default TransactionForm;
+

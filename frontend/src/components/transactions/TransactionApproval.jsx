@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -9,11 +10,14 @@ const TransactionApproval = ({ transactionId }) => {
             .put(`/api/transactions/${transactionId}`, {
                 status: "APPROVED"
             })
-            .then((response) => {
+            .then(() => {
                 setStatus("APPROVED");
             })
             .catch((error) => {
-                console.error("Transaction approval failed:", error);
+                console.error(
+                    "Transaction approval failed:",
+                    error
+                );
             });
     };
 
@@ -25,15 +29,21 @@ const TransactionApproval = ({ transactionId }) => {
                 Transaction ID: {transactionId}
             </p>
 
-            <button type="button" onClick={handleApprove}>
+            <button
+                type="button"
+                onClick={handleApprove}
+            >
                 Approve
             </button>
 
             {status === "APPROVED" && (
-                <p>Transaction Approved Successfully</p>
+                <p>
+                    Transaction Approved Successfully
+                </p>
             )}
         </div>
     );
 };
 
 export default TransactionApproval;
+

@@ -1,4 +1,9 @@
-import React, { useRef, useState, useEffect } from "react";
+
+import React, {
+    useEffect,
+    useRef,
+    useState
+} from "react";
 
 const TransactionPanel = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +24,10 @@ const TransactionPanel = () => {
 
     return (
         <div>
-            <button type="button" onClick={handleOpen}>
+            <button
+                type="button"
+                onClick={handleOpen}
+            >
                 Initiate Transaction
             </button>
 
@@ -44,3 +52,4 @@ const TransactionPanel = () => {
 };
 
 export default TransactionPanel;
+
