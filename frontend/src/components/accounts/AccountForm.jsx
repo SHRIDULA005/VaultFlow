@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import accountService from "../../services/accountService";
-
+import "./AccountForm.css";
 
 const AccountForm = () => {
     const [accountName, setAccountName] = useState("");
