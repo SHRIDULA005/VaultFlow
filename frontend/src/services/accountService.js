@@ -6,12 +6,19 @@ export const getAccounts = async () => {
 };
 
 export const createAccount = async (accountData) => {
-    const response = await api.post("/accounts", accountData);
+    const response = await api.post(
+        "/accounts",
+        accountData
+    );
+
     return response.data;
 };
 
 export const deleteAccount = async (id) => {
-    const response = await api.delete(`/accounts/${id}`);
+    const response = await api.delete(
+        `/accounts/${id}`
+    );
+
     return response.data;
 };
 
