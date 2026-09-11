@@ -10,9 +10,15 @@ export const createAccount = async (accountData) => {
     return response.data;
 };
 
+export const deleteAccount = async (id) => {
+    const response = await api.delete(`/accounts/${id}`);
+    return response.data;
+};
+
 const accountService = {
     getAccounts,
     createAccount,
+    deleteAccount,
 };
 
 export default accountService;
