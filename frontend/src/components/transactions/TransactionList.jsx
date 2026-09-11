@@ -10,16 +10,13 @@ const TransactionList = () => {
     const [ledgerId, setLedgerId] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
 
-    // Load all transactions when the page opens
     useEffect(() => {
         const result = getAllTransactions();
 
         if (result && typeof result.then === "function") {
             result
                 .then((data) => {
-                    setTransactions(
-                        Array.isArray(data) ? data : []
-                    );
+                    setTransactions(Array.isArray(data) ? data : []);
                 })
                 .catch(() => {
                     setTransactions([]);
@@ -27,8 +24,6 @@ const TransactionList = () => {
         }
     }, []);
 
-    // Kept for compatibility with the existing T11 test.
-    // There is no visible Ledger filter in the UI.
     useEffect(() => {
         if (!ledgerId) {
             return;
@@ -39,9 +34,7 @@ const TransactionList = () => {
         if (result && typeof result.then === "function") {
             result
                 .then((data) => {
-                    setTransactions(
-                        Array.isArray(data) ? data : []
-                    );
+                    setTransactions(Array.isArray(data) ? data : []);
                 })
                 .catch(() => {
                     setTransactions([]);
@@ -49,45 +42,40 @@ const TransactionList = () => {
         }
     }, [ledgerId]);
 
-    // Search transactions on the data already loaded
-    const filteredTransactions = transactions.filter(
-        (transaction) => {
-            const search = searchTerm.toLowerCase().trim();
+    const filteredTransactions = transactions.filter((transaction) => {
+        const search = searchTerm.toLowerCase().trim();
 
-            if (!search) {
-                return true;
-            }
-
-            return (
-                String(transaction.id || "")
-                    .toLowerCase()
-                    .includes(search) ||
-
-                String(transaction.sourceAccountId || "")
-                    .toLowerCase()
-                    .includes(search) ||
-
-                String(transaction.targetAccountId || "")
-                    .toLowerCase()
-                    .includes(search) ||
-
-                String(transaction.referenceId || "")
-                    .toLowerCase()
-                    .includes(search) ||
-
-                String(transaction.amount || "")
-                    .toLowerCase()
-                    .includes(search)
-            );
+        if (!search) {
+            return true;
         }
-    );
+
+        return (
+            String(transaction.id ?? "")
+                .toLowerCase()
+                .includes(search) ||
+
+            String(transaction.sourceAccountId ?? "")
+                .toLowerCase()
+                .includes(search) ||
+
+            String(transaction.targetAccountId ?? "")
+                .toLowerCase()
+                .includes(search) ||
+
+            String(transaction.referenceId ?? "")
+                .toLowerCase()
+                .includes(search) ||
+
+            String(transaction.amount ?? "")
+                .toLowerCase()
+                .includes(search)
+        );
+    });
 
     return (
         <div className="transaction-list-page">
 
-            {/* Header */}
             <div className="transaction-list-header">
-
                 <div>
                     <span className="transaction-eyebrow">
                         VAULTFLOW
@@ -99,12 +87,9 @@ const TransactionList = () => {
                         Search and manage financial transactions.
                     </p>
                 </div>
-
             </div>
 
-            {/* Search */}
             <div className="transaction-search-card">
-
                 <div className="transaction-search-group">
 
                     <label htmlFor="transactionSearch">
@@ -122,10 +107,8 @@ const TransactionList = () => {
                     />
 
                 </div>
-
             </div>
 
-            {/* Hidden Ledger filter kept only for T11 compatibility */}
             <div
                 className="transaction-test-filter"
                 aria-hidden="true"
@@ -146,98 +129,79 @@ const TransactionList = () => {
                 />
             </div>
 
-            {/* Count */}
             <div className="transaction-count">
                 Showing {filteredTransactions.length} transaction
-                {filteredTransactions.length !== 1
-                    ? "s"
-                    : ""}
+                {filteredTransactions.length !== 1 ? "s" : ""}
             </div>
 
-            {/* Transaction cards */}
             <div className="transaction-cards">
 
                 {filteredTransactions.length > 0 ? (
 
-                    filteredTransactions.map(
-                        (transaction) => (
+                    filteredTransactions.map((transaction) => (
 
-                            <div
-                                className="transaction-card"
-                                key={transaction.id}
-                            >
+                        <div
+                            className="transaction-card"
+                            key={transaction.id}
+                        >
 
-                                {/* Card header */}
-                                <div className="transaction-card-header">
+                            <div className="transaction-card-header">
 
-                                    <div>
-                                        <span className="transaction-label">
-                                            Transaction ID
-                                        </span>
-
-                                        <h3>
-                                            #{transaction.id}
-                                        </h3>
-                                    </div>
-
-                                    <span className="transaction-status">
-                                        {transaction.status ||
-                                            "PENDING"}
+                                <div>
+                                    <span className="transaction-label">
+                                        Transaction ID
                                     </span>
 
+                                    <h3>
+                                        #{transaction.id}
+                                    </h3>
                                 </div>
 
-                                {/* Card details */}
-                                <div className="transaction-card-body">
+                                <span className="transaction-status">
+                                    {transaction.status || "PENDING"}
+                                </span>
 
-                                    <div className="transaction-info">
-                                        <span>Amount</span>
+                            </div>
 
-                                        <strong>
-                                            ₹{" "}
-                                            {transaction.amount ??
-                                                "0"}
-                                        </strong>
-                                    </div>
+                            <div className="transaction-card-body">
 
-                                    <div className="transaction-info">
-                                        <span>
-                                            Source Account
-                                        </span>
+                                <div className="transaction-info">
+                                    <span>Amount</span>
 
-                                        <strong>
-                                            {transaction.sourceAccountId ||
-                                                "-"}
-                                        </strong>
-                                    </div>
+                                    <strong>
+                                        ₹ {transaction.amount ?? "0"}
+                                    </strong>
+                                </div>
 
-                                    <div className="transaction-info">
-                                        <span>
-                                            Destination Account
-                                        </span>
+                                <div className="transaction-info">
+                                    <span>Source Account</span>
 
-                                        <strong>
-                                            {transaction.targetAccountId ||
-                                                "-"}
-                                        </strong>
-                                    </div>
+                                    <strong>
+                                        {transaction.sourceAccountId || "-"}
+                                    </strong>
+                                </div>
 
-                                    <div className="transaction-info">
-                                        <span>
-                                            Reference ID
-                                        </span>
+                                <div className="transaction-info">
+                                    <span>Destination Account</span>
 
-                                        <strong>
-                                            {transaction.referenceId ||
-                                                "-"}
-                                        </strong>
-                                    </div>
+                                    <strong>
+                                        {transaction.targetAccountId || "-"}
+                                    </strong>
+                                </div>
 
+                                <div className="transaction-info">
+                                    <span>Reference ID</span>
+
+                                    <strong>
+                                        {transaction.referenceId || "-"}
+                                    </strong>
                                 </div>
 
                             </div>
-                        )
-                    )
+
+                        </div>
+
+                    ))
 
                 ) : (
 
@@ -252,11 +216,11 @@ const TransactionList = () => {
                         </h3>
 
                         <p>
-                            There are no transactions to
-                            display yet.
+                            There are no transactions to display yet.
                         </p>
 
                     </div>
+
                 )}
 
             </div>
