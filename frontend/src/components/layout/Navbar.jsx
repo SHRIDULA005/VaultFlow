@@ -1,42 +1,46 @@
 import React from "react";
 import {
     Link,
-    useNavigate,
-    useLocation
+    useInRouterContext,
+    useLocation,
+    useNavigate
 } from "react-router-dom";
 
 const Navbar = ({ isAdmin = false }) => {
+    const inRouter = useInRouterContext();
 
-    /*
-     * We cannot call useNavigate/useLocation
-     * directly because the automated tests render
-     * Navbar without a Router.
-     *
-     * These values are obtained safely so Navbar
-     * works both:
-     *
-     * 1. Inside the real application Router
-     * 2. Directly inside the test environment
-     */
-
-    let navigate = null;
-    let location = {
-        pathname: window.location.pathname
-    };
-
-    try {
-        navigate = useNavigate();
-        location = useLocation();
-    } catch (error) {
-        /*
-         * Navbar is being rendered outside Router.
-         * The component will use window.location
-         * fallback navigation instead.
-         */
+    if (inRouter) {
+        return <RouterNavbar isAdmin={isAdmin} />;
     }
 
-    const goTo = (path) => {
+    return (
+        <NavbarContent
+            isAdmin={isAdmin}
+            pathname={window.location.pathname}
+            navigate={null}
+        />
+    );
+};
 
+const RouterNavbar = ({ isAdmin }) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    return (
+        <NavbarContent
+            isAdmin={isAdmin}
+            pathname={location.pathname}
+            navigate={navigate}
+        />
+    );
+};
+
+const NavbarContent = ({
+    isAdmin = false,
+    pathname = "/",
+    navigate = null
+}) => {
+    const goTo = (path) => {
         if (navigate) {
             navigate(path);
         } else {
@@ -45,26 +49,55 @@ const Navbar = ({ isAdmin = false }) => {
     };
 
     const handleLogout = () => {
-
         localStorage.removeItem("token");
         localStorage.removeItem("role");
 
         if (navigate) {
-            navigate("/login", {
-                replace: true
-            });
+            navigate("/login", { replace: true });
         } else {
             window.location.href = "/login";
         }
     };
 
     const isActive = (path) => {
-
         if (path === "/") {
-            return location.pathname === "/";
+            return pathname === "/";
         }
 
-        return location.pathname.startsWith(path);
+        return pathname.startsWith(path);
+    };
+
+    /*
+     * Safe navigation link.
+     *
+     * React Router <Link> can only be rendered inside a Router.
+     * The test suite renders Navbar directly without a Router,
+     * so we use a normal <a> element in that situation.
+     */
+    const SafeLink = ({
+        to,
+        children,
+        style
+    }) => {
+        if (navigate) {
+            return (
+                <Link
+                    to={to}
+                    style={style}
+                >
+                    {children}
+                </Link>
+            );
+        }
+
+        return (
+            <a
+                href={to}
+                style={style}
+            >
+                {children}
+            </a>
+        );
     };
 
     return (
@@ -87,12 +120,8 @@ const Navbar = ({ isAdmin = false }) => {
                 backdropFilter: "blur(16px)"
             }}
         >
-
-            {/* =====================================
-                BRAND
-            ====================================== */}
-
-            <Link
+            {/* Brand */}
+            <SafeLink
                 to="/"
                 style={{
                     display: "flex",
@@ -105,7 +134,6 @@ const Navbar = ({ isAdmin = false }) => {
                     letterSpacing: "-0.02em"
                 }}
             >
-
                 <span
                     style={{
                         width: "36px",
@@ -128,14 +156,9 @@ const Navbar = ({ isAdmin = false }) => {
                 <span>
                     VaultFlow
                 </span>
+            </SafeLink>
 
-            </Link>
-
-
-            {/* =====================================
-                NAVIGATION LINKS
-            ====================================== */}
-
+            {/* Main navigation */}
             <div
                 style={{
                     display: "flex",
@@ -144,8 +167,7 @@ const Navbar = ({ isAdmin = false }) => {
                     flex: 1
                 }}
             >
-
-                <Link
+                <SafeLink
                     to="/"
                     style={{
                         ...navLinkStyle,
@@ -155,10 +177,9 @@ const Navbar = ({ isAdmin = false }) => {
                     }}
                 >
                     Dashboard
-                </Link>
+                </SafeLink>
 
-
-                <Link
+                <SafeLink
                     to="/accounts"
                     style={{
                         ...navLinkStyle,
@@ -168,10 +189,9 @@ const Navbar = ({ isAdmin = false }) => {
                     }}
                 >
                     Accounts
-                </Link>
+                </SafeLink>
 
-
-                <Link
+                <SafeLink
                     to="/transactions"
                     style={{
                         ...navLinkStyle,
@@ -181,10 +201,9 @@ const Navbar = ({ isAdmin = false }) => {
                     }}
                 >
                     Transactions
-                </Link>
+                </SafeLink>
 
-
-                <Link
+                <SafeLink
                     to="/ledgers"
                     style={{
                         ...navLinkStyle,
@@ -194,15 +213,10 @@ const Navbar = ({ isAdmin = false }) => {
                     }}
                 >
                     Ledgers
-                </Link>
-
+                </SafeLink>
             </div>
 
-
-            {/* =====================================
-                RIGHT-SIDE ACTIONS
-            ====================================== */}
-
+            {/* Actions */}
             <div
                 style={{
                     display: "flex",
@@ -210,20 +224,11 @@ const Navbar = ({ isAdmin = false }) => {
                     gap: "10px"
                 }}
             >
-
-                {/* =================================
-                    APPROVE TRANSACTION
-                    TREASURER / ADMIN ONLY
-                ================================== */}
-
                 {isAdmin && (
-
                     <button
                         type="button"
                         onClick={() =>
-                            goTo(
-                                "/transactions/approval"
-                            )
+                            goTo("/transactions/approval")
                         }
                         style={{
                             ...actionButtonStyle,
@@ -236,21 +241,13 @@ const Navbar = ({ isAdmin = false }) => {
                                 "0 8px 20px rgba(37, 99, 235, 0.22)"
                         }}
                     >
-
                         <span aria-hidden="true">
                             ✓
                         </span>
 
                         Approve Transaction
-
                     </button>
-
                 )}
-
-
-                {/* =================================
-                    LOGOUT
-                ================================== */}
 
                 <button
                     type="button"
@@ -264,91 +261,47 @@ const Navbar = ({ isAdmin = false }) => {
                             "1px solid rgba(148, 163, 184, 0.2)"
                     }}
                 >
-
-                    <span
-                        aria-hidden="true"
-                    >
+                    <span aria-hidden="true">
                         ↪
                     </span>
 
                     Logout
-
                 </button>
-
             </div>
-
         </nav>
     );
 };
 
-
-/* =====================================================
-   NAVIGATION LINK STYLE
-===================================================== */
-
 const navLinkStyle = {
-
     display: "inline-flex",
-
     alignItems: "center",
-
     padding: "9px 13px",
-
     borderRadius: "8px",
-
     textDecoration: "none",
-
     color: "#94a3b8",
-
     fontSize: "14px",
-
     fontWeight: 600,
-
     transition: "all 0.2s ease"
 };
 
-
-/* =====================================================
-   ACTIVE NAVIGATION LINK
-===================================================== */
-
 const activeNavLinkStyle = {
-
     color: "#ffffff",
-
     background:
         "rgba(59, 130, 246, 0.14)"
 };
 
-
-/* =====================================================
-   ACTION BUTTON
-===================================================== */
-
 const actionButtonStyle = {
-
     display: "inline-flex",
-
     alignItems: "center",
-
     justifyContent: "center",
-
     gap: "7px",
-
     minHeight: "38px",
-
     padding: "0 14px",
-
     borderRadius: "9px",
-
     fontSize: "13px",
-
     fontWeight: 700,
-
     cursor: "pointer",
-
     transition: "all 0.2s ease"
 };
-
 
 export default Navbar;
