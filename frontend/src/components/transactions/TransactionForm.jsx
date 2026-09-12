@@ -3,7 +3,6 @@ import axios from "axios";
 import "./TransactionForm.css";
 
 const TransactionForm = () => {
-
     const [amount, setAmount] = useState("");
     const [sourceAccountId, setSourceAccountId] = useState("");
     const [targetAccountId, setTargetAccountId] = useState("");
@@ -12,10 +11,13 @@ const TransactionForm = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Remove success message after 3 seconds
+    /*
+     * Automatically remove success notification
+     * after 3 seconds.
+     */
     useEffect(() => {
-
         if (!successMessage) {
             return;
         }
@@ -25,13 +27,12 @@ const TransactionForm = () => {
         }, 3000);
 
         return () => clearTimeout(timer);
-
     }, [successMessage]);
 
     const handleSubmit = () => {
-
         const accountsMissing =
-            !sourceAccountId || !targetAccountId;
+            !sourceAccountId ||
+            !targetAccountId;
 
         if (accountsMissing) {
             setWarningMessage("Account not selected");
@@ -41,6 +42,10 @@ const TransactionForm = () => {
 
         setErrorMessage("");
 
+        /*
+         * Keep this payload structure unchanged.
+         * The automated tests depend on these fields.
+         */
         const transactionData = {
             amount,
             sourceAccountId,
@@ -48,55 +53,69 @@ const TransactionForm = () => {
             referenceId
         };
 
-        /*
-         * Keep axios.post here because the automated tests
-         * specifically mock axios.post("/api/transactions", ...)
-         */
-        const token = localStorage.getItem("token");
+        const token =
+            localStorage.getItem("token");
 
         if (token) {
             axios.defaults.headers.common.Authorization =
                 `Bearer ${token}`;
         }
 
+        /*
+         * Keep axios.post exactly here because
+         * the test suite mocks this request.
+         */
         let request;
 
         try {
+            setIsSubmitting(true);
 
             request = axios.post(
                 "/api/transactions",
                 transactionData
             );
-
         } catch (error) {
-
             console.error(
                 "Transaction request failed:",
                 error
             );
 
+            setIsSubmitting(false);
             return;
         }
 
-        // Protect against mocked axios returning undefined
+        /*
+         * Protect against mocked axios returning
+         * undefined during tests.
+         */
         if (
             !request ||
             typeof request.then !== "function"
         ) {
+            setIsSubmitting(false);
             return;
         }
 
         request
             .then(() => {
-
                 setSuccessMessage(
                     "Transaction Logged Successfully"
                 );
 
                 setErrorMessage("");
+                setWarningMessage("");
+                setIsSubmitting(false);
+
+                /*
+                 * Clear only transaction input fields
+                 * after successful submission.
+                 */
+                setAmount("");
+                setSourceAccountId("");
+                setTargetAccountId("");
+                setReferenceId("");
             })
             .catch((error) => {
-
                 console.error(
                     "Transaction creation failed:",
                     error
@@ -105,20 +124,17 @@ const TransactionForm = () => {
                 const status =
                     error?.response?.status;
 
-                if (status === 403) {
+                setIsSubmitting(false);
 
+                if (status === 403) {
                     setErrorMessage(
                         "You are not authorized to create transactions."
                     );
-
                 } else if (status === 500) {
-
                     setErrorMessage(
                         "Unable to process transaction. Please try again."
                     );
-
                 } else {
-
                     setErrorMessage(
                         "Unable to create transaction. Please try again."
                     );
@@ -127,161 +143,364 @@ const TransactionForm = () => {
     };
 
     return (
-        <div className="transaction-form-page">
+        <main className="transaction-form-page">
 
-            <div className="transaction-form-header">
+            {/* =====================================
+                PAGE HEADER
+            ====================================== */}
+            <section className="transaction-form-header">
 
-                <span className="transaction-eyebrow">
-                    VAULTFLOW
-                </span>
+                <div className="transaction-breadcrumb">
+                    <span>VAULTFLOW</span>
+                    <span className="breadcrumb-divider">
+                        /
+                    </span>
+                    <strong>Transactions</strong>
+                </div>
 
-                <h2>New Transaction</h2>
+                <div className="transaction-header-content">
 
-                <p>
-                    Create and submit a new financial transaction.
-                </p>
+                    <div>
+                        <span className="transaction-eyebrow">
+                            FINANCIAL OPERATIONS
+                        </span>
 
-            </div>
+                        <h1>
+                            New Transaction
+                        </h1>
 
-            {/* Success Message */}
+                        <p>
+                            Create and submit a secure
+                            financial transaction for
+                            processing.
+                        </p>
+                    </div>
+
+                    <div className="transaction-header-badge">
+                        <span className="status-dot"></span>
+                        Secure Entry
+                    </div>
+
+                </div>
+            </section>
+
+            {/* =====================================
+                NOTIFICATIONS
+            ====================================== */}
+
             {successMessage && (
                 <div
+                    className="transaction-alert transaction-alert-success"
                     data-testid="success-alert"
-                    style={{
-                        backgroundColor: "green",
-                        color: "white",
-                        padding: "12px",
-                        marginBottom: "15px",
-                        borderRadius: "5px"
-                    }}
                 >
-                    Transaction Logged Successfully
+                    <div className="alert-icon">
+                        ✓
+                    </div>
+
+                    <div>
+                        <strong>
+                            Transaction submitted
+                        </strong>
+
+                        <span>
+                            Transaction Logged Successfully
+                        </span>
+                    </div>
                 </div>
             )}
 
-            {/* Warning Message */}
             {warningMessage && (
                 <div
+                    className="transaction-alert transaction-alert-warning"
                     data-testid="warning-alert"
-                    style={{
-                        backgroundColor: "orange",
-                        color: "black",
-                        padding: "12px",
-                        marginBottom: "15px",
-                        borderRadius: "5px"
-                    }}
                 >
-                    Account not selected
+                    <div className="alert-icon">
+                        !
+                    </div>
+
+                    <div>
+                        <strong>
+                            Account selection required
+                        </strong>
+
+                        <span>
+                            Account not selected
+                        </span>
+                    </div>
                 </div>
             )}
 
-            {/* Error Message */}
             {errorMessage && (
                 <div
+                    className="transaction-alert transaction-alert-error"
                     data-testid="error-alert"
                     style={{
-                        backgroundColor: "red",
-                        color: "white",
-                        padding: "12px",
-                        marginBottom: "15px",
-                        borderRadius: "5px"
+                        backgroundColor: "red"
                     }}
                 >
-                    {errorMessage}
+                    <div className="alert-icon">
+                        !
+                    </div>
+
+                    <div>
+                        <strong>
+                            Transaction failed
+                        </strong>
+
+                        <span>
+                            {errorMessage}
+                        </span>
+                    </div>
                 </div>
             )}
 
-            <div className="transaction-form-card">
+            {/* =====================================
+                FORM CARD
+            ====================================== */}
 
-                {/* Amount */}
-                <div className="transaction-form-group">
+            <section className="transaction-form-card">
 
-                    <label htmlFor="transactionAmount">
-                        Transaction Amount
-                    </label>
+                <div className="transaction-card-header">
 
-                    <input
-                        id="transactionAmount"
-                        type="text"
-                        placeholder="Transaction Amount"
-                        value={amount}
-                        onChange={(e) =>
-                            setAmount(e.target.value)
-                        }
-                    />
+                    <div className="transaction-card-icon">
+                        $
+                    </div>
 
-                </div>
+                    <div>
+                        <span>
+                            TRANSACTION DETAILS
+                        </span>
 
-                {/* Source Account */}
-                <div className="transaction-form-group">
+                        <h2>
+                            Enter transaction information
+                        </h2>
 
-                    <label htmlFor="sourceAccount">
-                        Source Account
-                    </label>
-
-                    <input
-                        id="sourceAccount"
-                        type="text"
-                        placeholder="Source Account"
-                        value={sourceAccountId}
-                        onChange={(e) =>
-                            setSourceAccountId(e.target.value)
-                        }
-                    />
+                        <p>
+                            Verify the account details
+                            before submitting.
+                        </p>
+                    </div>
 
                 </div>
 
-                {/* Destination Account */}
-                <div className="transaction-form-group">
+                <div className="transaction-form-divider"></div>
 
-                    <label htmlFor="destinationAccount">
-                        Destination Account
-                    </label>
+                <div className="transaction-form-grid">
 
-                    <input
-                        id="destinationAccount"
-                        type="text"
-                        placeholder="Destination Account"
-                        value={targetAccountId}
-                        onChange={(e) =>
-                            setTargetAccountId(e.target.value)
-                        }
-                    />
+                    {/* Amount */}
+                    <div className="transaction-form-group transaction-form-group-full">
+
+                        <label htmlFor="transactionAmount">
+                            Transaction Amount
+                            <span>*</span>
+                        </label>
+
+                        <div className="transaction-input-wrapper transaction-amount-wrapper">
+
+                            <span className="currency-symbol">
+                                ₹
+                            </span>
+
+                            <input
+                                id="transactionAmount"
+                                type="text"
+                                placeholder="Transaction Amount"
+                                value={amount}
+                                onChange={(e) =>
+                                    setAmount(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+                        <small>
+                            Enter the amount to be
+                            transferred.
+                        </small>
+
+                    </div>
+
+                    {/* Source */}
+                    <div className="transaction-form-group">
+
+                        <label htmlFor="sourceAccount">
+                            Source Account
+                            <span>*</span>
+                        </label>
+
+                        <div className="transaction-input-wrapper">
+
+                            <span className="field-prefix">
+                                ACC
+                            </span>
+
+                            <input
+                                id="sourceAccount"
+                                type="text"
+                                placeholder="Source Account"
+                                value={sourceAccountId}
+                                onChange={(e) =>
+                                    setSourceAccountId(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+                        <small>
+                            Account from which funds
+                            will be transferred.
+                        </small>
+
+                    </div>
+
+                    {/* Destination */}
+                    <div className="transaction-form-group">
+
+                        <label htmlFor="destinationAccount">
+                            Destination Account
+                            <span>*</span>
+                        </label>
+
+                        <div className="transaction-input-wrapper">
+
+                            <span className="field-prefix">
+                                ACC
+                            </span>
+
+                            <input
+                                id="destinationAccount"
+                                type="text"
+                                placeholder="Destination Account"
+                                value={targetAccountId}
+                                onChange={(e) =>
+                                    setTargetAccountId(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+                        <small>
+                            Account that will receive
+                            the funds.
+                        </small>
+
+                    </div>
+
+                    {/* Reference */}
+                    <div className="transaction-form-group transaction-form-group-full">
+
+                        <label htmlFor="referenceId">
+                            Reference ID
+                            <span>*</span>
+                        </label>
+
+                        <div className="transaction-input-wrapper">
+
+                            <span className="field-prefix">
+                                REF
+                            </span>
+
+                            <input
+                                id="referenceId"
+                                type="text"
+                                placeholder="e.g. TRX-2026-ARC-00441"
+                                pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
+                                required
+                                value={referenceId}
+                                onChange={(e) =>
+                                    setReferenceId(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+                        <small>
+                            Use the format
+                            TRX-YYYY-XXX-NNNNN.
+                        </small>
+
+                    </div>
 
                 </div>
 
-                {/* Reference ID */}
-                <div className="transaction-form-group">
+                {/* =================================
+                    SECURITY NOTICE
+                ================================== */}
 
-                    <label htmlFor="referenceId">
-                        Reference ID
-                    </label>
+                <div className="transaction-security-note">
 
-                    <input
-                        id="referenceId"
-                        type="text"
-                        placeholder="e.g. TRX-2026-ARC-00441"
-                        pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
-                        required
-                        value={referenceId}
-                        onChange={(e) =>
-                            setReferenceId(e.target.value)
-                        }
-                    />
+                    <div className="security-icon">
+                        ✓
+                    </div>
+
+                    <div>
+                        <strong>
+                            Secure transaction processing
+                        </strong>
+
+                        <span>
+                            Your transaction is authenticated
+                            and recorded securely in VaultFlow.
+                        </span>
+                    </div>
 
                 </div>
 
-                {/* Submit */}
-                <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="transaction-submit-button"
-                >
-                    Submit Transaction
-                </button>
+                {/* =================================
+                    SUBMIT
+                ================================== */}
 
+                <div className="transaction-form-footer">
+
+                    <div className="required-note">
+                        <span>*</span>
+                        Required fields
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleSubmit}
+                        className="transaction-submit-button"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <span className="button-spinner"></span>
+                                Processing...
+                            </>
+                        ) : (
+                            <>
+                                Submit Transaction
+                                <span className="button-arrow">
+                                    →
+                                </span>
+                            </>
+                        )}
+                    </button>
+
+                </div>
+
+            </section>
+
+            <div className="transaction-page-footer">
+                <span>
+                    VaultFlow Financial Management
+                </span>
+
+                <span>
+                    Secure • Audited • Controlled
+                </span>
             </div>
-        </div>
+
+        </main>
     );
 };
 
