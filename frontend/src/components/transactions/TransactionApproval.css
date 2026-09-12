@@ -1,0 +1,426 @@
+.transaction-approval {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 30px;
+    box-sizing: border-box;
+
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.96),
+            rgba(10, 15, 28, 0.96)
+        );
+
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.22);
+
+    color: #f8fafc;
+}
+
+/* Header */
+
+.transaction-approval-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+
+    margin-bottom: 28px;
+}
+
+.transaction-approval-eyebrow {
+    margin-bottom: 8px;
+
+    color: #60a5fa;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+}
+
+.transaction-approval-header h2 {
+    margin: 0;
+
+    color: #f8fafc;
+
+    font-size: 26px;
+    line-height: 1.2;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.transaction-approval-header p {
+    max-width: 520px;
+
+    margin: 9px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Status */
+
+.transaction-approval-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    flex-shrink: 0;
+
+    padding: 8px 11px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.status-pending {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.16);
+}
+
+.status-approved {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.16);
+}
+
+.transaction-status-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+/* Transaction information */
+
+.transaction-approval-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 18px;
+
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 13px;
+
+    background: rgba(2, 6, 23, 0.38);
+}
+
+.transaction-approval-icon {
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.1);
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.transaction-approval-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.transaction-detail-label {
+    color: #64748b;
+
+    font-size: 10px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.transaction-detail-value {
+    color: #e2e8f0;
+
+    font-size: 14px;
+    font-weight: 650;
+
+    overflow-wrap: anywhere;
+}
+
+/* Notice */
+
+.transaction-approval-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    margin-top: 16px;
+    padding: 14px;
+
+    border: 1px solid rgba(245, 158, 11, 0.14);
+    border-radius: 11px;
+
+    background: rgba(245, 158, 11, 0.055);
+}
+
+.transaction-notice-icon {
+    width: 25px;
+    height: 25px;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.1);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.transaction-approval-notice div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.transaction-approval-notice strong {
+    color: #e2e8f0;
+
+    font-size: 11px;
+}
+
+.transaction-approval-notice span {
+    color: #94a3b8;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* Approve button */
+
+.transaction-approve-button {
+    width: 100%;
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    margin-top: 20px;
+    padding: 0 18px;
+
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 24px rgba(37, 99, 235, 0.2);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+.transaction-approve-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    filter: brightness(1.06);
+
+    box-shadow:
+        0 14px 30px rgba(37, 99, 235, 0.28);
+}
+
+.transaction-approve-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.transaction-approve-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.transaction-approve-button:focus-visible {
+    outline: 3px solid rgba(96, 165, 250, 0.25);
+    outline-offset: 2px;
+}
+
+.transaction-approve-check {
+    font-size: 14px;
+}
+
+/* Loading */
+
+.transaction-approval-spinner {
+    width: 14px;
+    height: 14px;
+
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #ffffff;
+
+    border-radius: 50%;
+
+    animation: transaction-approval-spin 0.7s linear infinite;
+}
+
+@keyframes transaction-approval-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success */
+
+.transaction-approval-success {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    margin-top: 16px;
+    padding: 14px;
+
+    border: 1px solid rgba(34, 197, 94, 0.16);
+    border-radius: 11px;
+
+    background: rgba(34, 197, 94, 0.055);
+}
+
+.transaction-success-icon {
+    width: 25px;
+    height: 25px;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.1);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.transaction-approval-success div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.transaction-approval-success strong {
+    color: #86efac;
+
+    font-size: 11px;
+}
+
+.transaction-approval-success span {
+    color: #94a3b8;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* Error */
+
+.transaction-approval-error {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-top: 16px;
+    padding: 12px 13px;
+
+    border: 1px solid rgba(239, 68, 68, 0.16);
+    border-radius: 10px;
+
+    background: rgba(127, 29, 29, 0.12);
+
+    color: #fca5a5;
+
+    font-size: 11px;
+}
+
+.transaction-error-icon {
+    width: 20px;
+    height: 20px;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: rgba(239, 68, 68, 0.1);
+
+    color: #f87171;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* Responsive */
+
+@media (max-width: 650px) {
+    .transaction-approval {
+        padding: 22px;
+    }
+
+    .transaction-approval-header {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .transaction-approval-status {
+        align-self: flex-start;
+    }
+
+    .transaction-approval-header h2 {
+        font-size: 23px;
+    }
+}
+
+@media (max-width: 420px) {
+    .transaction-approval {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    .transaction-approval-header h2 {
+        font-size: 21px;
+    }
+}
