@@ -1,5 +1,3 @@
-// frontend/src/App.js
-
 import React, { useEffect, useState } from "react";
 
 import {
@@ -23,17 +21,9 @@ import TransactionForm from "./components/transactions/TransactionForm";
 import TransactionList from "./components/transactions/TransactionList";
 import TransactionPanel from "./components/transactions/TransactionPanel";
 
-import {
-    getAccounts,
-} from "./services/accountService";
-
-import {
-    getAllTransactions,
-} from "./services/transactionService";
-
-import {
-    getLedgers,
-} from "./services/ledgerService";
+import { getAccounts } from "./services/accountService";
+import { getLedgers } from "./services/ledgerService";
+import api from "./services/api";
 
 import "./App.css";
 
@@ -87,14 +77,26 @@ function Dashboard() {
 
         const loadDashboardData = async () => {
             try {
+                setLoading(true);
+
                 const [
                     accountsResponse,
                     transactionsResponse,
-                    ledgersResponse
+                    ledgersResponse,
                 ] = await Promise.all([
                     getAccounts(),
-                    getAllTransactions(),
-                    getLedgers()
+
+                    /*
+                     * IMPORTANT:
+                     * Use api instead of normal axios here.
+                     * api.js automatically adds:
+                     * Authorization: Bearer <JWT>
+                     */
+                    api
+                        .get("/transactions")
+                        .then((response) => response.data),
+
+                    getLedgers(),
                 ]);
 
                 if (!mounted) {
@@ -118,7 +120,6 @@ function Dashboard() {
                 setAccounts(accountData);
                 setTransactions(transactionData);
                 setLedgers(ledgerData);
-
             } catch (error) {
                 console.error(
                     "Unable to load dashboard data:",
@@ -144,21 +145,32 @@ function Dashboard() {
         };
     }, []);
 
-    const totalBalance = accounts.reduce((total, account) => {
-        const balance =
-            account?.balance ??
-            account?.currentBalance ??
-            account?.accountBalance ??
-            0;
+    /* =====================================================
+       CALCULATE TOTAL BALANCE
+    ===================================================== */
 
-        const numericBalance = Number(balance);
+    const totalBalance = accounts.reduce(
+        (total, account) => {
+            const balance =
+                account?.balance ??
+                account?.currentBalance ??
+                account?.accountBalance ??
+                0;
 
-        return total + (
-            Number.isFinite(numericBalance)
-                ? numericBalance
-                : 0
-        );
-    }, 0);
+            const numericBalance = Number(balance);
+
+            return total + (
+                Number.isFinite(numericBalance)
+                    ? numericBalance
+                    : 0
+            );
+        },
+        0
+    );
+
+    /* =====================================================
+       RECENT TRANSACTIONS
+    ===================================================== */
 
     const recentTransactions = [...transactions]
         .sort((a, b) => {
@@ -185,178 +197,133 @@ function Dashboard() {
 
             <div className="page-header">
                 <div>
-
                     <span className="page-eyebrow">
                         OVERVIEW
                     </span>
 
-                    <h1>
-                        Dashboard
-                    </h1>
+                    <h1>Dashboard</h1>
 
                     <p className="page-description">
                         Welcome back to VaultFlow. Manage your
                         accounts, transactions and ledgers from
                         one secure workspace.
                     </p>
-
                 </div>
             </div>
 
 
-            {/* STATISTICS */}
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
 
             <div className="stats-grid">
 
                 {/* TOTAL BALANCE */}
 
                 <div className="stat-card">
-
                     <div className="stat-icon">
                         ₹
                     </div>
 
                     <div>
-
-                        <p>
-                            Total Balance
-                        </p>
+                        <p>Total Balance</p>
 
                         <h2>
                             {loading
                                 ? "Loading..."
-                                : `₹${totalBalance.toLocaleString(
-                                    "en-IN",
-                                    {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    }
-                                )}`
-                            }
+                                : `₹${totalBalance.toFixed(2)}`}
                         </h2>
 
                         <span>
-                            {accounts.length === 0
-                                ? "No account data yet"
-                                : "Across all accounts"
-                            }
+                            {loading
+                                ? "Loading account data..."
+                                : accounts.length > 0
+                                    ? `${accounts.length} account${accounts.length !== 1 ? "s" : ""} included`
+                                    : "No account data yet"}
                         </span>
-
                     </div>
-
                 </div>
 
 
                 {/* ACCOUNTS */}
 
                 <div className="stat-card">
-
                     <div className="stat-icon">
                         A
                     </div>
 
                     <div>
-
-                        <p>
-                            Accounts
-                        </p>
+                        <p>Accounts</p>
 
                         <h2>
-                            {loading
-                                ? "..."
-                                : accounts.length
-                            }
+                            {loading ? "..." : accounts.length}
                         </h2>
 
                         <span>
                             Active accounts
                         </span>
-
                     </div>
-
                 </div>
 
 
                 {/* TRANSACTIONS */}
 
                 <div className="stat-card">
-
                     <div className="stat-icon">
                         T
                     </div>
 
                     <div>
-
-                        <p>
-                            Transactions
-                        </p>
+                        <p>Transactions</p>
 
                         <h2>
-                            {loading
-                                ? "..."
-                                : transactions.length
-                            }
+                            {loading ? "..." : transactions.length}
                         </h2>
 
                         <span>
                             Total transactions
                         </span>
-
                     </div>
-
                 </div>
 
 
                 {/* LEDGERS */}
 
                 <div className="stat-card">
-
                     <div className="stat-icon">
                         L
                     </div>
 
                     <div>
-
-                        <p>
-                            Ledgers
-                        </p>
+                        <p>Ledgers</p>
 
                         <h2>
-                            {loading
-                                ? "..."
-                                : ledgers.length
-                            }
+                            {loading ? "..." : ledgers.length}
                         </h2>
 
                         <span>
                             Available ledgers
                         </span>
-
                     </div>
-
                 </div>
 
             </div>
 
 
-            {/* QUICK ACTIONS */}
+            {/* =================================================
+                QUICK ACTIONS
+            ================================================= */}
 
             <section className="dashboard-section">
 
                 <div className="section-heading">
-
                     <div>
-
-                        <h2>
-                            Quick Actions
-                        </h2>
+                        <h2>Quick Actions</h2>
 
                         <p>
                             Frequently used VaultFlow operations.
                         </p>
-
                     </div>
-
                 </div>
 
 
@@ -369,13 +336,11 @@ function Dashboard() {
                         }
                         type="button"
                     >
-
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
-
                             <strong>
                                 Create Account
                             </strong>
@@ -383,9 +348,7 @@ function Dashboard() {
                             <small>
                                 Add a new financial account
                             </small>
-
                         </span>
-
                     </button>
 
 
@@ -396,13 +359,11 @@ function Dashboard() {
                         }
                         type="button"
                     >
-
                         <span className="quick-action-icon">
                             ⇄
                         </span>
 
                         <span>
-
                             <strong>
                                 New Transaction
                             </strong>
@@ -410,9 +371,7 @@ function Dashboard() {
                             <small>
                                 Record a financial transaction
                             </small>
-
                         </span>
-
                     </button>
 
 
@@ -423,13 +382,11 @@ function Dashboard() {
                         }
                         type="button"
                     >
-
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
-
                             <strong>
                                 Create Ledger
                             </strong>
@@ -437,9 +394,7 @@ function Dashboard() {
                             <small>
                                 Create and manage a ledger
                             </small>
-
                         </span>
-
                     </button>
 
                 </div>
@@ -447,22 +402,21 @@ function Dashboard() {
             </section>
 
 
-            {/* RECENT ACTIVITY */}
+            {/* =================================================
+                RECENT ACTIVITY
+            ================================================= */}
 
             <section className="dashboard-section">
 
                 <div className="section-heading">
 
                     <div>
-
-                        <h2>
-                            Recent Activity
-                        </h2>
+                        <h2>Recent Activity</h2>
 
                         <p>
-                            Your latest financial activity.
+                            Your latest financial activity
+                            will appear here.
                         </p>
-
                     </div>
 
                     <button
@@ -482,9 +436,17 @@ function Dashboard() {
 
                     <div className="empty-dashboard">
 
+                        <div className="empty-icon">
+                            ◷
+                        </div>
+
                         <h3>
-                            Loading recent activity...
+                            Loading activity
                         </h3>
+
+                        <p>
+                            Loading your latest transactions.
+                        </p>
 
                     </div>
 
@@ -506,7 +468,6 @@ function Dashboard() {
                                     <div className="transaction-card-header">
 
                                         <div>
-
                                             <span className="transaction-label">
                                                 Transaction ID
                                             </span>
@@ -514,9 +475,8 @@ function Dashboard() {
                                             <h3>
                                                 #
                                                 {transaction?.id ??
-                                                    "N/A"}
+                                                    "-"}
                                             </h3>
-
                                         </div>
 
                                         <span className="transaction-status">
@@ -530,29 +490,19 @@ function Dashboard() {
                                     <div className="transaction-card-body">
 
                                         <div className="transaction-info">
-
                                             <span>
                                                 Amount
                                             </span>
 
                                             <strong>
                                                 ₹{" "}
-                                                {Number(
-                                                    transaction?.amount ?? 0
-                                                ).toLocaleString(
-                                                    "en-IN",
-                                                    {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 2
-                                                    }
-                                                )}
+                                                {transaction?.amount ??
+                                                    "0"}
                                             </strong>
-
                                         </div>
 
 
                                         <div className="transaction-info">
-
                                             <span>
                                                 Source Account
                                             </span>
@@ -561,12 +511,10 @@ function Dashboard() {
                                                 {transaction?.sourceAccountId ??
                                                     "-"}
                                             </strong>
-
                                         </div>
 
 
                                         <div className="transaction-info">
-
                                             <span>
                                                 Destination Account
                                             </span>
@@ -575,12 +523,10 @@ function Dashboard() {
                                                 {transaction?.targetAccountId ??
                                                     "-"}
                                             </strong>
-
                                         </div>
 
 
                                         <div className="transaction-info">
-
                                             <span>
                                                 Reference ID
                                             </span>
@@ -589,7 +535,6 @@ function Dashboard() {
                                                 {transaction?.referenceId ??
                                                     "-"}
                                             </strong>
-
                                         </div>
 
                                     </div>
@@ -636,7 +581,9 @@ function Dashboard() {
             </section>
 
 
-            {/* SECURITY */}
+            {/* =================================================
+                SECURITY
+            ================================================= */}
 
             <section className="security-card">
 
@@ -652,14 +599,13 @@ function Dashboard() {
 
                     <p>
                         You are currently signed in as{" "}
-                        <strong>
-                            {role}
-                        </strong>.
+                        <strong>{role}</strong>.
                         Your authenticated session is
                         protected by the VaultFlow security layer.
                     </p>
 
                 </div>
+
 
                 <div className="security-status">
 
@@ -712,6 +658,7 @@ function PageWrapper({
 
             </div>
 
+
             <div className="content-card">
                 {children}
             </div>
@@ -734,7 +681,9 @@ function ApplicationLayout({ onLogout }) {
         localStorage.getItem("role") || "USER";
 
 
-    /* LOGOUT */
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
 
     const handleLogout = () => {
 
@@ -750,7 +699,9 @@ function ApplicationLayout({ onLogout }) {
     };
 
 
-    /* ACTIVE NAVIGATION */
+    /* =====================================================
+       ACTIVE NAVIGATION
+    ===================================================== */
 
     const isActive = (path) => {
 
@@ -762,7 +713,9 @@ function ApplicationLayout({ onLogout }) {
     };
 
 
-    /* PAGE TITLE */
+    /* =====================================================
+       PAGE TITLE
+    ===================================================== */
 
     const getPageTitle = () => {
 
@@ -793,9 +746,13 @@ function ApplicationLayout({ onLogout }) {
 
 
     return (
+
         <div className="app-shell">
 
-            {/* SIDEBAR */}
+
+            {/* =================================================
+                SIDEBAR
+            ================================================= */}
 
             <aside className="sidebar">
 
@@ -827,6 +784,8 @@ function ApplicationLayout({ onLogout }) {
                     </p>
 
 
+                    {/* DASHBOARD */}
+
                     <button
                         className={
                             isActive("/")
@@ -842,6 +801,8 @@ function ApplicationLayout({ onLogout }) {
                         Dashboard
                     </button>
 
+
+                    {/* ACCOUNTS */}
 
                     <button
                         className={
@@ -859,6 +820,8 @@ function ApplicationLayout({ onLogout }) {
                     </button>
 
 
+                    {/* TRANSACTIONS */}
+
                     <button
                         className={
                             isActive("/transactions")
@@ -875,6 +838,8 @@ function ApplicationLayout({ onLogout }) {
                     </button>
 
 
+                    {/* LEDGERS */}
+
                     <button
                         className={
                             isActive("/ledgers")
@@ -890,6 +855,8 @@ function ApplicationLayout({ onLogout }) {
                         Ledgers
                     </button>
 
+
+                    {/* APPROVALS */}
 
                     {role === "TREASURER" && (
                         <>
@@ -921,7 +888,9 @@ function ApplicationLayout({ onLogout }) {
                 </nav>
 
 
-                {/* USER AREA */}
+                {/* =================================================
+                    USER AREA
+                ================================================= */}
 
                 <div className="sidebar-bottom">
 
@@ -960,9 +929,12 @@ function ApplicationLayout({ onLogout }) {
             </aside>
 
 
-            {/* MAIN CONTENT */}
+            {/* =================================================
+                MAIN CONTENT
+            ================================================= */}
 
             <main className="main-content">
+
 
                 {/* TOP HEADER */}
 
@@ -987,7 +959,9 @@ function ApplicationLayout({ onLogout }) {
                             VaultFlow
                         </span>
 
-                        <span>/</span>
+                        <span>
+                            /
+                        </span>
 
                         <strong>
                             {getPageTitle()}
@@ -1021,11 +995,14 @@ function ApplicationLayout({ onLogout }) {
                 </header>
 
 
-                {/* ROUTES */}
+                {/* =================================================
+                    ROUTES
+                ================================================= */}
 
                 <div className="page-content">
 
                     <Routes>
+
 
                         {/* DASHBOARD */}
 
@@ -1037,7 +1014,9 @@ function ApplicationLayout({ onLogout }) {
                         />
 
 
-                        {/* ACCOUNTS */}
+                        {/* =================================================
+                            ACCOUNTS
+                        ================================================= */}
 
                         <Route
                             path="/accounts"
@@ -1065,7 +1044,9 @@ function ApplicationLayout({ onLogout }) {
                         />
 
 
-                        {/* TRANSACTIONS */}
+                        {/* =================================================
+                            TRANSACTIONS
+                        ================================================= */}
 
                         <Route
                             path="/transactions"
@@ -1106,7 +1087,9 @@ function ApplicationLayout({ onLogout }) {
                         />
 
 
-                        {/* APPROVAL */}
+                        {/* =================================================
+                            APPROVAL
+                        ================================================= */}
 
                         <Route
                             path="/transactions/approval"
@@ -1121,7 +1104,9 @@ function ApplicationLayout({ onLogout }) {
                         />
 
 
-                        {/* LEDGERS */}
+                        {/* =================================================
+                            LEDGERS
+                        ================================================= */}
 
                         <Route
                             path="/ledgers"
@@ -1149,7 +1134,9 @@ function ApplicationLayout({ onLogout }) {
                         />
 
 
-                        {/* UNKNOWN */}
+                        {/* =================================================
+                            UNKNOWN
+                        ================================================= */}
 
                         <Route
                             path="*"
@@ -1197,6 +1184,7 @@ function App() {
 
 
     return (
+
         <BrowserRouter>
 
             {!authenticated ? (
@@ -1211,7 +1199,6 @@ function App() {
                             />
                         }
                     />
-
 
                     <Route
                         path="*"
