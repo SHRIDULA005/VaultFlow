@@ -14,12 +14,19 @@ const AccountForm = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    // EDIT STATE
+    // =========================================================
+    // EDIT MODAL STATE
+    // =========================================================
+
     const [editingAccount, setEditingAccount] = useState(null);
     const [editAccountName, setEditAccountName] = useState("");
     const [editAccountType, setEditAccountType] = useState("Checking");
     const [editBalance, setEditBalance] = useState("");
     const [editInterestRate, setEditInterestRate] = useState("");
+
+    // =========================================================
+    // LOAD ACCOUNTS
+    // =========================================================
 
     const loadAccounts = async () => {
         try {
@@ -82,7 +89,6 @@ const AccountForm = () => {
             setInterestRate("");
 
             await loadAccounts();
-
         } catch (error) {
             console.error(
                 "Error creating account:",
@@ -121,7 +127,6 @@ const AccountForm = () => {
             );
 
             await loadAccounts();
-
         } catch (error) {
             console.error(
                 "Error deleting account:",
@@ -135,7 +140,7 @@ const AccountForm = () => {
     };
 
     // =========================================================
-    // OPEN EDIT
+    // OPEN EDIT MODAL
     // =========================================================
 
     const handleEdit = (account) => {
@@ -169,25 +174,10 @@ const AccountForm = () => {
                 ? String(account.interestRate)
                 : ""
         );
-
-        // Scroll the editor into view
-        setTimeout(() => {
-            const editor =
-                document.getElementById(
-                    "account-edit-panel"
-                );
-
-            if (editor) {
-                editor.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-            }
-        }, 50);
     };
 
     // =========================================================
-    // CLOSE EDIT
+    // CLOSE EDIT MODAL
     // =========================================================
 
     const handleCancelEdit = () => {
@@ -200,7 +190,44 @@ const AccountForm = () => {
     };
 
     // =========================================================
-    // SAVE EDIT
+    // CLOSE MODAL WHEN CLICKING BACKDROP
+    // =========================================================
+
+    const handleModalBackdropClick = (event) => {
+        if (event.target === event.currentTarget) {
+            handleCancelEdit();
+        }
+    };
+
+    // =========================================================
+    // CLOSE MODAL WITH ESCAPE
+    // =========================================================
+
+    useEffect(() => {
+        const handleEscape = (event) => {
+            if (
+                event.key === "Escape" &&
+                editingAccount
+            ) {
+                handleCancelEdit();
+            }
+        };
+
+        document.addEventListener(
+            "keydown",
+            handleEscape
+        );
+
+        return () => {
+            document.removeEventListener(
+                "keydown",
+                handleEscape
+            );
+        };
+    }, [editingAccount]);
+
+    // =========================================================
+    // SAVE EDITED ACCOUNT
     // =========================================================
 
     const handleUpdate = async (event) => {
@@ -253,7 +280,6 @@ const AccountForm = () => {
             handleCancelEdit();
 
             await loadAccounts();
-
         } catch (error) {
             console.error(
                 "Error updating account:",
@@ -329,6 +355,10 @@ const AccountForm = () => {
         }
     };
 
+    // =========================================================
+    // ACCOUNT ICON
+    // =========================================================
+
     const getAccountIcon = (type) => {
         switch (
             String(type || "").toUpperCase()
@@ -350,6 +380,21 @@ const AccountForm = () => {
         }
     };
 
+    // =========================================================
+    // FORMAT BALANCE
+    // =========================================================
+
+    const formatBalance = (balance) => {
+        return Number(balance || 0).toLocaleString(
+            "en-IN",
+            {
+                style: "currency",
+                currency: "INR",
+                minimumFractionDigits: 2
+            }
+        );
+    };
+
     return (
         <div className="account-page">
 
@@ -360,7 +405,6 @@ const AccountForm = () => {
             <section className="account-create-section">
 
                 <div className="account-section-heading">
-
                     <div>
                         <span className="section-eyebrow">
                             VAULTFLOW
@@ -375,28 +419,39 @@ const AccountForm = () => {
                             financial account.
                         </p>
                     </div>
-
                 </div>
+
+                {/* SUCCESS MESSAGE */}
 
                 {successMessage && (
                     <div
                         className="account-alert account-success"
                         role="alert"
                     >
-                        <span>✓</span>
+                        <span className="alert-icon">
+                            ✓
+                        </span>
 
-                        {successMessage}
+                        <span>
+                            {successMessage}
+                        </span>
                     </div>
                 )}
+
+                {/* ERROR MESSAGE */}
 
                 {errorMessage && (
                     <div
                         className="account-alert account-error"
                         role="alert"
                     >
-                        <span>!</span>
+                        <span className="alert-icon">
+                            !
+                        </span>
 
-                        {errorMessage}
+                        <span>
+                            {errorMessage}
+                        </span>
                     </div>
                 )}
 
@@ -527,225 +582,25 @@ const AccountForm = () => {
                         >
                             {saving ? (
                                 <>
-                                    <span className="button-spinner"></span>
+                                    <span className="button-spinner" />
                                     Creating...
                                 </>
                             ) : (
-                                "Create Account"
+                                <>
+                                    <span>
+                                        +
+                                    </span>
+
+                                    Create Account
+                                </>
                             )}
                         </button>
 
                     </div>
 
                 </form>
-
             </section>
 
-            {/* =================================================
-                EDIT ACCOUNT PANEL
-            ================================================= */}
-
-            {editingAccount && (
-                <section
-                    id="account-edit-panel"
-                    className="account-edit-section"
-                >
-
-                    <div className="account-edit-header">
-
-                        <div>
-                            <span className="section-eyebrow">
-                                ACCOUNT SETTINGS
-                            </span>
-
-                            <h2>
-                                Edit Account
-                            </h2>
-
-                            <p>
-                                Update the account details,
-                                balance and interest rate.
-                            </p>
-                        </div>
-
-                        <button
-                            type="button"
-                            className="account-close-button"
-                            onClick={handleCancelEdit}
-                            aria-label="Close edit account"
-                        >
-                            ×
-                        </button>
-
-                    </div>
-
-                    <form
-                        className="account-edit-form"
-                        onSubmit={handleUpdate}
-                    >
-
-                        {/* NAME */}
-
-                        <div className="form-field">
-
-                            <label htmlFor="editAccountName">
-                                Account Name
-                            </label>
-
-                            <input
-                                id="editAccountName"
-                                type="text"
-                                value={editAccountName}
-                                onChange={(event) =>
-                                    setEditAccountName(
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        </div>
-
-                        {/* TYPE */}
-
-                        <div className="form-field">
-
-                            <label htmlFor="editAccountType">
-                                Account Type
-                            </label>
-
-                            <select
-                                id="editAccountType"
-                                value={editAccountType}
-                                onChange={(event) =>
-                                    setEditAccountType(
-                                        event.target.value
-                                    )
-                                }
-                            >
-                                <option value="Checking">
-                                    Checking
-                                </option>
-
-                                <option value="Savings">
-                                    Savings
-                                </option>
-
-                                <option value="Loan">
-                                    Loan
-                                </option>
-
-                                <option value="Investment">
-                                    Investment
-                                </option>
-
-                                <option value="Payroll">
-                                    Payroll
-                                </option>
-                            </select>
-
-                        </div>
-
-                        {/* BALANCE */}
-
-                        <div className="form-field">
-
-                            <label htmlFor="editBalance">
-                                Balance
-                            </label>
-
-                            <div className="input-with-prefix">
-
-                                <span>
-                                    ₹
-                                </span>
-
-                                <input
-                                    id="editBalance"
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={editBalance}
-                                    onChange={(event) =>
-                                        setEditBalance(
-                                            event.target.value
-                                        )
-                                    }
-                                />
-
-                            </div>
-
-                        </div>
-
-                        {/* INTEREST */}
-
-                        <div className="form-field">
-
-                            <label htmlFor="editInterestRate">
-                                Interest Rate
-                            </label>
-
-                            <div className="input-with-suffix">
-
-                                <input
-                                    id="editInterestRate"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={editInterestRate}
-                                    onChange={(event) =>
-                                        setEditInterestRate(
-                                            event.target.value
-                                        )
-                                    }
-                                />
-
-                                <span>
-                                    %
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        {/* ACTIONS */}
-
-                        <div className="account-edit-actions">
-
-                            <button
-                                type="button"
-                                className="account-cancel-button"
-                                onClick={handleCancelEdit}
-                            >
-                                Cancel
-                            </button>
-
-                            <button
-                                type="submit"
-                                className="account-save-button"
-                                disabled={saving}
-                            >
-                                {saving ? (
-                                    <>
-                                        <span className="button-spinner"></span>
-                                        Saving...
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>
-                                            ✓
-                                        </span>
-
-                                        Save Changes
-                                    </>
-                                )}
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </section>
-            )}
 
             {/* =================================================
                 ACCOUNTS LIST
@@ -774,24 +629,27 @@ const AccountForm = () => {
                     </div>
 
                     <div className="account-count">
-
-                        {accounts.length}
+                        <strong>
+                            {accounts.length}
+                        </strong>
 
                         <span>
                             {accounts.length === 1
-                                ? "Account"
-                                : "Accounts"}
+                                ? "ACCOUNT"
+                                : "ACCOUNTS"}
                         </span>
-
                     </div>
 
                 </div>
+
+
+                {/* LOADING */}
 
                 {loading ? (
 
                     <div className="accounts-state">
 
-                        <div className="loading-spinner"></div>
+                        <div className="loading-spinner" />
 
                         <p>
                             Loading accounts...
@@ -800,6 +658,8 @@ const AccountForm = () => {
                     </div>
 
                 ) : accounts.length === 0 ? (
+
+                    /* EMPTY */
 
                     <div className="accounts-empty">
 
@@ -820,6 +680,8 @@ const AccountForm = () => {
 
                 ) : (
 
+                    /* ACCOUNTS */
+
                     <div className="accounts-grid">
 
                         {accounts.map((account) => {
@@ -830,12 +692,12 @@ const AccountForm = () => {
                                 );
 
                             return (
-                                <div
+                                <article
                                     className="account-card"
                                     key={account.id}
                                 >
 
-                                    {/* CARD TOP */}
+                                    {/* CARD HEADER */}
 
                                     <div className="account-card-top">
 
@@ -845,79 +707,92 @@ const AccountForm = () => {
                                             )}
                                         </div>
 
-                                        <span className="account-status">
-                                            ACTIVE
-                                        </span>
+                                        <div className="account-card-status-wrapper">
+
+                                            <span className="account-status-dot" />
+
+                                            <span className="account-status">
+                                                ACTIVE
+                                            </span>
+
+                                        </div>
 
                                     </div>
+
 
                                     {/* CARD BODY */}
 
                                     <div className="account-card-body">
 
-                                        <h3>
-                                            {account.accountName ||
-                                                account.name}
-                                        </h3>
+                                        {/* NAME */}
 
-                                        <span className="account-type">
-                                            {type.toUpperCase()}
-                                        </span>
+                                        <div className="account-identity">
+
+                                            <h3>
+                                                {account.accountName ||
+                                                    account.name}
+                                            </h3>
+
+                                            <span className="account-type">
+                                                {type}
+                                            </span>
+
+                                        </div>
+
 
                                         {/* BALANCE */}
 
                                         <div className="account-card-balance">
 
                                             <span>
-                                                BALANCE
+                                                CURRENT BALANCE
                                             </span>
 
                                             <strong>
-                                                {Number(
-                                                    account.balance || 0
-                                                ).toLocaleString(
-                                                    "en-IN",
-                                                    {
-                                                        style: "currency",
-                                                        currency: "INR",
-                                                        minimumFractionDigits: 2
-                                                    }
+                                                {formatBalance(
+                                                    account.balance
                                                 )}
                                             </strong>
 
                                         </div>
 
-                                        {/* INTEREST */}
 
-                                        {account.interestRate !== null &&
-                                            account.interestRate !==
-                                                undefined && (
+                                        {/* ACCOUNT METRICS */}
 
-                                            <div className="account-interest">
+                                        <div className="account-metrics">
 
-                                                <span>
-                                                    Interest Rate
-                                                </span>
+                                            {account.interestRate !==
+                                                null &&
+                                                account.interestRate !==
+                                                    undefined && (
 
-                                                <strong>
-                                                    {
-                                                        account.interestRate
-                                                    }
-                                                    %
-                                                </strong>
+                                                <div className="account-interest">
 
-                                            </div>
-                                        )}
+                                                    <span>
+                                                        Interest Rate
+                                                    </span>
+
+                                                    <strong>
+                                                        {account.interestRate}
+                                                        %
+                                                    </strong>
+
+                                                </div>
+                                            )}
+
+                                        </div>
+
 
                                         {/* DATE / TIME */}
 
                                         <div className="account-updated">
 
-                                            <span className="account-updated-icon">
+                                            <div className="account-updated-icon">
                                                 ◷
-                                            </span>
+                                            </div>
 
-                                            <div>
+                                            <div className="account-updated-content">
+
                                                 <span>
                                                     LAST UPDATED
                                                 </span>
@@ -927,9 +802,11 @@ const AccountForm = () => {
                                                         account
                                                     )}
                                                 </strong>
+
                                             </div>
 
                                         </div>
+
 
                                         {/* ACTIONS */}
 
@@ -944,7 +821,9 @@ const AccountForm = () => {
                                                     )
                                                 }
                                             >
-                                                <span>
+                                                <span
+                                                    aria-hidden="true"
+                                                >
                                                     ✎
                                                 </span>
 
@@ -960,6 +839,12 @@ const AccountForm = () => {
                                                     )
                                                 }
                                             >
+                                                <span
+                                                    aria-hidden="true"
+                                                >
+                                                    ×
+                                                </span>
+
                                                 Delete
                                             </button>
 
@@ -967,15 +852,282 @@ const AccountForm = () => {
 
                                     </div>
 
-                                </div>
+                                </article>
                             );
                         })}
 
                     </div>
-
                 )}
 
             </section>
+
+
+            {/* =================================================
+                EDIT ACCOUNT MODAL
+            ================================================= */}
+
+            {editingAccount && (
+                <div
+                    className="account-modal-overlay"
+                    onMouseDown={handleModalBackdropClick}
+                    role="presentation"
+                >
+
+                    <div
+                        className="account-edit-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="edit-account-title"
+                        onMouseDown={(event) =>
+                            event.stopPropagation()
+                        }
+                    >
+
+                        {/* MODAL HEADER */}
+
+                        <div className="account-modal-header">
+
+                            <div className="account-modal-title-wrapper">
+
+                                <div className="account-modal-icon">
+                                    ✎
+                                </div>
+
+                                <div>
+
+                                    <span className="modal-eyebrow">
+                                        ACCOUNT SETTINGS
+                                    </span>
+
+                                    <h2 id="edit-account-title">
+                                        Edit Account
+                                    </h2>
+
+                                    <p>
+                                        Update your account
+                                        information securely.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                className="account-modal-close"
+                                onClick={handleCancelEdit}
+                                aria-label="Close edit account"
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+
+                        {/* MODAL FORM */}
+
+                        <form
+                            className="account-edit-form"
+                            onSubmit={handleUpdate}
+                        >
+
+                            {/* ACCOUNT NAME */}
+
+                            <div className="form-field">
+
+                                <label htmlFor="editAccountName">
+                                    Account Name
+                                </label>
+
+                                <input
+                                    id="editAccountName"
+                                    type="text"
+                                    value={editAccountName}
+                                    onChange={(event) =>
+                                        setEditAccountName(
+                                            event.target.value
+                                        )
+                                    }
+                                    autoFocus
+                                />
+
+                            </div>
+
+
+                            {/* ACCOUNT TYPE */}
+
+                            <div className="form-field">
+
+                                <label htmlFor="editAccountType">
+                                    Account Type
+                                </label>
+
+                                <select
+                                    id="editAccountType"
+                                    value={editAccountType}
+                                    onChange={(event) =>
+                                        setEditAccountType(
+                                            event.target.value
+                                        )
+                                    }
+                                >
+                                    <option value="Checking">
+                                        Checking
+                                    </option>
+
+                                    <option value="Savings">
+                                        Savings
+                                    </option>
+
+                                    <option value="Loan">
+                                        Loan
+                                    </option>
+
+                                    <option value="Investment">
+                                        Investment
+                                    </option>
+
+                                    <option value="Payroll">
+                                        Payroll
+                                    </option>
+                                </select>
+
+                            </div>
+
+
+                            {/* BALANCE */}
+
+                            <div className="form-field">
+
+                                <label htmlFor="editBalance">
+                                    Balance
+                                </label>
+
+                                <div className="input-with-prefix">
+
+                                    <span>
+                                        ₹
+                                    </span>
+
+                                    <input
+                                        id="editBalance"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        value={editBalance}
+                                        onChange={(event) =>
+                                            setEditBalance(
+                                                event.target.value
+                                            )
+                                        }
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* INTEREST RATE */}
+
+                            <div className="form-field">
+
+                                <label htmlFor="editInterestRate">
+                                    Interest Rate
+                                </label>
+
+                                <div className="input-with-suffix">
+
+                                    <input
+                                        id="editInterestRate"
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={editInterestRate}
+                                        onChange={(event) =>
+                                            setEditInterestRate(
+                                                event.target.value
+                                            )
+                                        }
+                                    />
+
+                                    <span>
+                                        %
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* LAST UPDATED INFORMATION */}
+
+                            <div className="modal-account-info">
+
+                                <div className="modal-info-icon">
+                                    ◷
+                                </div>
+
+                                <div>
+
+                                    <span>
+                                        CURRENT RECORD
+                                    </span>
+
+                                    <strong>
+                                        {formatDateTime(
+                                            editingAccount
+                                        )}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* MODAL ACTIONS */}
+
+                            <div className="account-edit-actions">
+
+                                <button
+                                    type="button"
+                                    className="account-cancel-button"
+                                    onClick={handleCancelEdit}
+                                    disabled={saving}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className="account-save-button"
+                                    disabled={saving}
+                                >
+
+                                    {saving ? (
+                                        <>
+                                            <span className="button-spinner" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>
+                                                ✓
+                                            </span>
+
+                                            Save Changes
+                                        </>
+                                    )}
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            )}
 
         </div>
     );
