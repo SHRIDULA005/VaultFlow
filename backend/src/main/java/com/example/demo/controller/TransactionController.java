@@ -1,3 +1,62 @@
+// package com.example.demo.controller;
+
+// import java.util.List;
+// import java.util.Optional;
+
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.http.HttpStatus;
+// import org.springframework.http.ResponseEntity;
+// import org.springframework.security.access.prepost.PreAuthorize;
+// import org.springframework.web.bind.annotation.*;
+
+// import com.example.demo.dto.TransactionDTO;
+// import com.example.demo.model.Transaction;
+// import com.example.demo.service.TransactionService;
+
+// import jakarta.validation.Valid;
+
+// @RestController
+// @RequestMapping("/api/transactions")
+// public class TransactionController {
+
+//     @Autowired
+//     private TransactionService transactionService;
+
+//     // @PostMapping
+//     // public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
+//     //     TransactionDTO saved = transactionService.createTransaction(transactionDTO);
+//     //     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+//     // }
+//     @PostMapping
+//     @PreAuthorize("hasRole('TREASURER')")
+//     public ResponseEntity<TransactionDTO> createTransaction(
+//         @Valid @RequestBody TransactionDTO transactionDTO) {
+
+//         TransactionDTO saved = transactionService.createTransaction(transactionDTO);
+//         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+//     }
+
+//     @GetMapping
+//     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
+//         return ResponseEntity.ok(transactionService.getAllTransactions());
+//     }
+
+//     @GetMapping("/{id}")
+//     public Optional<Transaction> getTransactionById(@PathVariable Long id) {
+//         return transactionService.getTransactionById(id);
+//     }
+
+//     // @DeleteMapping("/{id}")
+//     // public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
+//     //     transactionService.reverseTransaction(id);
+//     //     return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
+//     // }
+//     @DeleteMapping("/{id}")
+//     public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
+//         transactionService.reverseTransaction(id);
+//         return ResponseEntity.ok("Transaction reversed successfully.");
+//     }
+// }
 package com.example.demo.controller;
 
 import java.util.List;
@@ -22,38 +81,46 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    // @PostMapping
-    // public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
-    //     TransactionDTO saved = transactionService.createTransaction(transactionDTO);
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    // }
+    // Create transaction - Treasurer only
     @PostMapping
     @PreAuthorize("hasRole('TREASURER')")
     public ResponseEntity<TransactionDTO> createTransaction(
-        @Valid @RequestBody TransactionDTO transactionDTO) {
+            @Valid @RequestBody TransactionDTO transactionDTO) {
 
-        TransactionDTO saved = transactionService.createTransaction(transactionDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        TransactionDTO saved =
+                transactionService.createTransaction(transactionDTO);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(saved);
     }
 
+    // View all transactions
     @GetMapping
     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+
+        return ResponseEntity.ok(
+                transactionService.getAllTransactions()
+        );
     }
 
+    // View transaction by ID
     @GetMapping("/{id}")
-    public Optional<Transaction> getTransactionById(@PathVariable Long id) {
+    public Optional<Transaction> getTransactionById(
+            @PathVariable Long id) {
+
         return transactionService.getTransactionById(id);
     }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
-    //     transactionService.reverseTransaction(id);
-    //     return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
-    // }
+    // Delete/reverse transaction
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
+    public ResponseEntity<String> reverseTransaction(
+            @PathVariable Long id) {
+
         transactionService.reverseTransaction(id);
-        return ResponseEntity.ok("Transaction reversed successfully.");
+
+        return ResponseEntity.ok(
+                "Transaction reversed successfully."
+        );
     }
 }
