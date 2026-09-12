@@ -22,6 +22,9 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepo;
 
+    /*
+     * AUDITOR and TREASURER are allowed to create transactions.
+     */
     @PreAuthorize("hasAnyRole('AUDITOR', 'TREASURER')")
     public TransactionDTO createTransaction(TransactionDTO dto) {
 
@@ -31,13 +34,15 @@ public class TransactionService {
         transaction.setReferenceId(dto.getReferenceId());
         transaction.setStatus(dto.getStatus());
 
-        Account source = accountRepo
-                .findById(dto.getSourceAccountId())
-                .orElseThrow();
+        Account source =
+                accountRepo
+                        .findById(dto.getSourceAccountId())
+                        .orElseThrow();
 
-        Account target = accountRepo
-                .findById(dto.getTargetAccountId())
-                .orElseThrow();
+        Account target =
+                accountRepo
+                        .findById(dto.getTargetAccountId())
+                        .orElseThrow();
 
         transaction.setSourceAccount(source);
         transaction.setTargetAccount(target);
@@ -47,23 +52,30 @@ public class TransactionService {
         return convertToDTO(saved);
     }
 
-    private TransactionDTO convertToDTO(Transaction transaction) {
+    private TransactionDTO convertToDTO(
+            Transaction transaction) {
 
         TransactionDTO dto = new TransactionDTO();
 
         dto.setId(transaction.getId());
         dto.setAmount(transaction.getAmount());
-        dto.setReferenceId(transaction.getReferenceId());
+        dto.setReferenceId(
+                transaction.getReferenceId()
+        );
 
         if (transaction.getSourceAccount() != null) {
             dto.setSourceAccountId(
-                    transaction.getSourceAccount().getId()
+                    transaction
+                            .getSourceAccount()
+                            .getId()
             );
         }
 
         if (transaction.getTargetAccount() != null) {
             dto.setTargetAccountId(
-                    transaction.getTargetAccount().getId()
+                    transaction
+                            .getTargetAccount()
+                            .getId()
             );
         }
 
@@ -80,11 +92,14 @@ public class TransactionService {
                 .toList();
     }
 
-    public Optional<Transaction> getTransactionById(Long id) {
+    public Optional<Transaction> getTransactionById(
+            Long id) {
+
         return repo.findById(id);
     }
 
     public void reverseTransaction(Long id) {
+
         repo.deleteById(id);
     }
 }
