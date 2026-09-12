@@ -1,334 +1,427 @@
-/* =========================================
-   NEW TRANSACTION PAGE
-   ========================================= */
-
-.transaction-form-page {
-    min-height: 100%;
-    padding: 36px 42px;
-    background: #f6f8fc;
-    box-sizing: border-box;
-}
-
-
-/* =========================================
-   PAGE HEADER
-   ========================================= */
-
-.transaction-form-header {
-    max-width: 900px;
-    margin: 0 auto 28px;
-}
-
-.transaction-eyebrow {
-    display: inline-block;
-    margin-bottom: 8px;
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-}
-
-.transaction-form-header h2 {
-    margin: 0;
-    color: #172033;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.transaction-form-header p {
-    margin: 9px 0 0;
-    color: #64748b;
-    font-size: 15px;
-}
-
-
-/* =========================================
-   ALERT MESSAGES
-   ========================================= */
-
-.transaction-form-page [data-testid="success-alert"],
-.transaction-form-page [data-testid="warning-alert"],
-.transaction-form-page [data-testid="error-alert"] {
+.transaction-approval {
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto 18px;
-    padding: 14px 18px !important;
-    border-radius: 10px;
-    box-sizing: border-box;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-
-/* Success */
-
-.transaction-form-page [data-testid="success-alert"] {
-    background: #ecfdf5 !important;
-    color: #047857 !important;
-    border: 1px solid #a7f3d0;
-}
-
-
-/* Warning */
-
-.transaction-form-page [data-testid="warning-alert"] {
-    background: #fffbeb !important;
-    color: #b45309 !important;
-    border: 1px solid #fde68a;
-}
-
-
-/* Error */
-
-.transaction-form-page [data-testid="error-alert"] {
-    background: #fef2f2 !important;
-    color: #b91c1c !important;
-    border: 1px solid #fecaca;
-}
-
-
-/* =========================================
-   MAIN FORM CARD
-   ========================================= */
-
-.transaction-form-card {
-    width: 100%;
-    max-width: 900px;
+    max-width: 760px;
     margin: 0 auto;
-    padding: 34px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
+    padding: 30px;
+
     box-sizing: border-box;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.96),
+            rgba(10, 15, 28, 0.96)
+        );
+
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.22);
+
+    color: #f8fafc;
 }
 
+/* Header */
 
-/* =========================================
-   FORM GROUP
-   ========================================= */
+.transaction-approval-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
 
-.transaction-form-group {
-    margin-bottom: 24px;
-}
-
-.transaction-form-group:last-of-type {
     margin-bottom: 28px;
 }
 
-.transaction-form-group label {
-    display: block;
-    margin-bottom: 9px;
-    color: #334155;
-    font-size: 13px;
-    font-weight: 700;
+.transaction-approval-eyebrow {
+    margin-bottom: 8px;
+
+    color: #60a5fa;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
 }
 
+.transaction-approval-header h2 {
+    margin: 0;
 
-/* =========================================
-   INPUT FIELDS
-   ========================================= */
+    color: #f8fafc;
 
-.transaction-form-group input {
-    width: 100%;
-    height: 50px;
-    padding: 0 15px;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    border-radius: 9px;
-    outline: none;
-    box-sizing: border-box;
-
-    color: #172033;
-    font-size: 14px;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background-color 0.2s ease;
+    font-size: 26px;
+    line-height: 1.2;
+    font-weight: 750;
+    letter-spacing: -0.025em;
 }
 
-.transaction-form-group input::placeholder {
+.transaction-approval-header p {
+    max-width: 520px;
+
+    margin: 9px 0 0;
+
     color: #94a3b8;
+
+    font-size: 13px;
+    line-height: 1.6;
 }
 
+/* Status */
 
-/* Input hover */
+.transaction-approval-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
 
-.transaction-form-group input:hover {
-    border-color: #94a3b8;
+    flex-shrink: 0;
+
+    padding: 8px 11px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 750;
 }
 
-
-/* Input focus */
-
-.transaction-form-group input:focus {
-    border-color: #334155;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.10);
+.status-pending {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.16);
 }
 
-
-/* =========================================
-   AMOUNT FIELD
-   ========================================= */
-
-#transactionAmount {
-    font-size: 16px;
-    font-weight: 600;
+.status-approved {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.16);
 }
 
-#transactionAmount::placeholder {
+.transaction-status-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+/* Transaction information */
+
+.transaction-approval-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 18px;
+
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 13px;
+
+    background: rgba(2, 6, 23, 0.38);
+}
+
+.transaction-approval-icon {
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.1);
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.transaction-approval-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.transaction-detail-label {
+    color: #64748b;
+
+    font-size: 10px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.transaction-detail-value {
+    color: #e2e8f0;
+
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 650;
+
+    overflow-wrap: anywhere;
 }
 
+/* Notice */
 
-/* =========================================
-   REFERENCE ID
-   ========================================= */
+.transaction-approval-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
 
-#referenceId {
-    letter-spacing: 0.3px;
+    margin-top: 16px;
+    padding: 14px;
+
+    border: 1px solid rgba(245, 158, 11, 0.14);
+    border-radius: 11px;
+
+    background: rgba(245, 158, 11, 0.055);
 }
 
+.transaction-notice-icon {
+    width: 25px;
+    height: 25px;
 
-/* =========================================
-   SUBMIT BUTTON
-   ========================================= */
+    display: grid;
+    place-items: center;
 
-.transaction-submit-button {
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.1);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.transaction-approval-notice div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.transaction-approval-notice strong {
+    color: #e2e8f0;
+
+    font-size: 11px;
+}
+
+.transaction-approval-notice span {
+    color: #94a3b8;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* Approve button */
+
+.transaction-approve-button {
     width: 100%;
-    height: 52px;
+    min-height: 48px;
 
-    border: none;
-    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
-    background: #172033;
+    margin-top: 20px;
+    padding: 0 18px;
+
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+
     color: #ffffff;
 
-    font-size: 15px;
-    font-weight: 700;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 750;
 
     cursor: pointer;
 
+    box-shadow:
+        0 10px 24px rgba(37, 99, 235, 0.2);
+
     transition:
-        background-color 0.2s ease,
-        transform 0.1s ease,
-        box-shadow 0.2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
 }
 
-.transaction-submit-button:hover {
-    background: #273449;
-    box-shadow: 0 8px 18px rgba(23, 32, 51, 0.16);
+.transaction-approve-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    filter: brightness(1.06);
+
+    box-shadow:
+        0 14px 30px rgba(37, 99, 235, 0.28);
 }
 
-.transaction-submit-button:active {
-    transform: translateY(1px);
+.transaction-approve-button:active:not(:disabled) {
+    transform: translateY(0);
 }
 
-.transaction-submit-button:focus-visible {
-    outline: 3px solid rgba(71, 85, 105, 0.25);
+.transaction-approve-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.transaction-approve-button:focus-visible {
+    outline: 3px solid rgba(96, 165, 250, 0.25);
     outline-offset: 2px;
 }
 
-
-/* =========================================
-   FORM SPACING / VISUAL SECTIONS
-   ========================================= */
-
-.transaction-form-card::before {
-    content: "Transaction Details";
-    display: block;
-
-    margin-bottom: 24px;
-    padding-bottom: 14px;
-
-    border-bottom: 1px solid #eef0f4;
-
-    color: #172033;
-    font-size: 17px;
-    font-weight: 700;
+.transaction-approve-check {
+    font-size: 14px;
 }
 
+/* Spinner */
 
-/* =========================================
-   RESPONSIVE - TABLET
-   ========================================= */
+.transaction-approval-spinner {
+    width: 14px;
+    height: 14px;
 
-@media (max-width: 900px) {
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #ffffff;
 
-    .transaction-form-page {
-        padding: 28px 24px;
-    }
+    border-radius: 50%;
 
-    .transaction-form-card {
-        padding: 28px;
+    animation: transaction-approval-spin 0.7s linear infinite;
+}
+
+@keyframes transaction-approval-spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 
+/* Success */
 
-/* =========================================
-   RESPONSIVE - MOBILE
-   ========================================= */
+.transaction-approval-success {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
 
-@media (max-width: 600px) {
+    margin-top: 16px;
+    padding: 14px;
 
-    .transaction-form-page {
-        padding: 22px 16px;
+    border: 1px solid rgba(34, 197, 94, 0.16);
+    border-radius: 11px;
+
+    background: rgba(34, 197, 94, 0.055);
+}
+
+.transaction-success-icon {
+    width: 25px;
+    height: 25px;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.1);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.transaction-approval-success div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.transaction-approval-success strong {
+    color: #86efac;
+
+    font-size: 11px;
+}
+
+.transaction-approval-success span {
+    color: #94a3b8;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* Error */
+
+.transaction-approval-error {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-top: 16px;
+    padding: 12px 13px;
+
+    border: 1px solid rgba(239, 68, 68, 0.16);
+    border-radius: 10px;
+
+    background: rgba(127, 29, 29, 0.12);
+
+    color: #fca5a5;
+
+    font-size: 11px;
+}
+
+.transaction-error-icon {
+    width: 20px;
+    height: 20px;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: rgba(239, 68, 68, 0.1);
+
+    color: #f87171;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* Responsive */
+
+@media (max-width: 650px) {
+    .transaction-approval {
+        padding: 22px;
     }
 
-    .transaction-form-header {
-        margin-bottom: 22px;
+    .transaction-approval-header {
+        flex-direction: column;
+        gap: 14px;
     }
 
-    .transaction-form-header h2 {
-        font-size: 27px;
+    .transaction-approval-status {
+        align-self: flex-start;
     }
 
-    .transaction-form-header p {
-        font-size: 14px;
-    }
-
-    .transaction-form-card {
-        padding: 22px 18px;
-        border-radius: 12px;
-    }
-
-    .transaction-form-card::before {
-        font-size: 16px;
-    }
-
-    .transaction-form-group {
-        margin-bottom: 20px;
-    }
-
-    .transaction-form-group input {
-        height: 48px;
-    }
-
-    .transaction-submit-button {
-        height: 50px;
+    .transaction-approval-header h2 {
+        font-size: 23px;
     }
 }
 
-
-/* =========================================
-   VERY SMALL SCREENS
-   ========================================= */
-
-@media (max-width: 380px) {
-
-    .transaction-form-page {
-        padding: 18px 12px;
+@media (max-width: 420px) {
+    .transaction-approval {
+        padding: 18px;
+        border-radius: 14px;
     }
 
-    .transaction-form-card {
-        padding: 18px 14px;
-    }
-
-    .transaction-form-header h2 {
-        font-size: 24px;
+    .transaction-approval-header h2 {
+        font-size: 21px;
     }
 }
