@@ -22,7 +22,7 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepo;
 
-    @PreAuthorize("hasRole('TREASURER')")
+    @PreAuthorize("hasAnyRole('AUDITOR', 'TREASURER')")
     public TransactionDTO createTransaction(TransactionDTO dto) {
 
         Transaction transaction = new Transaction();
@@ -31,8 +31,13 @@ public class TransactionService {
         transaction.setReferenceId(dto.getReferenceId());
         transaction.setStatus(dto.getStatus());
 
-        Account source = accountRepo.findById(dto.getSourceAccountId()).orElseThrow();
-        Account target = accountRepo.findById(dto.getTargetAccountId()).orElseThrow();
+        Account source = accountRepo
+                .findById(dto.getSourceAccountId())
+                .orElseThrow();
+
+        Account target = accountRepo
+                .findById(dto.getTargetAccountId())
+                .orElseThrow();
 
         transaction.setSourceAccount(source);
         transaction.setTargetAccount(target);
@@ -51,11 +56,15 @@ public class TransactionService {
         dto.setReferenceId(transaction.getReferenceId());
 
         if (transaction.getSourceAccount() != null) {
-            dto.setSourceAccountId(transaction.getSourceAccount().getId());
+            dto.setSourceAccountId(
+                    transaction.getSourceAccount().getId()
+            );
         }
 
         if (transaction.getTargetAccount() != null) {
-            dto.setTargetAccountId(transaction.getTargetAccount().getId());
+            dto.setTargetAccountId(
+                    transaction.getTargetAccount().getId()
+            );
         }
 
         dto.setStatus(transaction.getStatus());
@@ -72,8 +81,8 @@ public class TransactionService {
     }
 
     public Optional<Transaction> getTransactionById(Long id) {
-    return repo.findById(id);
-}
+        return repo.findById(id);
+    }
 
     public void reverseTransaction(Long id) {
         repo.deleteById(id);
