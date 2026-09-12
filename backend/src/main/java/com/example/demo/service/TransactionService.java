@@ -22,7 +22,7 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepo;
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('TREASURER')")
     public TransactionDTO createTransaction(TransactionDTO dto) {
 
         Transaction transaction = new Transaction();
