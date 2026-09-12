@@ -15,7 +15,8 @@ const getRoleFromToken = (token) => {
             .replace(/_/g, "/");
 
         const padded = base64.padEnd(
-            base64.length + (4 - (base64.length % 4)) % 4,
+            base64.length +
+                (4 - (base64.length % 4)) % 4,
             "="
         );
 
@@ -37,7 +38,11 @@ const getRoleFromToken = (token) => {
 
         return role || null;
     } catch (error) {
-        console.error("Unable to read role from JWT:", error);
+        console.error(
+            "Unable to read role from JWT:",
+            error
+        );
+
         return null;
     }
 };
@@ -55,7 +60,7 @@ const Login = ({ onLogin }) => {
         axios
             .post("/auth/login", {
                 email,
-                password,
+                password
             })
             .then((response) => {
                 const data = response.data;
@@ -66,12 +71,23 @@ const Login = ({ onLogin }) => {
                         : data?.token;
 
                 if (!token) {
-                    setError("Invalid email or password");
+                    setError(
+                        "Invalid email or password"
+                    );
                     return;
                 }
 
-                localStorage.setItem("token", token);
+                /*
+                 * Store JWT token
+                 */
+                localStorage.setItem(
+                    "token",
+                    token
+                );
 
+                /*
+                 * Get role from login response first.
+                 */
                 let role =
                     typeof data === "object"
                         ? (
@@ -83,26 +99,52 @@ const Login = ({ onLogin }) => {
                         )
                         : null;
 
+                /*
+                 * Handle role returned as an array.
+                 */
                 if (Array.isArray(role)) {
                     role = role[0];
                 }
 
+                /*
+                 * If role is not supplied by the API,
+                 * attempt to read it from the JWT.
+                 */
                 if (!role) {
                     role = getRoleFromToken(token);
                 }
 
+                /*
+                 * Normalize role.
+                 *
+                 * ROLE_TREASURER
+                 *       ↓
+                 * TREASURER
+                 */
                 if (typeof role === "string") {
                     role = role
                         .replace(/^ROLE_/, "")
                         .toUpperCase();
                 }
 
+                /*
+                 * Store role.
+                 */
                 if (role) {
-                    localStorage.setItem("role", role);
+                    localStorage.setItem(
+                        "role",
+                        role
+                    );
                 } else {
-                    localStorage.removeItem("role");
+                    localStorage.removeItem(
+                        "role"
+                    );
                 }
 
+                /*
+                 * Store user information when
+                 * supplied by the backend.
+                 */
                 if (data?.user) {
                     localStorage.setItem(
                         "user",
@@ -112,19 +154,37 @@ const Login = ({ onLogin }) => {
 
                 setError("");
 
+                /*
+                 * Notify parent application.
+                 */
                 if (onLogin) {
                     onLogin();
                 }
 
-                window.history.pushState({}, "", "/");
+                /*
+                 * Navigate to dashboard without
+                 * requiring React Router inside
+                 * this component.
+                 */
+                window.history.pushState(
+                    {},
+                    "",
+                    "/"
+                );
 
                 window.dispatchEvent(
                     new Event("popstate")
                 );
             })
             .catch((err) => {
-                console.error("Login error:", err);
-                setError("Invalid email or password");
+                console.error(
+                    "Login error:",
+                    err
+                );
+
+                setError(
+                    "Invalid email or password"
+                );
             })
             .finally(() => {
                 setLoading(false);
@@ -141,6 +201,7 @@ const Login = ({ onLogin }) => {
 
     return (
         <main className="login-page">
+
             {/* Background decoration */}
             <div
                 className="login-background-grid"
@@ -157,12 +218,15 @@ const Login = ({ onLogin }) => {
                 aria-hidden="true"
             />
 
+            {/* Login card */}
             <section
                 className="login-card"
                 aria-label="VaultFlow login"
             >
+
                 {/* Brand */}
                 <div className="login-brand">
+
                     <div className="login-logo">
                         VF
                     </div>
@@ -176,10 +240,12 @@ const Login = ({ onLogin }) => {
                             FINANCIAL OPERATIONS
                         </div>
                     </div>
+
                 </div>
 
                 {/* Heading */}
                 <div className="login-heading">
+
                     <div className="login-eyebrow">
                         SECURE ACCESS
                     </div>
@@ -192,6 +258,7 @@ const Login = ({ onLogin }) => {
                         Sign in to securely manage your
                         financial operations and transactions.
                     </p>
+
                 </div>
 
                 {/* Form */}
@@ -199,12 +266,16 @@ const Login = ({ onLogin }) => {
                     className="login-form"
                     onSubmit={handleSubmit}
                 >
+
+                    {/* Email */}
                     <div className="login-field">
+
                         <label htmlFor="email">
                             Email Address
                         </label>
 
                         <div className="login-input-wrapper">
+
                             <span
                                 className="login-input-icon"
                                 aria-hidden="true"
@@ -218,19 +289,26 @@ const Login = ({ onLogin }) => {
                                 placeholder="Email (auditor@vaultflow.io)"
                                 value={email}
                                 onChange={(e) =>
-                                    setEmail(e.target.value)
+                                    setEmail(
+                                        e.target.value
+                                    )
                                 }
                                 autoComplete="email"
                             />
+
                         </div>
+
                     </div>
 
+                    {/* Password */}
                     <div className="login-field">
+
                         <label htmlFor="password">
                             Password
                         </label>
 
                         <div className="login-input-wrapper">
+
                             <span
                                 className="login-input-icon"
                                 aria-hidden="true"
@@ -244,34 +322,50 @@ const Login = ({ onLogin }) => {
                                 placeholder="Password (Enter your secure account password)"
                                 value={password}
                                 onChange={(e) =>
-                                    setPassword(e.target.value)
+                                    setPassword(
+                                        e.target.value
+                                    )
                                 }
                                 autoComplete="current-password"
                             />
+
                         </div>
+
                     </div>
 
+                    {/* Session information */}
                     <div className="login-options">
+
                         <span>
                             Protected session
                         </span>
 
                         <span className="login-session-status">
+
                             <span
                                 className="login-status-dot"
                                 aria-hidden="true"
                             />
 
                             JWT secured
+
                         </span>
+
                     </div>
 
+                    {/* Login button */}
                     <button
                         type="submit"
                         className="login-button"
                         disabled={loading}
                         aria-busy={loading}
+                        aria-label={
+                            loading
+                                ? "Login in progress"
+                                : "Login"
+                        }
                     >
+
                         {loading ? (
                             <>
                                 <span
@@ -286,7 +380,7 @@ const Login = ({ onLogin }) => {
                         ) : (
                             <>
                                 <span>
-                                    Sign in to VaultFlow
+                                    Login
                                 </span>
 
                                 <span
@@ -297,13 +391,16 @@ const Login = ({ onLogin }) => {
                                 </span>
                             </>
                         )}
+
                     </button>
 
+                    {/* Error */}
                     {error && (
                         <div
                             className="login-error"
                             role="alert"
                         >
+
                             <span
                                 className="login-error-icon"
                                 aria-hidden="true"
@@ -314,12 +411,15 @@ const Login = ({ onLogin }) => {
                             <span>
                                 {error}
                             </span>
+
                         </div>
                     )}
+
                 </form>
 
                 {/* Security information */}
                 <div className="login-security">
+
                     <div
                         className="login-security-icon"
                         aria-hidden="true"
@@ -328,6 +428,7 @@ const Login = ({ onLogin }) => {
                     </div>
 
                     <div>
+
                         <strong>
                             Secure authentication
                         </strong>
@@ -336,11 +437,14 @@ const Login = ({ onLogin }) => {
                             Your session is protected using
                             JWT-based authentication.
                         </span>
+
                     </div>
+
                 </div>
 
                 {/* Footer */}
                 <div className="login-footer">
+
                     <span>
                         VaultFlow
                     </span>
@@ -352,8 +456,11 @@ const Login = ({ onLogin }) => {
                     <span>
                         Secure Financial Management
                     </span>
+
                 </div>
+
             </section>
+
         </main>
     );
 };
