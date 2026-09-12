@@ -41,9 +41,11 @@ public class AccountService {
             Account account = existingAccount.get();
 
             // Update account name
-            account.setAccountName(
-                    accountDTO.getAccountName()
-            );
+            if (accountDTO.getAccountName() != null) {
+                account.setAccountName(
+                        accountDTO.getAccountName()
+                );
+            }
 
             // Update account type
             if (accountDTO.getAccountType() != null) {
@@ -57,14 +59,16 @@ public class AccountService {
             }
 
             // Update balance
-            account.setBalance(
-                    accountDTO.getBalance()
-            );
+            if (accountDTO.getBalance() != null) {
+                account.setBalance(
+                        accountDTO.getBalance()
+                );
+            }
 
             // Save updated account
             repo.save(account);
 
-            // Keep the original DTO flow
+            // Preserve original DTO flow
             accountDTO.setId(id);
 
             return accountDTO;

@@ -10,10 +10,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountDTO {
+
     private Long id;
+
     private String accountName;
+
     private String accountType;
+
     private Double balance;
+
+    private Double interestRate;
+
     private Long targetAccountId;
+
     private String status;
 }
