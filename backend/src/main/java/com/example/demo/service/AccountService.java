@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.AccountDTO;
 import com.example.demo.model.Account;
+import com.example.demo.model.accounttype;
 import com.example.demo.repository.AccountRepository;
 
 @Service
@@ -39,24 +40,36 @@ public class AccountService {
 
             Account account = existingAccount.get();
 
+            // Update account name
             account.setAccountName(
                     accountDTO.getAccountName()
             );
 
-            account.setAccountType(
-                    accountDTO.getAccountType()
-            );
+            // Update account type
+            if (accountDTO.getAccountType() != null) {
+                account.setAccountType(
+                        accounttype.valueOf(
+                                accountDTO
+                                        .getAccountType()
+                                        .toUpperCase()
+                        )
+                );
+            }
 
+            // Update balance
             account.setBalance(
                     accountDTO.getBalance()
             );
 
+            // Update interest rate
             account.setInterestRate(
                     accountDTO.getInterestRate()
             );
 
+            // Save changes to database
             repo.save(account);
 
+            // Return updated DTO
             accountDTO.setId(id);
 
             return accountDTO;
