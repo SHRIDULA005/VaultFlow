@@ -17,38 +17,46 @@ public class AccountService {
     @Autowired
     AccountRepository repo;
 
+    // Get account by ID
     public Optional<Account> getDataById(Long id) {
         Optional<Account> ans = repo.findById(id);
         return ans;
     }
 
+    // Get all accounts
     public List<Account> getallaccount() {
         return repo.findAll();
     }
 
+    // Create account
     public String postData(Account account) {
         repo.save(account);
         return "inserted succesfully";
     }
 
+    // Update account
     public AccountDTO updateAccount(Long id, AccountDTO accountDTO) {
 
-        Optional<Account> existingAccount =
-                repo.findById(id);
+        Optional<Account> existingAccount = repo.findById(id);
 
         if (existingAccount.isPresent()) {
 
             Account account = existingAccount.get();
 
-            // Update account name
+            // ---------------------------------
+            // Update Account Name
+            // ---------------------------------
             if (accountDTO.getAccountName() != null) {
                 account.setAccountName(
                         accountDTO.getAccountName()
                 );
             }
 
-            // Update account type
+            // ---------------------------------
+            // Update Account Type
+            // ---------------------------------
             if (accountDTO.getAccountType() != null) {
+
                 account.setAccountType(
                         accounttype.valueOf(
                                 accountDTO
@@ -58,25 +66,42 @@ public class AccountService {
                 );
             }
 
-            // Update balance
+            // ---------------------------------
+            // Update Balance
+            // ---------------------------------
             if (accountDTO.getBalance() != null) {
                 account.setBalance(
                         accountDTO.getBalance()
                 );
             }
 
-            // Save updated account
+            // ---------------------------------
+            // Update Interest Rate
+            // ---------------------------------
+            if (accountDTO.getInterestRate() != null) {
+                account.setInterestRate(
+                        accountDTO.getInterestRate()
+                );
+            }
+
+            // ---------------------------------
+            // Save changes to database
+            // ---------------------------------
             repo.save(account);
 
-            // Preserve original DTO flow
+            // ---------------------------------
+            // Return updated DTO
+            // ---------------------------------
             accountDTO.setId(id);
 
             return accountDTO;
         }
 
+        // Account not found
         return null;
     }
 
+    // Delete account
     public void deleteuserbyid(Long id) {
         repo.deleteById(id);
     }
