@@ -117,6 +117,7 @@ const Login = ({ onLogin }) => {
                 }
 
                 window.history.pushState({}, "", "/");
+
                 window.dispatchEvent(
                     new Event("popstate")
                 );
@@ -130,65 +131,171 @@ const Login = ({ onLogin }) => {
             });
     };
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        if (!loading) {
+            handleLogin();
+        }
+    };
+
     return (
-        <div className="login-page">
+        <main className="login-page">
+            {/* Background decoration */}
+            <div
+                className="login-background-grid"
+                aria-hidden="true"
+            />
 
-            <div className="login-card">
+            <div
+                className="login-glow login-glow-one"
+                aria-hidden="true"
+            />
 
-                <div className="login-logo">
-                    VF
+            <div
+                className="login-glow login-glow-two"
+                aria-hidden="true"
+            />
+
+            <section
+                className="login-card"
+                aria-label="VaultFlow login"
+            >
+                {/* Brand */}
+                <div className="login-brand">
+                    <div className="login-logo">
+                        VF
+                    </div>
+
+                    <div>
+                        <div className="login-brand-name">
+                            VaultFlow
+                        </div>
+
+                        <div className="login-brand-label">
+                            FINANCIAL OPERATIONS
+                        </div>
+                    </div>
                 </div>
 
-                <h1>VaultFlow</h1>
+                {/* Heading */}
+                <div className="login-heading">
+                    <div className="login-eyebrow">
+                        SECURE ACCESS
+                    </div>
 
-                <p className="login-subtitle">
-                    Secure Financial Management
-                </p>
+                    <h1>
+                        Welcome back
+                    </h1>
 
-                <div className="login-form">
+                    <p>
+                        Sign in to securely manage your
+                        financial operations and transactions.
+                    </p>
+                </div>
 
-                    <label htmlFor="email">
-                        Email Address
-                    </label>
+                {/* Form */}
+                <form
+                    className="login-form"
+                    onSubmit={handleSubmit}
+                >
+                    <div className="login-field">
+                        <label htmlFor="email">
+                            Email Address
+                        </label>
 
-                    <input
-                        id="email"
-                        type="email"
-                        placeholder="Email (auditor@vaultflow.io)"
-                        value={email}
-                        onChange={(e) =>
-                            setEmail(e.target.value)
-                        }
-                    />
+                        <div className="login-input-wrapper">
+                            <span
+                                className="login-input-icon"
+                                aria-hidden="true"
+                            >
+                                @
+                            </span>
 
-                    <label htmlFor="password">
-                        Password
-                    </label>
+                            <input
+                                id="email"
+                                type="email"
+                                placeholder="Email (auditor@vaultflow.io)"
+                                value={email}
+                                onChange={(e) =>
+                                    setEmail(e.target.value)
+                                }
+                                autoComplete="email"
+                            />
+                        </div>
+                    </div>
 
-                    <input
-                        id="password"
-                        type="password"
-                        placeholder="Password (Enter your secure account password)"
-                        value={password}
-                        onChange={(e) =>
-                            setPassword(e.target.value)
-                        }
-                    />
+                    <div className="login-field">
+                        <label htmlFor="password">
+                            Password
+                        </label>
+
+                        <div className="login-input-wrapper">
+                            <span
+                                className="login-input-icon"
+                                aria-hidden="true"
+                            >
+                                •
+                            </span>
+
+                            <input
+                                id="password"
+                                type="password"
+                                placeholder="Password (Enter your secure account password)"
+                                value={password}
+                                onChange={(e) =>
+                                    setPassword(e.target.value)
+                                }
+                                autoComplete="current-password"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="login-options">
+                        <span>
+                            Protected session
+                        </span>
+
+                        <span className="login-session-status">
+                            <span
+                                className="login-status-dot"
+                                aria-hidden="true"
+                            />
+
+                            JWT secured
+                        </span>
+                    </div>
 
                     <button
-                        type="button"
+                        type="submit"
                         className="login-button"
-                        onClick={handleLogin}
                         disabled={loading}
                         aria-busy={loading}
                     >
                         {loading ? (
                             <>
-                                <span className="login-spinner"></span>
-                                Signing in...
+                                <span
+                                    className="login-spinner"
+                                    aria-hidden="true"
+                                />
+
+                                <span>
+                                    Signing in...
+                                </span>
                             </>
                         ) : (
-                            "Login"
+                            <>
+                                <span>
+                                    Sign in to VaultFlow
+                                </span>
+
+                                <span
+                                    className="login-button-arrow"
+                                    aria-hidden="true"
+                                >
+                                    →
+                                </span>
+                            </>
                         )}
                     </button>
 
@@ -197,23 +304,57 @@ const Login = ({ onLogin }) => {
                             className="login-error"
                             role="alert"
                         >
-                            {error}
+                            <span
+                                className="login-error-icon"
+                                aria-hidden="true"
+                            >
+                                !
+                            </span>
+
+                            <span>
+                                {error}
+                            </span>
                         </div>
                     )}
+                </form>
 
-                </div>
-
-                <p className="login-footer">
-                    Secure access to your VaultFlow account
-                </p>
-
+                {/* Security information */}
                 <div className="login-security">
-                    🔒 Protected by JWT authentication
+                    <div
+                        className="login-security-icon"
+                        aria-hidden="true"
+                    >
+                        🔒
+                    </div>
+
+                    <div>
+                        <strong>
+                            Secure authentication
+                        </strong>
+
+                        <span>
+                            Your session is protected using
+                            JWT-based authentication.
+                        </span>
+                    </div>
                 </div>
 
-            </div>
+                {/* Footer */}
+                <div className="login-footer">
+                    <span>
+                        VaultFlow
+                    </span>
 
-        </div>
+                    <span className="login-footer-separator">
+                        •
+                    </span>
+
+                    <span>
+                        Secure Financial Management
+                    </span>
+                </div>
+            </section>
+        </main>
     );
 };
 
