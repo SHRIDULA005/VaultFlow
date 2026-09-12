@@ -14,6 +14,15 @@ export const createAccount = async (accountData) => {
     return response.data;
 };
 
+export const updateAccount = async (id, accountData) => {
+    const response = await api.put(
+        `/accounts/${id}`,
+        accountData
+    );
+
+    return response.data;
+};
+
 export const deleteAccount = async (id) => {
     const response = await api.delete(
         `/accounts/${id}`
@@ -25,6 +34,7 @@ export const deleteAccount = async (id) => {
 const accountService = {
     getAccounts,
     createAccount,
+    updateAccount,
     deleteAccount,
 };
 
