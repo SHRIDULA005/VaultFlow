@@ -61,15 +61,10 @@ public class AccountService {
                     accountDTO.getBalance()
             );
 
-            // Update interest rate
-            account.setInterestRate(
-                    accountDTO.getInterestRate()
-            );
-
-            // Save changes to database
+            // Save updated account
             repo.save(account);
 
-            // Return updated DTO
+            // Keep the original DTO flow
             accountDTO.setId(id);
 
             return accountDTO;
