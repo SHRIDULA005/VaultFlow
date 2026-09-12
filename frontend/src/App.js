@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// frontend/src/App.js
+
+import React, { useEffect, useState } from "react";
 
 import {
     BrowserRouter,
@@ -20,6 +22,18 @@ import TransactionApproval from "./components/transactions/TransactionApproval";
 import TransactionForm from "./components/transactions/TransactionForm";
 import TransactionList from "./components/transactions/TransactionList";
 import TransactionPanel from "./components/transactions/TransactionPanel";
+
+import {
+    getAccounts,
+} from "./services/accountService";
+
+import {
+    getAllTransactions,
+} from "./services/transactionService";
+
+import {
+    getLedgers,
+} from "./services/ledgerService";
 
 import "./App.css";
 
@@ -61,24 +75,131 @@ function LoginPage({ onLogin }) {
 function Dashboard() {
     const navigate = useNavigate();
 
+    const [accounts, setAccounts] = useState([]);
+    const [transactions, setTransactions] = useState([]);
+    const [ledgers, setLedgers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const role = localStorage.getItem("role") || "USER";
+
+    useEffect(() => {
+        let mounted = true;
+
+        const loadDashboardData = async () => {
+            try {
+                const [
+                    accountsResponse,
+                    transactionsResponse,
+                    ledgersResponse
+                ] = await Promise.all([
+                    getAccounts(),
+                    getAllTransactions(),
+                    getLedgers()
+                ]);
+
+                if (!mounted) {
+                    return;
+                }
+
+                const accountData = Array.isArray(accountsResponse)
+                    ? accountsResponse
+                    : accountsResponse?.content || [];
+
+                const transactionData = Array.isArray(
+                    transactionsResponse
+                )
+                    ? transactionsResponse
+                    : transactionsResponse?.content || [];
+
+                const ledgerData = Array.isArray(ledgersResponse)
+                    ? ledgersResponse
+                    : ledgersResponse?.content || [];
+
+                setAccounts(accountData);
+                setTransactions(transactionData);
+                setLedgers(ledgerData);
+
+            } catch (error) {
+                console.error(
+                    "Unable to load dashboard data:",
+                    error
+                );
+
+                if (mounted) {
+                    setAccounts([]);
+                    setTransactions([]);
+                    setLedgers([]);
+                }
+            } finally {
+                if (mounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadDashboardData();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    const totalBalance = accounts.reduce((total, account) => {
+        const balance =
+            account?.balance ??
+            account?.currentBalance ??
+            account?.accountBalance ??
+            0;
+
+        const numericBalance = Number(balance);
+
+        return total + (
+            Number.isFinite(numericBalance)
+                ? numericBalance
+                : 0
+        );
+    }, 0);
+
+    const recentTransactions = [...transactions]
+        .sort((a, b) => {
+            const dateA = new Date(
+                a?.createdAt ||
+                a?.transactionDate ||
+                a?.date ||
+                0
+            ).getTime();
+
+            const dateB = new Date(
+                b?.createdAt ||
+                b?.transactionDate ||
+                b?.date ||
+                0
+            ).getTime();
+
+            return dateB - dateA;
+        })
+        .slice(0, 5);
 
     return (
         <div className="page-container">
 
             <div className="page-header">
                 <div>
+
                     <span className="page-eyebrow">
                         OVERVIEW
                     </span>
 
-                    <h1>Dashboard</h1>
+                    <h1>
+                        Dashboard
+                    </h1>
 
                     <p className="page-description">
                         Welcome back to VaultFlow. Manage your
                         accounts, transactions and ledgers from
                         one secure workspace.
                     </p>
+
                 </div>
             </div>
 
@@ -87,47 +208,132 @@ function Dashboard() {
 
             <div className="stats-grid">
 
+                {/* TOTAL BALANCE */}
+
                 <div className="stat-card">
-                    <div className="stat-icon">₹</div>
+
+                    <div className="stat-icon">
+                        ₹
+                    </div>
 
                     <div>
-                        <p>Total Balance</p>
-                        <h2>₹0.00</h2>
-                        <span>No account data yet</span>
+
+                        <p>
+                            Total Balance
+                        </p>
+
+                        <h2>
+                            {loading
+                                ? "Loading..."
+                                : `₹${totalBalance.toLocaleString(
+                                    "en-IN",
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )}`
+                            }
+                        </h2>
+
+                        <span>
+                            {accounts.length === 0
+                                ? "No account data yet"
+                                : "Across all accounts"
+                            }
+                        </span>
+
                     </div>
+
                 </div>
 
 
+                {/* ACCOUNTS */}
+
                 <div className="stat-card">
-                    <div className="stat-icon">A</div>
+
+                    <div className="stat-icon">
+                        A
+                    </div>
 
                     <div>
-                        <p>Accounts</p>
-                        <h2>0</h2>
-                        <span>Active accounts</span>
+
+                        <p>
+                            Accounts
+                        </p>
+
+                        <h2>
+                            {loading
+                                ? "..."
+                                : accounts.length
+                            }
+                        </h2>
+
+                        <span>
+                            Active accounts
+                        </span>
+
                     </div>
+
                 </div>
 
 
+                {/* TRANSACTIONS */}
+
                 <div className="stat-card">
-                    <div className="stat-icon">T</div>
+
+                    <div className="stat-icon">
+                        T
+                    </div>
 
                     <div>
-                        <p>Transactions</p>
-                        <h2>0</h2>
-                        <span>Total transactions</span>
+
+                        <p>
+                            Transactions
+                        </p>
+
+                        <h2>
+                            {loading
+                                ? "..."
+                                : transactions.length
+                            }
+                        </h2>
+
+                        <span>
+                            Total transactions
+                        </span>
+
                     </div>
+
                 </div>
 
 
+                {/* LEDGERS */}
+
                 <div className="stat-card">
-                    <div className="stat-icon">L</div>
+
+                    <div className="stat-icon">
+                        L
+                    </div>
 
                     <div>
-                        <p>Ledgers</p>
-                        <h2>0</h2>
-                        <span>Available ledgers</span>
+
+                        <p>
+                            Ledgers
+                        </p>
+
+                        <h2>
+                            {loading
+                                ? "..."
+                                : ledgers.length
+                            }
+                        </h2>
+
+                        <span>
+                            Available ledgers
+                        </span>
+
                     </div>
+
                 </div>
 
             </div>
@@ -138,13 +344,19 @@ function Dashboard() {
             <section className="dashboard-section">
 
                 <div className="section-heading">
+
                     <div>
-                        <h2>Quick Actions</h2>
+
+                        <h2>
+                            Quick Actions
+                        </h2>
 
                         <p>
                             Frequently used VaultFlow operations.
                         </p>
+
                     </div>
+
                 </div>
 
 
@@ -152,14 +364,18 @@ function Dashboard() {
 
                     <button
                         className="quick-action-card"
-                        onClick={() => navigate("/accounts")}
+                        onClick={() =>
+                            navigate("/accounts")
+                        }
                         type="button"
                     >
+
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
+
                             <strong>
                                 Create Account
                             </strong>
@@ -167,7 +383,9 @@ function Dashboard() {
                             <small>
                                 Add a new financial account
                             </small>
+
                         </span>
+
                     </button>
 
 
@@ -178,11 +396,13 @@ function Dashboard() {
                         }
                         type="button"
                     >
+
                         <span className="quick-action-icon">
                             ⇄
                         </span>
 
                         <span>
+
                             <strong>
                                 New Transaction
                             </strong>
@@ -190,7 +410,9 @@ function Dashboard() {
                             <small>
                                 Record a financial transaction
                             </small>
+
                         </span>
+
                     </button>
 
 
@@ -201,11 +423,13 @@ function Dashboard() {
                         }
                         type="button"
                     >
+
                         <span className="quick-action-icon">
                             +
                         </span>
 
                         <span>
+
                             <strong>
                                 Create Ledger
                             </strong>
@@ -213,7 +437,9 @@ function Dashboard() {
                             <small>
                                 Create and manage a ledger
                             </small>
+
                         </span>
+
                     </button>
 
                 </div>
@@ -228,12 +454,15 @@ function Dashboard() {
                 <div className="section-heading">
 
                     <div>
-                        <h2>Recent Activity</h2>
+
+                        <h2>
+                            Recent Activity
+                        </h2>
 
                         <p>
-                            Your latest financial activity
-                            will appear here.
+                            Your latest financial activity.
                         </p>
+
                     </div>
 
                     <button
@@ -249,33 +478,160 @@ function Dashboard() {
                 </div>
 
 
-                <div className="empty-dashboard">
+                {loading ? (
 
-                    <div className="empty-icon">
-                        ◷
+                    <div className="empty-dashboard">
+
+                        <h3>
+                            Loading recent activity...
+                        </h3>
+
                     </div>
 
-                    <h3>
-                        No recent activity
-                    </h3>
+                ) : recentTransactions.length > 0 ? (
 
-                    <p>
-                        Transactions and account activity
-                        will appear here once you start
-                        using VaultFlow.
-                    </p>
+                    <div className="transaction-cards">
 
-                    <button
-                        className="primary-button"
-                        onClick={() =>
-                            navigate("/transactions/new")
-                        }
-                        type="button"
-                    >
-                        Create Transaction
-                    </button>
+                        {recentTransactions.map(
+                            (transaction, index) => (
 
-                </div>
+                                <div
+                                    className="transaction-card"
+                                    key={
+                                        transaction?.id ??
+                                        `transaction-${index}`
+                                    }
+                                >
+
+                                    <div className="transaction-card-header">
+
+                                        <div>
+
+                                            <span className="transaction-label">
+                                                Transaction ID
+                                            </span>
+
+                                            <h3>
+                                                #
+                                                {transaction?.id ??
+                                                    "N/A"}
+                                            </h3>
+
+                                        </div>
+
+                                        <span className="transaction-status">
+                                            {transaction?.status ||
+                                                "PENDING"}
+                                        </span>
+
+                                    </div>
+
+
+                                    <div className="transaction-card-body">
+
+                                        <div className="transaction-info">
+
+                                            <span>
+                                                Amount
+                                            </span>
+
+                                            <strong>
+                                                ₹{" "}
+                                                {Number(
+                                                    transaction?.amount ?? 0
+                                                ).toLocaleString(
+                                                    "en-IN",
+                                                    {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }
+                                                )}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div className="transaction-info">
+
+                                            <span>
+                                                Source Account
+                                            </span>
+
+                                            <strong>
+                                                {transaction?.sourceAccountId ??
+                                                    "-"}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div className="transaction-info">
+
+                                            <span>
+                                                Destination Account
+                                            </span>
+
+                                            <strong>
+                                                {transaction?.targetAccountId ??
+                                                    "-"}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div className="transaction-info">
+
+                                            <span>
+                                                Reference ID
+                                            </span>
+
+                                            <strong>
+                                                {transaction?.referenceId ??
+                                                    "-"}
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            )
+                        )}
+
+                    </div>
+
+                ) : (
+
+                    <div className="empty-dashboard">
+
+                        <div className="empty-icon">
+                            ◷
+                        </div>
+
+                        <h3>
+                            No recent activity
+                        </h3>
+
+                        <p>
+                            Transactions and account activity
+                            will appear here once you start
+                            using VaultFlow.
+                        </p>
+
+                        <button
+                            className="primary-button"
+                            onClick={() =>
+                                navigate("/transactions/new")
+                            }
+                            type="button"
+                        >
+                            Create Transaction
+                        </button>
+
+                    </div>
+
+                )}
 
             </section>
 
@@ -296,7 +652,9 @@ function Dashboard() {
 
                     <p>
                         You are currently signed in as{" "}
-                        <strong>{role}</strong>.
+                        <strong>
+                            {role}
+                        </strong>.
                         Your authenticated session is
                         protected by the VaultFlow security layer.
                     </p>
@@ -353,7 +711,6 @@ function PageWrapper({
                 </div>
 
             </div>
-
 
             <div className="content-card">
                 {children}
@@ -438,9 +795,7 @@ function ApplicationLayout({ onLogout }) {
     return (
         <div className="app-shell">
 
-            {/* =================================================
-                SIDEBAR
-            ================================================= */}
+            {/* SIDEBAR */}
 
             <aside className="sidebar">
 
@@ -478,7 +833,9 @@ function ApplicationLayout({ onLogout }) {
                                 ? "nav-item active"
                                 : "nav-item"
                         }
-                        onClick={() => navigate("/")}
+                        onClick={() =>
+                            navigate("/")
+                        }
                         type="button"
                     >
                         <span>⌂</span>
@@ -603,9 +960,7 @@ function ApplicationLayout({ onLogout }) {
             </aside>
 
 
-            {/* =================================================
-                MAIN CONTENT
-            ================================================= */}
+            {/* MAIN CONTENT */}
 
             <main className="main-content">
 
@@ -676,7 +1031,9 @@ function ApplicationLayout({ onLogout }) {
 
                         <Route
                             path="/"
-                            element={<Dashboard />}
+                            element={
+                                <Dashboard />
+                            }
                         />
 
 
@@ -854,6 +1211,7 @@ function App() {
                             />
                         }
                     />
+
 
                     <Route
                         path="*"
