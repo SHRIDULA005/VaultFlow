@@ -45,8 +45,7 @@ const TransactionForm = () => {
         let request;
 
         try {
-            request = axios.post(
-                "/api/transactions",
+            request = api.post("/transactions",
                 transactionData
             );
         } catch (error) {
