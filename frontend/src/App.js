@@ -88,13 +88,13 @@ function Dashboard() {
         const loadDashboardData = async () => {
             try {
                 const [
-                accountsResponse,
-                transactionsResponse,
-                ledgersResponse
-            ] = await Promise.all([
-                getAccounts(),
-                api.get("/transactions").then((response) => response.data),
-                getLedgers()
+                    accountsResponse,
+                    transactionsResponse,
+                    ledgersResponse
+                ] = await Promise.all([
+                    getAccounts(),
+                    getAllTransactions(),
+                    getLedgers()
                 ]);
 
                 if (!mounted) {
