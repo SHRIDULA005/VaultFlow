@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { getAccounts } from "../../services/accountService";
 import "./TransactionForm.css";
 
 const TransactionForm = () => {
@@ -29,7 +30,73 @@ const TransactionForm = () => {
         return () => clearTimeout(timer);
     }, [successMessage]);
 
-    const handleSubmit = () => {
+    /*
+     * Convert account name entered in the form
+     * into the actual database account ID.
+     */
+    const getAccountId = async (accountValue) => {
+        if (!accountValue) {
+            return null;
+        }
+
+        /*
+         * If the value is already a numeric ID,
+         * keep it as it is.
+         */
+        if (/^\d+$/.test(String(accountValue).trim())) {
+            return accountValue;
+        }
+
+        const accountsResponse = await getAccounts();
+
+        const accounts = Array.isArray(accountsResponse)
+            ? accountsResponse
+            : accountsResponse?.content || [];
+
+        const enteredName =
+            String(accountValue).trim().toLowerCase();
+
+        const account = accounts.find((item) => {
+
+            const accountName =
+                item?.accountName ||
+                item?.name ||
+                "";
+
+            return (
+                String(accountName)
+                    .trim()
+                    .toLowerCase() === enteredName
+            );
+        });
+
+        if (!account) {
+            return null;
+        }
+
+        return account.id;
+    };
+
+    const handleSubmit = async () => {
+
+        /*
+         * Only TREASURER and ADMIN are allowed
+         * to create transactions.
+         */
+        const role = localStorage.getItem("role");
+
+        if (
+            role &&
+            role !== "TREASURER" &&
+            role !== "ADMIN"
+        ) {
+            setErrorMessage(
+                "You are not authorized to create transactions."
+            );
+
+            return;
+        }
+
         const accountsMissing =
             !sourceAccountId ||
             !targetAccountId;
@@ -40,18 +107,88 @@ const TransactionForm = () => {
             setWarningMessage("");
         }
 
+        if (accountsMissing) {
+            return;
+        }
+
         setErrorMessage("");
+
+        let sourceId;
+        let targetId;
+
+        try {
+
+            /*
+             * Resolve account names to database IDs.
+             */
+            sourceId =
+                await getAccountId(sourceAccountId);
+
+            targetId =
+                await getAccountId(targetAccountId);
+
+            if (!sourceId || !targetId) {
+
+                setErrorMessage(
+                    "Unable to find the selected account."
+                );
+
+                return;
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Unable to resolve account:",
+                error
+            );
+
+            setErrorMessage(
+                "Unable to load account information. Please try again."
+            );
+
+            return;
+        }
 
         /*
          * Keep this payload structure unchanged.
          * The automated tests depend on these fields.
+         *
+         * Account IDs are converted to numbers when
+         * the user entered account names.
          */
         const transactionData = {
             amount,
-            sourceAccountId,
-            targetAccountId,
+            sourceAccountId:
+                /^\d+$/.test(String(sourceAccountId).trim())
+                    ? sourceAccountId
+                    : Number(sourceId),
+            targetAccountId:
+                /^\d+$/.test(String(targetAccountId).trim())
+                    ? targetAccountId
+                    : Number(targetId),
             referenceId
         };
+
+        /*
+         * Convert numeric fields for real backend requests.
+         *
+         * This is especially important when the form
+         * contains account names instead of IDs.
+         */
+        if (
+            !/^\d+$/.test(String(sourceAccountId).trim())
+        ) {
+            transactionData.sourceAccountId =
+                Number(sourceId);
+        }
+
+        if (
+            !/^\d+$/.test(String(targetAccountId).trim())
+        ) {
+            transactionData.targetAccountId =
+                Number(targetId);
+        }
 
         const token =
             localStorage.getItem("token");
@@ -68,13 +205,16 @@ const TransactionForm = () => {
         let request;
 
         try {
+
             setIsSubmitting(true);
 
             request = axios.post(
                 "/api/transactions",
                 transactionData
             );
+
         } catch (error) {
+
             console.error(
                 "Transaction request failed:",
                 error
@@ -98,6 +238,7 @@ const TransactionForm = () => {
 
         request
             .then(() => {
+
                 setSuccessMessage(
                     "Transaction Logged Successfully"
                 );
@@ -116,6 +257,7 @@ const TransactionForm = () => {
                 setReferenceId("");
             })
             .catch((error) => {
+
                 console.error(
                     "Transaction creation failed:",
                     error
@@ -127,14 +269,19 @@ const TransactionForm = () => {
                 setIsSubmitting(false);
 
                 if (status === 403) {
+
                     setErrorMessage(
                         "You are not authorized to create transactions."
                     );
+
                 } else if (status === 500) {
+
                     setErrorMessage(
                         "Unable to process transaction. Please try again."
                     );
+
                 } else {
+
                     setErrorMessage(
                         "Unable to create transaction. Please try again."
                     );
@@ -148,19 +295,23 @@ const TransactionForm = () => {
             {/* =====================================
                 PAGE HEADER
             ====================================== */}
+
             <section className="transaction-form-header">
 
                 <div className="transaction-breadcrumb">
                     <span>VAULTFLOW</span>
+
                     <span className="breadcrumb-divider">
                         /
                     </span>
+
                     <strong>Transactions</strong>
                 </div>
 
                 <div className="transaction-header-content">
 
                     <div>
+
                         <span className="transaction-eyebrow">
                             FINANCIAL OPERATIONS
                         </span>
@@ -174,6 +325,7 @@ const TransactionForm = () => {
                             financial transaction for
                             processing.
                         </p>
+
                     </div>
 
                     <div className="transaction-header-badge">
@@ -182,6 +334,7 @@ const TransactionForm = () => {
                     </div>
 
                 </div>
+
             </section>
 
             {/* =====================================
@@ -193,11 +346,13 @@ const TransactionForm = () => {
                     className="transaction-alert transaction-alert-success"
                     data-testid="success-alert"
                 >
+
                     <div className="alert-icon">
                         ✓
                     </div>
 
                     <div>
+
                         <strong>
                             Transaction submitted
                         </strong>
@@ -205,7 +360,9 @@ const TransactionForm = () => {
                         <span>
                             Transaction Logged Successfully
                         </span>
+
                     </div>
+
                 </div>
             )}
 
@@ -214,11 +371,13 @@ const TransactionForm = () => {
                     className="transaction-alert transaction-alert-warning"
                     data-testid="warning-alert"
                 >
+
                     <div className="alert-icon">
                         !
                     </div>
 
                     <div>
+
                         <strong>
                             Account selection required
                         </strong>
@@ -226,7 +385,9 @@ const TransactionForm = () => {
                         <span>
                             Account not selected
                         </span>
+
                     </div>
+
                 </div>
             )}
 
@@ -238,11 +399,13 @@ const TransactionForm = () => {
                         backgroundColor: "red"
                     }}
                 >
+
                     <div className="alert-icon">
                         !
                     </div>
 
                     <div>
+
                         <strong>
                             Transaction failed
                         </strong>
@@ -250,7 +413,9 @@ const TransactionForm = () => {
                         <span>
                             {errorMessage}
                         </span>
+
                     </div>
+
                 </div>
             )}
 
@@ -267,6 +432,7 @@ const TransactionForm = () => {
                     </div>
 
                     <div>
+
                         <span>
                             TRANSACTION DETAILS
                         </span>
@@ -279,6 +445,7 @@ const TransactionForm = () => {
                             Verify the account details
                             before submitting.
                         </p>
+
                     </div>
 
                 </div>
@@ -288,6 +455,7 @@ const TransactionForm = () => {
                 <div className="transaction-form-grid">
 
                     {/* Amount */}
+
                     <div className="transaction-form-group transaction-form-group-full">
 
                         <label htmlFor="transactionAmount">
@@ -323,6 +491,7 @@ const TransactionForm = () => {
                     </div>
 
                     {/* Source */}
+
                     <div className="transaction-form-group">
 
                         <label htmlFor="sourceAccount">
@@ -358,6 +527,7 @@ const TransactionForm = () => {
                     </div>
 
                     {/* Destination */}
+
                     <div className="transaction-form-group">
 
                         <label htmlFor="destinationAccount">
@@ -393,6 +563,7 @@ const TransactionForm = () => {
                     </div>
 
                     {/* Reference */}
+
                     <div className="transaction-form-group transaction-form-group-full">
 
                         <label htmlFor="referenceId">
@@ -442,6 +613,7 @@ const TransactionForm = () => {
                     </div>
 
                     <div>
+
                         <strong>
                             Secure transaction processing
                         </strong>
@@ -450,6 +622,7 @@ const TransactionForm = () => {
                             Your transaction is authenticated
                             and recorded securely in VaultFlow.
                         </span>
+
                     </div>
 
                 </div>
@@ -471,6 +644,7 @@ const TransactionForm = () => {
                         className="transaction-submit-button"
                         disabled={isSubmitting}
                     >
+
                         {isSubmitting ? (
                             <>
                                 <span className="button-spinner"></span>
@@ -479,11 +653,13 @@ const TransactionForm = () => {
                         ) : (
                             <>
                                 Submit Transaction
+
                                 <span className="button-arrow">
                                     →
                                 </span>
                             </>
                         )}
+
                     </button>
 
                 </div>
@@ -491,6 +667,7 @@ const TransactionForm = () => {
             </section>
 
             <div className="transaction-page-footer">
+
                 <span>
                     VaultFlow Financial Management
                 </span>
@@ -498,6 +675,7 @@ const TransactionForm = () => {
                 <span>
                     Secure • Audited • Controlled
                 </span>
+
             </div>
 
         </main>
