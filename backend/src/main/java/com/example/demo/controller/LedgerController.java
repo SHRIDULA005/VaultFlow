@@ -21,33 +21,54 @@ public class LedgerController {
     private LedgerService ser;
 
     @PostMapping
-    public ResponseEntity<String> postLedger(@RequestBody Ledger ledger) {
-        return ResponseEntity.ok(ser.postledger(ledger));
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
+    public ResponseEntity<String> postLedger(
+            @RequestBody Ledger ledger) {
+
+        return ResponseEntity.ok(
+                ser.postledger(ledger)
+        );
     }
 
-    @PreAuthorize("hasRole('AUDITOR')")
+    @PreAuthorize("hasAnyRole('AUDITOR', 'TREASURER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<LedgerDTO>> getAllLedgers(Pageable pageable) {
-        return ResponseEntity.ok(ser.getAllLedgers(pageable));
+    public ResponseEntity<Page<LedgerDTO>> getAllLedgers(
+            Pageable pageable) {
+
+        return ResponseEntity.ok(
+                ser.getAllLedgers(pageable)
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Ledger>> getLedgerById(@PathVariable Long id) {
-        return ResponseEntity.ok(ser.getledgerbyid(id));
+    public ResponseEntity<Optional<Ledger>> getLedgerById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                ser.getledgerbyid(id)
+        );
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
     public ResponseEntity<Ledger> updateLedger(
             @PathVariable Long id,
             @RequestBody Ledger ledger) {
 
-        return ResponseEntity.ok(ser.updateLedger(id, ledger));
+        return ResponseEntity.ok(
+                ser.updateLedger(id, ledger)
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteLedger(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
+    public ResponseEntity<String> deleteLedger(
+            @PathVariable Long id) {
 
         ser.deleteLedger(id);
-        return ResponseEntity.ok("Ledger deleted successfully.");
+
+        return ResponseEntity.ok(
+                "Ledger deleted successfully."
+        );
     }
 }
