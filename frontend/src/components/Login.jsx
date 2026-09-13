@@ -4,6 +4,7 @@ import "./Login.css";
 
 const getRoleFromToken = (token) => {
     try {
+
         const parts = token.split(".");
 
         if (parts.length < 2) {
@@ -37,7 +38,9 @@ const getRoleFromToken = (token) => {
         }
 
         return role || null;
+
     } catch (error) {
+
         console.error(
             "Unable to read role from JWT:",
             error
@@ -47,13 +50,18 @@ const getRoleFromToken = (token) => {
     }
 };
 
+
 const Login = ({ onLogin }) => {
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+
     const handleLogin = () => {
+
         setLoading(true);
         setError("");
 
@@ -63,6 +71,7 @@ const Login = ({ onLogin }) => {
                 password
             })
             .then((response) => {
+
                 const data = response.data;
 
                 const token =
@@ -71,23 +80,29 @@ const Login = ({ onLogin }) => {
                         : data?.token;
 
                 if (!token) {
+
                     setError(
                         "Invalid email or password"
                     );
+
                     return;
                 }
+
 
                 /*
                  * Store JWT token
                  */
+
                 localStorage.setItem(
                     "token",
                     token
                 );
 
+
                 /*
                  * Get role from login response first.
                  */
+
                 let role =
                     typeof data === "object"
                         ? (
@@ -99,20 +114,25 @@ const Login = ({ onLogin }) => {
                         )
                         : null;
 
+
                 /*
                  * Handle role returned as an array.
                  */
+
                 if (Array.isArray(role)) {
                     role = role[0];
                 }
+
 
                 /*
                  * If role is not supplied by the API,
                  * attempt to read it from the JWT.
                  */
+
                 if (!role) {
                     role = getRoleFromToken(token);
                 }
+
 
                 /*
                  * Normalize role.
@@ -121,51 +141,66 @@ const Login = ({ onLogin }) => {
                  *       ↓
                  * TREASURER
                  */
+
                 if (typeof role === "string") {
+
                     role = role
                         .replace(/^ROLE_/, "")
                         .toUpperCase();
                 }
 
+
                 /*
                  * Store role.
                  */
+
                 if (role) {
+
                     localStorage.setItem(
                         "role",
                         role
                     );
+
                 } else {
+
                     localStorage.removeItem(
                         "role"
                     );
                 }
 
+
                 /*
                  * Store user information when
                  * supplied by the backend.
                  */
+
                 if (data?.user) {
+
                     localStorage.setItem(
                         "user",
                         JSON.stringify(data.user)
                     );
                 }
 
+
                 setError("");
+
 
                 /*
                  * Notify parent application.
                  */
+
                 if (onLogin) {
                     onLogin();
                 }
+
 
                 /*
                  * Navigate to dashboard without
                  * requiring React Router inside
                  * this component.
                  */
+
                 window.history.pushState(
                     {},
                     "",
@@ -175,8 +210,10 @@ const Login = ({ onLogin }) => {
                 window.dispatchEvent(
                     new Event("popstate")
                 );
+
             })
             .catch((err) => {
+
                 console.error(
                     "Login error:",
                     err
@@ -185,13 +222,18 @@ const Login = ({ onLogin }) => {
                 setError(
                     "Invalid email or password"
                 );
+
             })
             .finally(() => {
+
                 setLoading(false);
+
             });
     };
 
+
     const handleSubmit = (event) => {
+
         event.preventDefault();
 
         if (!loading) {
@@ -199,10 +241,31 @@ const Login = ({ onLogin }) => {
         }
     };
 
+
+    /*
+     * Navigate to registration page.
+     */
+
+    const handleRegister = () => {
+
+        window.history.pushState(
+            {},
+            "",
+            "/register"
+        );
+
+        window.dispatchEvent(
+            new Event("popstate")
+        );
+    };
+
+
     return (
+
         <main className="login-page">
 
             {/* Background decoration */}
+
             <div
                 className="login-background-grid"
                 aria-hidden="true"
@@ -218,13 +281,17 @@ const Login = ({ onLogin }) => {
                 aria-hidden="true"
             />
 
+
             {/* Login card */}
+
             <section
                 className="login-card"
                 aria-label="VaultFlow login"
             >
 
+
                 {/* Brand */}
+
                 <div className="login-brand">
 
                     <div className="login-logo">
@@ -232,6 +299,7 @@ const Login = ({ onLogin }) => {
                     </div>
 
                     <div>
+
                         <div className="login-brand-name">
                             VaultFlow
                         </div>
@@ -239,11 +307,14 @@ const Login = ({ onLogin }) => {
                         <div className="login-brand-label">
                             FINANCIAL OPERATIONS
                         </div>
+
                     </div>
 
                 </div>
 
+
                 {/* Heading */}
+
                 <div className="login-heading">
 
                     <div className="login-eyebrow">
@@ -261,13 +332,17 @@ const Login = ({ onLogin }) => {
 
                 </div>
 
+
                 {/* Form */}
+
                 <form
                     className="login-form"
                     onSubmit={handleSubmit}
                 >
 
+
                     {/* Email */}
+
                     <div className="login-field">
 
                         <label htmlFor="email">
@@ -300,7 +375,9 @@ const Login = ({ onLogin }) => {
 
                     </div>
 
+
                     {/* Password */}
+
                     <div className="login-field">
 
                         <label htmlFor="password">
@@ -333,7 +410,9 @@ const Login = ({ onLogin }) => {
 
                     </div>
 
+
                     {/* Session information */}
+
                     <div className="login-options">
 
                         <span>
@@ -353,7 +432,9 @@ const Login = ({ onLogin }) => {
 
                     </div>
 
+
                     {/* Login button */}
+
                     <button
                         type="submit"
                         className="login-button"
@@ -367,6 +448,7 @@ const Login = ({ onLogin }) => {
                     >
 
                         {loading ? (
+
                             <>
                                 <span
                                     className="login-spinner"
@@ -377,8 +459,11 @@ const Login = ({ onLogin }) => {
                                     Signing in...
                                 </span>
                             </>
+
                         ) : (
+
                             <>
+
                                 <span>
                                     Login
                                 </span>
@@ -389,13 +474,39 @@ const Login = ({ onLogin }) => {
                                 >
                                     →
                                 </span>
+
                             </>
+
                         )}
 
                     </button>
 
+
+                    {/* =================================================
+                        REGISTER BUTTON
+                    ================================================= */}
+
+                    <div className="login-register-section">
+
+                        <span>
+                            Don't have a VaultFlow account?
+                        </span>
+
+                        <button
+                            type="button"
+                            className="login-register-button"
+                            onClick={handleRegister}
+                        >
+                            Register
+                        </button>
+
+                    </div>
+
+
                     {/* Error */}
+
                     {error && (
+
                         <div
                             className="login-error"
                             role="alert"
@@ -413,11 +524,14 @@ const Login = ({ onLogin }) => {
                             </span>
 
                         </div>
+
                     )}
 
                 </form>
 
+
                 {/* Security information */}
+
                 <div className="login-security">
 
                     <div
@@ -442,7 +556,9 @@ const Login = ({ onLogin }) => {
 
                 </div>
 
+
                 {/* Footer */}
+
                 <div className="login-footer">
 
                     <span>
