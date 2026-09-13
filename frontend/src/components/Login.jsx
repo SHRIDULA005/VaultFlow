@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./Login.css";
 
+
 const getRoleFromToken = (token) => {
+
     try {
 
         const parts = token.split(".");
@@ -11,9 +13,11 @@ const getRoleFromToken = (token) => {
             return null;
         }
 
+
         const base64 = parts[1]
             .replace(/-/g, "+")
             .replace(/_/g, "/");
+
 
         const padded = base64.padEnd(
             base64.length +
@@ -21,7 +25,11 @@ const getRoleFromToken = (token) => {
             "="
         );
 
-        const payload = JSON.parse(atob(padded));
+
+        const payload = JSON.parse(
+            atob(padded)
+        );
+
 
         let role =
             payload.role ||
@@ -29,13 +37,19 @@ const getRoleFromToken = (token) => {
             payload.authorities ||
             payload.authority;
 
+
         if (Array.isArray(role)) {
             role = role[0];
         }
 
+
         if (typeof role === "string") {
-            role = role.replace(/^ROLE_/, "");
+            role = role.replace(
+                /^ROLE_/,
+                ""
+            );
         }
+
 
         return role || null;
 
@@ -53,11 +67,17 @@ const getRoleFromToken = (token) => {
 
 const Login = ({ onLogin }) => {
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] =
+        useState("");
 
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [password, setPassword] =
+        useState("");
+
+    const [error, setError] =
+        useState("");
+
+    const [loading, setLoading] =
+        useState(false);
 
 
     const handleLogin = () => {
@@ -65,19 +85,23 @@ const Login = ({ onLogin }) => {
         setLoading(true);
         setError("");
 
+
         axios
             .post("/auth/login", {
                 email,
                 password
             })
+
             .then((response) => {
 
                 const data = response.data;
+
 
                 const token =
                     typeof data === "string"
                         ? data
                         : data?.token;
+
 
                 if (!token) {
 
@@ -130,16 +154,13 @@ const Login = ({ onLogin }) => {
                  */
 
                 if (!role) {
-                    role = getRoleFromToken(token);
+                    role =
+                        getRoleFromToken(token);
                 }
 
 
                 /*
                  * Normalize role.
-                 *
-                 * ROLE_TREASURER
-                 *       ↓
-                 * TREASURER
                  */
 
                 if (typeof role === "string") {
@@ -147,6 +168,7 @@ const Login = ({ onLogin }) => {
                     role = role
                         .replace(/^ROLE_/, "")
                         .toUpperCase();
+
                 }
 
 
@@ -166,6 +188,7 @@ const Login = ({ onLogin }) => {
                     localStorage.removeItem(
                         "role"
                     );
+
                 }
 
 
@@ -180,6 +203,7 @@ const Login = ({ onLogin }) => {
                         "user",
                         JSON.stringify(data.user)
                     );
+
                 }
 
 
@@ -196,9 +220,7 @@ const Login = ({ onLogin }) => {
 
 
                 /*
-                 * Navigate to dashboard without
-                 * requiring React Router inside
-                 * this component.
+                 * Navigate to dashboard.
                  */
 
                 window.history.pushState(
@@ -207,11 +229,13 @@ const Login = ({ onLogin }) => {
                     "/"
                 );
 
+
                 window.dispatchEvent(
                     new Event("popstate")
                 );
 
             })
+
             .catch((err) => {
 
                 console.error(
@@ -219,16 +243,19 @@ const Login = ({ onLogin }) => {
                     err
                 );
 
+
                 setError(
                     "Invalid email or password"
                 );
 
             })
+
             .finally(() => {
 
                 setLoading(false);
 
             });
+
     };
 
 
@@ -236,9 +263,11 @@ const Login = ({ onLogin }) => {
 
         event.preventDefault();
 
+
         if (!loading) {
             handleLogin();
         }
+
     };
 
 
@@ -254,9 +283,11 @@ const Login = ({ onLogin }) => {
             "/register"
         );
 
+
         window.dispatchEvent(
             new Event("popstate")
         );
+
     };
 
 
@@ -264,17 +295,22 @@ const Login = ({ onLogin }) => {
 
         <main className="login-page">
 
-            {/* Background decoration */}
+
+            {/* =================================================
+                BACKGROUND
+            ================================================= */}
 
             <div
                 className="login-background-grid"
                 aria-hidden="true"
             />
 
+
             <div
                 className="login-glow login-glow-one"
                 aria-hidden="true"
             />
+
 
             <div
                 className="login-glow login-glow-two"
@@ -282,7 +318,21 @@ const Login = ({ onLogin }) => {
             />
 
 
-            {/* Login card */}
+            <div
+                className="login-background-line login-background-line-one"
+                aria-hidden="true"
+            />
+
+
+            <div
+                className="login-background-line login-background-line-two"
+                aria-hidden="true"
+            />
+
+
+            {/* =================================================
+                LOGIN CARD
+            ================================================= */}
 
             <section
                 className="login-card"
@@ -290,7 +340,9 @@ const Login = ({ onLogin }) => {
             >
 
 
-                {/* Brand */}
+                {/* =================================================
+                    BRAND
+                ================================================= */}
 
                 <div className="login-brand">
 
@@ -298,11 +350,13 @@ const Login = ({ onLogin }) => {
                         VF
                     </div>
 
+
                     <div>
 
                         <div className="login-brand-name">
                             VaultFlow
                         </div>
+
 
                         <div className="login-brand-label">
                             FINANCIAL OPERATIONS
@@ -313,7 +367,9 @@ const Login = ({ onLogin }) => {
                 </div>
 
 
-                {/* Heading */}
+                {/* =================================================
+                    HEADING
+                ================================================= */}
 
                 <div className="login-heading">
 
@@ -321,9 +377,11 @@ const Login = ({ onLogin }) => {
                         SECURE ACCESS
                     </div>
 
+
                     <h1>
                         Welcome back
                     </h1>
+
 
                     <p>
                         Sign in to securely manage your
@@ -333,7 +391,9 @@ const Login = ({ onLogin }) => {
                 </div>
 
 
-                {/* Form */}
+                {/* =================================================
+                    FORM
+                ================================================= */}
 
                 <form
                     className="login-form"
@@ -341,13 +401,14 @@ const Login = ({ onLogin }) => {
                 >
 
 
-                    {/* Email */}
+                    {/* EMAIL */}
 
                     <div className="login-field">
 
                         <label htmlFor="email">
                             Email Address
                         </label>
+
 
                         <div className="login-input-wrapper">
 
@@ -357,6 +418,7 @@ const Login = ({ onLogin }) => {
                             >
                                 @
                             </span>
+
 
                             <input
                                 id="email"
@@ -376,13 +438,14 @@ const Login = ({ onLogin }) => {
                     </div>
 
 
-                    {/* Password */}
+                    {/* PASSWORD */}
 
                     <div className="login-field">
 
                         <label htmlFor="password">
                             Password
                         </label>
+
 
                         <div className="login-input-wrapper">
 
@@ -392,6 +455,7 @@ const Login = ({ onLogin }) => {
                             >
                                 •
                             </span>
+
 
                             <input
                                 id="password"
@@ -411,13 +475,14 @@ const Login = ({ onLogin }) => {
                     </div>
 
 
-                    {/* Session information */}
+                    {/* SESSION */}
 
                     <div className="login-options">
 
                         <span>
                             Protected session
                         </span>
+
 
                         <span className="login-session-status">
 
@@ -433,7 +498,7 @@ const Login = ({ onLogin }) => {
                     </div>
 
 
-                    {/* Login button */}
+                    {/* LOGIN */}
 
                     <button
                         type="submit"
@@ -450,6 +515,7 @@ const Login = ({ onLogin }) => {
                         {loading ? (
 
                             <>
+
                                 <span
                                     className="login-spinner"
                                     aria-hidden="true"
@@ -458,6 +524,7 @@ const Login = ({ onLogin }) => {
                                 <span>
                                     Signing in...
                                 </span>
+
                             </>
 
                         ) : (
@@ -482,28 +549,7 @@ const Login = ({ onLogin }) => {
                     </button>
 
 
-                    {/* =================================================
-                        REGISTER BUTTON
-                    ================================================= */}
-
-                    <div className="login-register-section">
-
-                        <span>
-                            Don't have a VaultFlow account?
-                        </span>
-
-                        <button
-                            type="button"
-                            className="login-register-button"
-                            onClick={handleRegister}
-                        >
-                            Register
-                        </button>
-
-                    </div>
-
-
-                    {/* Error */}
+                    {/* ERROR */}
 
                     {error && (
 
@@ -519,6 +565,7 @@ const Login = ({ onLogin }) => {
                                 !
                             </span>
 
+
                             <span>
                                 {error}
                             </span>
@@ -530,7 +577,65 @@ const Login = ({ onLogin }) => {
                 </form>
 
 
-                {/* Security information */}
+                {/* =================================================
+                    REGISTER
+                ================================================= */}
+
+                <div className="login-register">
+
+
+                    <div className="login-register-divider">
+
+                        <span>
+                            NEW TO VAULTFLOW?
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        className="login-register-button"
+                        onClick={handleRegister}
+                    >
+
+                        <span
+                            className="login-register-icon"
+                            aria-hidden="true"
+                        >
+                            +
+                        </span>
+
+
+                        <span className="login-register-content">
+
+                            <strong>
+                                Create an account
+                            </strong>
+
+
+                            <small>
+                                Register your profile and access your VaultFlow account
+                            </small>
+
+                        </span>
+
+
+                        <span
+                            className="login-register-arrow"
+                            aria-hidden="true"
+                        >
+                            →
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                {/* =================================================
+                    SECURITY
+                ================================================= */}
 
                 <div className="login-security">
 
@@ -541,11 +646,13 @@ const Login = ({ onLogin }) => {
                         🔒
                     </div>
 
+
                     <div>
 
                         <strong>
                             Secure authentication
                         </strong>
+
 
                         <span>
                             Your session is protected using
@@ -557,7 +664,9 @@ const Login = ({ onLogin }) => {
                 </div>
 
 
-                {/* Footer */}
+                {/* =================================================
+                    FOOTER
+                ================================================= */}
 
                 <div className="login-footer">
 
@@ -565,9 +674,11 @@ const Login = ({ onLogin }) => {
                         VaultFlow
                     </span>
 
+
                     <span className="login-footer-separator">
                         •
                     </span>
+
 
                     <span>
                         Secure Financial Management
@@ -580,5 +691,6 @@ const Login = ({ onLogin }) => {
         </main>
     );
 };
+
 
 export default Login;
