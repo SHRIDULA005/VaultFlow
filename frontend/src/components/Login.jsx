@@ -38,10 +38,12 @@ const getRoleFromToken = (token) => {
         }
 
         if (typeof role === "string") {
+
             role = role.replace(
                 /^ROLE_/,
                 ""
             );
+
         }
 
         return role || null;
@@ -73,10 +75,15 @@ const Login = ({ onLogin }) => {
         useState(false);
 
 
-    const handleLogin = () => {
+    const handleLogin = (event) => {
+
+        event.preventDefault();
+
+        if (loading) {
+            return;
+        }
 
         setLoading(true);
-
         setError("");
 
 
@@ -107,19 +114,11 @@ const Login = ({ onLogin }) => {
                 }
 
 
-                /*
-                 * Store JWT token
-                 */
-
                 localStorage.setItem(
                     "token",
                     token
                 );
 
-
-                /*
-                 * Get role from login response
-                 */
 
                 let role =
                     typeof data === "object"
@@ -138,11 +137,6 @@ const Login = ({ onLogin }) => {
                 }
 
 
-                /*
-                 * If role is not returned directly,
-                 * read it from the JWT.
-                 */
-
                 if (!role) {
 
                     role =
@@ -150,10 +144,6 @@ const Login = ({ onLogin }) => {
 
                 }
 
-
-                /*
-                 * Normalize role
-                 */
 
                 if (typeof role === "string") {
 
@@ -166,10 +156,6 @@ const Login = ({ onLogin }) => {
 
                 }
 
-
-                /*
-                 * Store role
-                 */
 
                 if (role) {
 
@@ -187,10 +173,6 @@ const Login = ({ onLogin }) => {
                 }
 
 
-                /*
-                 * Store user information
-                 */
-
                 if (data?.user) {
 
                     localStorage.setItem(
@@ -203,21 +185,10 @@ const Login = ({ onLogin }) => {
                 }
 
 
-                setError("");
-
-
-                /*
-                 * Notify parent
-                 */
-
                 if (onLogin) {
                     onLogin();
                 }
 
-
-                /*
-                 * Navigate to dashboard
-                 */
 
                 window.history.pushState(
                     {},
@@ -253,21 +224,6 @@ const Login = ({ onLogin }) => {
     };
 
 
-    const handleSubmit = (event) => {
-
-        event.preventDefault();
-
-        if (!loading) {
-            handleLogin();
-        }
-
-    };
-
-
-    /*
-     * Navigate to registration
-     */
-
     const handleRegister = () => {
 
         window.history.pushState(
@@ -285,148 +241,224 @@ const Login = ({ onLogin }) => {
 
     return (
 
-        <main className="login-page">
+        <main className="vf-login-page">
 
 
-            {/* =================================================
+            {/* =====================================================
                 BACKGROUND
-            ================================================= */}
+            ===================================================== */}
 
             <div
-                className="login-bg-grid"
+                className="vf-login-grid"
                 aria-hidden="true"
             />
 
             <div
-                className="login-bg-glow login-bg-glow-blue"
+                className="vf-login-glow vf-login-glow-one"
                 aria-hidden="true"
             />
 
             <div
-                className="login-bg-glow login-bg-glow-purple"
+                className="vf-login-glow vf-login-glow-two"
                 aria-hidden="true"
             />
 
 
-            {/* =================================================
-                MAIN LAYOUT
-            ================================================= */}
+            {/* =====================================================
+                HEADER
+            ===================================================== */}
 
-            <div className="login-layout">
+            <header className="vf-login-header">
+
+                <div className="vf-brand">
+
+                    <div className="vf-brand-logo">
+                        VF
+                    </div>
+
+                    <div className="vf-brand-text">
+
+                        <strong>
+                            VaultFlow
+                        </strong>
+
+                        <span>
+                            FINANCIAL OPERATIONS
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div className="vf-header-status">
+
+                    <span className="vf-status-dot" />
+
+                    SYSTEM SECURE
+
+                </div>
+
+            </header>
+
+
+            {/* =====================================================
+                DESKTOP CONTENT
+            ===================================================== */}
+
+            <div className="vf-login-content">
 
 
                 {/* =================================================
-                    LEFT BRAND PANEL
+                    LEFT SIDE
                 ================================================= */}
 
-                <section className="login-brand-panel">
+                <section className="vf-login-intro">
 
 
-                    {/* BRAND */}
+                    <div className="vf-intro-label">
 
-                    <div className="login-brand">
+                        <span />
 
-                        <div className="login-logo">
-                            VF
-                        </div>
-
-
-                        <div className="login-brand-details">
-
-                            <div className="login-brand-name">
-                                VaultFlow
-                            </div>
-
-                            <div className="login-brand-subtitle">
-                                FINANCIAL OPERATIONS
-                            </div>
-
-                        </div>
+                        FINANCIAL OPERATIONS PLATFORM
 
                     </div>
 
 
-                    {/* HERO */}
+                    <h1>
 
-                    <div className="login-hero">
+                        Manage your money.
 
-                        <div className="login-hero-label">
+                        <br />
 
-                            <span className="login-hero-dot" />
+                        <span>
+                            Move with confidence.
+                        </span>
 
-                            SECURE FINANCIAL PLATFORM
-
-                        </div>
-
-
-                        <h1>
-
-                            Financial operations.
-                            <br />
-
-                            <span>
-                                Simplified.
-                            </span>
-
-                        </h1>
+                    </h1>
 
 
-                        <p>
+                    <p className="vf-intro-description">
 
-                            Manage accounts, transactions,
-                            ledgers and audit activity from
-                            one secure financial operations
-                            platform.
+                        VaultFlow brings accounts, transactions,
+                        ledgers and audit activity together in
+                        one secure workspace.
 
-                        </p>
-
-                    </div>
+                    </p>
 
 
                     {/* =================================================
-                        FINANCIAL VISUAL
+                        LIVE FINANCIAL CARD
                     ================================================= */}
 
-                    <div
-                        className="login-financial-visual"
-                        aria-hidden="true"
-                    >
+                    <div className="vf-financial-card">
 
 
-                        <div className="visual-header">
+                        <div className="vf-card-top">
 
-                            <span>
-                                TRANSACTION ACTIVITY
-                            </span>
+                            <div>
 
-                            <span className="visual-live">
+                                <span className="vf-card-label">
+                                    TRANSACTION ACTIVITY
+                                </span>
+
+                                <strong>
+                                    Live operations
+                                </strong>
+
+                            </div>
+
+
+                            <div className="vf-live-badge">
+
+                                <span />
+
                                 LIVE
-                            </span>
+
+                            </div>
 
                         </div>
 
 
-                        <div className="visual-chart">
+                        {/* GRAPH */}
 
-                            <div className="chart-line chart-line-one" />
-                            <div className="chart-line chart-line-two" />
-                            <div className="chart-line chart-line-three" />
+                        <div className="vf-graph">
 
-                            <div className="chart-point chart-point-one" />
-                            <div className="chart-point chart-point-two" />
-                            <div className="chart-point chart-point-three" />
-                            <div className="chart-point chart-point-four" />
-                            <div className="chart-point chart-point-five" />
+                            <div className="vf-graph-grid grid-one" />
+                            <div className="vf-graph-grid grid-two" />
+                            <div className="vf-graph-grid grid-three" />
+
+
+                            <svg
+                                viewBox="0 0 600 150"
+                                preserveAspectRatio="none"
+                                className="vf-chart"
+                            >
+
+                                <defs>
+
+                                    <linearGradient
+                                        id="vaultflowChart"
+                                        x1="0"
+                                        y1="0"
+                                        x2="1"
+                                        y2="0"
+                                    >
+
+                                        <stop
+                                            offset="0%"
+                                            stopColor="#3b82f6"
+                                        />
+
+                                        <stop
+                                            offset="100%"
+                                            stopColor="#6366f1"
+                                        />
+
+                                    </linearGradient>
+
+                                </defs>
+
+
+                                <path
+                                    d="
+                                    M0 118
+                                    C35 112 48 106 72 110
+                                    C96 114 104 91 130 94
+                                    C160 98 169 110 196 96
+                                    C226 80 242 88 267 72
+                                    C293 56 307 82 334 69
+                                    C360 56 373 62 397 49
+                                    C426 33 443 54 466 42
+                                    C495 27 519 33 540 19
+                                    C561 7 581 14 600 5
+                                    "
+                                    fill="none"
+                                    stroke="url(#vaultflowChart)"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                />
+
+                            </svg>
+
+
+                            <div className="vf-chart-point point-one" />
+                            <div className="vf-chart-point point-two" />
+                            <div className="vf-chart-point point-three" />
+                            <div className="vf-chart-point point-four" />
+                            <div className="vf-chart-point point-five" />
 
                         </div>
 
 
-                        <div className="visual-stats">
+                        {/* CARD FOOTER */}
+
+                        <div className="vf-card-stats">
 
                             <div>
 
                                 <span>
-                                    SECURE
+                                    SECURITY
                                 </span>
 
                                 <strong>
@@ -443,7 +475,7 @@ const Login = ({ onLogin }) => {
                                 </span>
 
                                 <strong>
-                                    RBAC
+                                    ROLE BASED
                                 </strong>
 
                             </div>
@@ -470,23 +502,23 @@ const Login = ({ onLogin }) => {
                         FEATURES
                     ================================================= */}
 
-                    <div className="login-features">
+                    <div className="vf-feature-row">
 
 
-                        <div className="login-feature">
+                        <div className="vf-feature">
 
-                            <div className="feature-icon">
+                            <div className="vf-feature-icon">
                                 ✓
                             </div>
 
                             <div>
 
                                 <strong>
-                                    Role-based access
+                                    Secure
                                 </strong>
 
                                 <span>
-                                    Permissions designed around your role.
+                                    JWT authentication
                                 </span>
 
                             </div>
@@ -494,20 +526,20 @@ const Login = ({ onLogin }) => {
                         </div>
 
 
-                        <div className="login-feature">
+                        <div className="vf-feature">
 
-                            <div className="feature-icon">
+                            <div className="vf-feature-icon">
                                 ✓
                             </div>
 
                             <div>
 
                                 <strong>
-                                    Secure transactions
+                                    Role-based
                                 </strong>
 
                                 <span>
-                                    Controlled financial transaction processing.
+                                    Controlled access
                                 </span>
 
                             </div>
@@ -515,41 +547,26 @@ const Login = ({ onLogin }) => {
                         </div>
 
 
-                        <div className="login-feature">
+                        <div className="vf-feature">
 
-                            <div className="feature-icon">
+                            <div className="vf-feature-icon">
                                 ✓
                             </div>
 
                             <div>
 
                                 <strong>
-                                    Complete audit visibility
+                                    Auditable
                                 </strong>
 
                                 <span>
-                                    Track important financial activity.
+                                    Activity visibility
                                 </span>
 
                             </div>
 
                         </div>
 
-
-                    </div>
-
-
-                    {/* LEFT FOOTER */}
-
-                    <div className="login-brand-footer">
-
-                        <span>
-                            VaultFlow
-                        </span>
-
-                        <span>
-                            Secure Financial Management
-                        </span>
 
                     </div>
 
@@ -557,44 +574,21 @@ const Login = ({ onLogin }) => {
 
 
                 {/* =================================================
-                    RIGHT LOGIN PANEL
+                    RIGHT LOGIN
                 ================================================= */}
 
-                <section className="login-form-panel">
+                <section className="vf-auth-area">
 
 
-                    <div className="login-form-container">
+                    <div className="vf-auth-panel">
 
 
-                        {/* MOBILE BRAND */}
+                        <div className="vf-auth-header">
 
-                        <div className="mobile-login-brand">
+                            <div className="vf-auth-label">
 
-                            <div className="login-logo">
-                                VF
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    VaultFlow
-                                </strong>
-
-                                <span>
-                                    FINANCIAL OPERATIONS
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        {/* FORM HEADER */}
-
-                        <div className="login-heading">
-
-                            <div className="login-eyebrow">
                                 SECURE ACCESS
+
                             </div>
 
 
@@ -604,38 +598,35 @@ const Login = ({ onLogin }) => {
 
 
                             <p>
-                                Sign in to securely manage your
-                                financial operations and transactions.
+                                Sign in to continue to your
+                                VaultFlow workspace.
                             </p>
 
                         </div>
 
 
                         {/* =================================================
-                            LOGIN FORM
+                            FORM
                         ================================================= */}
 
                         <form
-                            className="login-form"
-                            onSubmit={handleSubmit}
+                            className="vf-auth-form"
+                            onSubmit={handleLogin}
                         >
 
 
                             {/* EMAIL */}
 
-                            <div className="login-field">
+                            <div className="vf-field">
 
                                 <label htmlFor="email">
                                     Email Address
                                 </label>
 
 
-                                <div className="login-input">
+                                <div className="vf-input-wrapper">
 
-                                    <span
-                                        className="login-input-icon"
-                                        aria-hidden="true"
-                                    >
+                                    <span className="vf-input-icon">
                                         @
                                     </span>
 
@@ -660,19 +651,16 @@ const Login = ({ onLogin }) => {
 
                             {/* PASSWORD */}
 
-                            <div className="login-field">
+                            <div className="vf-field">
 
                                 <label htmlFor="password">
                                     Password
                                 </label>
 
 
-                                <div className="login-input">
+                                <div className="vf-input-wrapper">
 
-                                    <span
-                                        className="login-input-icon"
-                                        aria-hidden="true"
-                                    >
+                                    <span className="vf-input-icon">
                                         •
                                     </span>
 
@@ -695,18 +683,18 @@ const Login = ({ onLogin }) => {
                             </div>
 
 
-                            {/* SESSION STATUS */}
+                            {/* SESSION */}
 
-                            <div className="login-session-row">
+                            <div className="vf-session">
 
                                 <span>
                                     Protected session
                                 </span>
 
 
-                                <span className="session-secure">
+                                <span className="vf-session-secure">
 
-                                    <span className="session-dot" />
+                                    <span className="vf-session-dot" />
 
                                     JWT secured
 
@@ -715,11 +703,11 @@ const Login = ({ onLogin }) => {
                             </div>
 
 
-                            {/* LOGIN BUTTON */}
+                            {/* LOGIN */}
 
                             <button
                                 type="submit"
-                                className="login-button"
+                                className="vf-login-button"
                                 disabled={loading}
                                 aria-busy={loading}
                                 aria-label={
@@ -733,11 +721,9 @@ const Login = ({ onLogin }) => {
 
                                     <>
 
-                                        <span className="login-spinner" />
+                                        <span className="vf-spinner" />
 
-                                        <span>
-                                            Signing in...
-                                        </span>
+                                        Signing in...
 
                                     </>
 
@@ -749,7 +735,7 @@ const Login = ({ onLogin }) => {
                                             Login
                                         </span>
 
-                                        <span className="login-arrow">
+                                        <span className="vf-button-arrow">
                                             →
                                         </span>
 
@@ -765,17 +751,15 @@ const Login = ({ onLogin }) => {
                             {error && (
 
                                 <div
-                                    className="login-error"
+                                    className="vf-login-error"
                                     role="alert"
                                 >
 
-                                    <span className="error-icon">
+                                    <span>
                                         !
                                     </span>
 
-                                    <span>
-                                        {error}
-                                    </span>
+                                    {error}
 
                                 </div>
 
@@ -788,10 +772,10 @@ const Login = ({ onLogin }) => {
                             REGISTER
                         ================================================= */}
 
-                        <div className="register-section">
+                        <div className="vf-register">
 
 
-                            <div className="register-divider">
+                            <div className="vf-register-heading">
 
                                 <span>
                                     NEW TO VAULTFLOW?
@@ -802,29 +786,29 @@ const Login = ({ onLogin }) => {
 
                             <button
                                 type="button"
-                                className="register-button"
+                                className="vf-register-button"
                                 onClick={handleRegister}
                             >
 
-                                <span className="register-symbol">
+                                <span className="vf-register-plus">
                                     +
                                 </span>
 
 
-                                <span className="register-text">
+                                <span className="vf-register-content">
 
                                     <strong>
-                                        Create your account
+                                        Create an account
                                     </strong>
 
                                     <small>
-                                        Set up your profile and access role
+                                        Register your profile and access role
                                     </small>
 
                                 </span>
 
 
-                                <span className="register-arrow">
+                                <span className="vf-register-arrow">
                                     →
                                 </span>
 
@@ -837,16 +821,14 @@ const Login = ({ onLogin }) => {
                             SECURITY
                         ================================================= */}
 
-                        <div className="security-panel">
+                        <div className="vf-security">
 
-                            <div className="security-icon">
-                                <span>
-                                    🔒
-                                </span>
+                            <div className="vf-security-icon">
+                                🔒
                             </div>
 
 
-                            <div className="security-content">
+                            <div className="vf-security-text">
 
                                 <strong>
                                     Secure authentication
@@ -860,36 +842,44 @@ const Login = ({ onLogin }) => {
                             </div>
 
 
-                            <span className="security-status">
+                            <span className="vf-security-badge">
                                 SECURE
                             </span>
 
                         </div>
 
 
-                        {/* FOOTER */}
-
-                        <div className="login-footer">
-
-                            <span>
-                                © VaultFlow
-                            </span>
-
-                            <span>
-                                •
-                            </span>
-
-                            <span>
-                                Secure Financial Management
-                            </span>
-
-                        </div>
-
                     </div>
 
                 </section>
 
             </div>
+
+
+            {/* =====================================================
+                FOOTER
+            ===================================================== */}
+
+            <footer className="vf-login-footer">
+
+                <span>
+                    © VaultFlow
+                </span>
+
+                <span>
+                    Secure Financial Management
+                </span>
+
+                <span>
+                    •
+                </span>
+
+                <span>
+                    Enterprise Access
+                </span>
+
+            </footer>
+
 
         </main>
     );
