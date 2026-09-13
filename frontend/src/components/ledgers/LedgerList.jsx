@@ -7,7 +7,7 @@ const LedgerList = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const handleCreateLedger = () => {
-        window.location.href = "/ledgers/create";
+        window.location.href = "/ledgers/new";
     };
 
     useEffect(() => {
