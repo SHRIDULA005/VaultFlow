@@ -33,6 +33,7 @@ public class TransactionService {
         transaction.setAmount(dto.getAmount());
         transaction.setReferenceId(dto.getReferenceId());
         transaction.setStatus(dto.getStatus());
+        transaction.setLedgerId(dto.getLedgerId());
 
         Account source =
                 accountRepo
@@ -61,6 +62,10 @@ public class TransactionService {
         dto.setAmount(transaction.getAmount());
         dto.setReferenceId(
                 transaction.getReferenceId()
+        );
+
+        dto.setLedgerId(
+                transaction.getLedgerId()
         );
 
         if (transaction.getSourceAccount() != null) {
@@ -92,10 +97,48 @@ public class TransactionService {
                 .toList();
     }
 
+    public List<TransactionDTO> getTransactionsByLedger(
+            String ledgerId) {
+
+        return repo.findByLedgerId(ledgerId)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
     public Optional<Transaction> getTransactionById(
             Long id) {
 
         return repo.findById(id);
+    }
+
+    @PreAuthorize("hasRole('TREASURER')")
+    public TransactionDTO updateTransactionStatus(
+            Long id,
+            String status) {
+
+        Transaction transaction =
+                repo.findById(id)
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "Transaction not found"
+                                )
+                        );
+
+        if (status == null || status.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Transaction status is required"
+            );
+        }
+
+        transaction.setStatus(
+                status.toUpperCase()
+        );
+
+        Transaction updated =
+                repo.save(transaction);
+
+        return convertToDTO(updated);
     }
 
     public void reverseTransaction(Long id) {
