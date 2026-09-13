@@ -1,25 +1,29 @@
 html,
 body,
 #root {
+    width: 100%;
+    min-width: 100%;
     min-height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 html {
-    scroll-behavior: smooth;
+    background: #050914;
 }
 
-button,
-input,
-select,
-textarea {
-    font: inherit;
+body {
+    margin: 0;
+    padding: 0;
+    background: #050914;
+    overflow-x: hidden;
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-    outline: 3px solid rgba(37, 99, 235, 0.35);
-    outline-offset: 2px;
+#root {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box;
 }
