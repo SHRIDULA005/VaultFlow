@@ -24,6 +24,9 @@ public class Transaction {
     @Column(name = "referenceId", nullable = false)
     private String referenceId;
 
+    @Column(name = "ledger_id")
+    private String ledgerId;
+
     @ManyToOne
     @JoinColumn(name = "source_account_id", nullable = false)
     private Account sourceAccount;
@@ -76,6 +79,14 @@ public class Transaction {
 
     public void setReferenceId(String referenceId) {
         this.referenceId = referenceId;
+    }
+
+    public String getLedgerId() {
+        return ledgerId;
+    }
+
+    public void setLedgerId(String ledgerId) {
+        this.ledgerId = ledgerId;
     }
 
     public Account getSourceAccount() {
