@@ -12,7 +12,7 @@ export const getAllTransactions = () => {
 
 export const getByLedger = (ledgerId) => {
     const request = axios.get(
-        `/api/transactions/ledger/${ledgerId}`
+        `/api/transactions/ledger/${encodeURIComponent(ledgerId)}`
     );
 
     if (!request || typeof request.then !== "function") {
