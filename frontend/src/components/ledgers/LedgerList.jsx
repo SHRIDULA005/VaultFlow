@@ -6,6 +6,10 @@ const LedgerList = () => {
     const [ledgers, setLedgers] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const handleCreateLedger = () => {
+        window.location.href = "/ledgers/create";
+    };
+
     useEffect(() => {
         const token = localStorage.getItem("token");
 
@@ -56,6 +60,7 @@ const LedgerList = () => {
         <div className="ledger-list-page">
 
             <div className="ledger-list-header">
+
                 <div>
                     <span className="ledger-eyebrow">
                         VAULTFLOW
@@ -68,11 +73,33 @@ const LedgerList = () => {
                     </p>
                 </div>
 
-                <div className="ledger-count">
-                    {ledgers.length} Ledger
-                    {ledgers.length !== 1 ? "s" : ""}
+
+                <div className="ledger-header-actions">
+
+                    <div className="ledger-count">
+                        {ledgers.length} Ledger
+                        {ledgers.length !== 1 ? "s" : ""}
+                    </div>
+
+
+                    <button
+                        type="button"
+                        className="create-ledger-button"
+                        onClick={handleCreateLedger}
+                    >
+                        <span className="create-ledger-icon">
+                            +
+                        </span>
+
+                        <span>
+                            Create Ledger
+                        </span>
+                    </button>
+
                 </div>
+
             </div>
+
 
             {errorMessage && (
                 <div className="ledger-list-error">
@@ -80,14 +107,18 @@ const LedgerList = () => {
                 </div>
             )}
 
+
             {ledgers.length > 0 ? (
+
                 <div className="ledger-cards">
 
                     {ledgers.map((ledger) => (
+
                         <div
                             className="ledger-card"
                             key={ledger.id}
                         >
+
                             <div className="ledger-card-top">
 
                                 <div>
@@ -106,47 +137,82 @@ const LedgerList = () => {
 
                             </div>
 
+
                             <div className="ledger-card-divider" />
 
+
                             <div className="ledger-description">
-                                <span>Description</span>
+
+                                <span>
+                                    Description
+                                </span>
 
                                 <strong>
                                     {ledger.description || "-"}
                                 </strong>
+
                             </div>
 
+
                             {ledger.createdAt && (
+
                                 <div className="ledger-created">
-                                    <span>Created</span>
+
+                                    <span>
+                                        Created
+                                    </span>
 
                                     <strong>
                                         {String(
                                             ledger.createdAt
                                         ).split("T")[0]}
                                     </strong>
+
                                 </div>
+
                             )}
 
                         </div>
+
                     ))}
 
                 </div>
+
             ) : (
+
                 !errorMessage && (
+
                     <div className="no-ledgers">
+
                         <div className="ledger-empty-icon">
                             L
                         </div>
 
-                        <h3>No ledgers found</h3>
+                        <h3>
+                            No ledgers found
+                        </h3>
 
                         <p>
                             Create a ledger to start managing
                             financial records.
                         </p>
+
+                        <button
+                            type="button"
+                            className="empty-create-ledger-button"
+                            onClick={handleCreateLedger}
+                        >
+                            <span>
+                                +
+                            </span>
+
+                            Create your first ledger
+                        </button>
+
                     </div>
+
                 )
+
             )}
 
         </div>

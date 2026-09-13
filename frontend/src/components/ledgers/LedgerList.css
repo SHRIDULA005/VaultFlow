@@ -193,3 +193,147 @@
         grid-template-columns: 1fr;
     }
 }
+/* ============================================================
+   LEDGER HEADER ACTIONS
+============================================================ */
+
+.ledger-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+/* ============================================================
+   CREATE LEDGER BUTTON
+============================================================ */
+
+.create-ledger-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 40px;
+
+    padding: 0 15px;
+
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    border-radius: 8px;
+
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #4f46e5
+    );
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 6px 18px rgba(37, 99, 235, 0.16);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+}
+
+
+.create-ledger-button:hover {
+    transform: translateY(-1px);
+
+    filter: brightness(1.05);
+
+    box-shadow:
+        0 9px 24px rgba(37, 99, 235, 0.23);
+}
+
+
+.create-ledger-button:active {
+    transform: translateY(0);
+}
+
+
+/* ============================================================
+   CREATE LEDGER ICON
+============================================================ */
+
+.create-ledger-icon {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+
+    border-radius: 5px;
+
+    background: rgba(255, 255, 255, 0.14);
+
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 400;
+
+    line-height: 1;
+}
+
+
+/* ============================================================
+   EMPTY STATE CREATE BUTTON
+============================================================ */
+
+.empty-create-ledger-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 22px;
+
+    padding: 10px 16px;
+
+    border: 1px solid rgba(37, 99, 235, 0.22);
+    border-radius: 8px;
+
+    background: rgba(37, 99, 235, 0.06);
+
+    color: #315fd1;
+
+    font-family: inherit;
+
+    font-size: 12px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.empty-create-ledger-button:hover {
+    transform: translateY(-1px);
+
+    background: rgba(37, 99, 235, 0.10);
+
+    border-color:
+        rgba(37, 99, 235, 0.35);
+}
+
+
+.empty-create-ledger-button span {
+    font-size: 16px;
+    font-weight: 400;
+}
