@@ -81,9 +81,8 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    // Create a new transaction
     @PostMapping
-    @PreAuthorize("hasAnyRole('AUDITOR', 'TREASURER')")
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
     public ResponseEntity<TransactionDTO> createTransaction(
         @Valid @RequestBody TransactionDTO transactionDTO) {
 
@@ -94,7 +93,6 @@ public class TransactionController {
                 .body(saved);
     }
 
-    // Get all transactions
     @GetMapping
     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
 
@@ -103,7 +101,15 @@ public class TransactionController {
         );
     }
 
-    // Get transaction by ID
+    @GetMapping("/ledger/{ledgerId}")
+    public ResponseEntity<List<TransactionDTO>> getTransactionsByLedger(
+        @PathVariable String ledgerId) {
+
+        return ResponseEntity.ok(
+                transactionService.getTransactionsByLedger(ledgerId)
+        );
+    }
+
     @GetMapping("/{id}")
     public Optional<Transaction> getTransactionById(
         @PathVariable Long id) {
@@ -111,7 +117,21 @@ public class TransactionController {
         return transactionService.getTransactionById(id);
     }
 
-    // Reverse transaction
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TREASURER')")
+    public ResponseEntity<TransactionDTO> updateTransaction(
+        @PathVariable Long id,
+        @RequestBody TransactionDTO transactionDTO) {
+
+        TransactionDTO updated =
+                transactionService.updateTransactionStatus(
+                        id,
+                        transactionDTO.getStatus()
+                );
+
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> reverseTransaction(
         @PathVariable Long id) {
