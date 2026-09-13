@@ -469,6 +469,31 @@ const TransactionList = () => {
         }
     };
 
+    // =========================================================
+    // STATUS CLASS
+    // =========================================================
+
+    const getStatusClass = (status) => {
+
+        const normalizedStatus =
+            String(status || "PENDING")
+                .toUpperCase();
+
+        if (normalizedStatus === "APPROVED") {
+            return "status-approved";
+        }
+
+        if (normalizedStatus === "REJECTED") {
+            return "status-rejected";
+        }
+
+        return "status-pending";
+    };
+
+    // =========================================================
+    // RETURN
+    // =========================================================
+
     return (
         <div className="transaction-list-page">
 
@@ -478,18 +503,18 @@ const TransactionList = () => {
 
             <div className="transaction-list-header">
 
-                <div>
+                <div className="transaction-list-header-content">
 
-                    <span className="transaction-eyebrow">
+                    <span className="transaction-list-eyebrow">
                         VAULTFLOW
                     </span>
 
-                    <h2>
+                    <h2 className="transaction-list-title">
                         Transactions
                     </h2>
 
-                    <p>
-                        Search and manage financial transactions.
+                    <p className="transaction-list-description">
+                        Search, review and manage your financial transactions.
                     </p>
 
                 </div>
@@ -498,9 +523,18 @@ const TransactionList = () => {
                     type="button"
                     className="transaction-create-button"
                     onClick={handleCreateTransaction}
+                    aria-label="Create a new transaction"
                 >
-                    <span>+</span>
-                    Create Transaction
+                    <span
+                        className="transaction-create-icon"
+                        aria-hidden="true"
+                    >
+                        +
+                    </span>
+
+                    <span>
+                        Create Transaction
+                    </span>
                 </button>
 
             </div>
@@ -513,21 +547,36 @@ const TransactionList = () => {
 
                 <div className="transaction-search-group">
 
-                    <label htmlFor="transactionSearch">
+                    <label
+                        htmlFor="transactionSearch"
+                        className="transaction-search-label"
+                    >
                         Search Transactions
                     </label>
 
-                    <input
-                        id="transactionSearch"
-                        type="text"
-                        placeholder="Search by Transaction ID or Account Name"
-                        value={searchTerm}
-                        onChange={(e) =>
-                            setSearchTerm(
-                                e.target.value
-                            )
-                        }
-                    />
+                    <div className="transaction-search-wrapper">
+
+                        <span
+                            className="transaction-search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            id="transactionSearch"
+                            type="text"
+                            className="transaction-search-input"
+                            placeholder="Search by Transaction ID or Account Name"
+                            value={searchTerm}
+                            onChange={(e) =>
+                                setSearchTerm(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+                    </div>
 
                 </div>
 
@@ -571,7 +620,12 @@ const TransactionList = () => {
                     className="transaction-success"
                     role="status"
                 >
+                    <span aria-hidden="true">
+                        ✓
+                    </span>
+
                     {successMessage}
+
                 </div>
 
             )}
@@ -586,7 +640,12 @@ const TransactionList = () => {
                     className="transaction-error"
                     role="alert"
                 >
+                    <span aria-hidden="true">
+                        !
+                    </span>
+
                     {error}
+
                 </div>
 
             )}
@@ -599,13 +658,18 @@ const TransactionList = () => {
 
                 <div className="no-transactions">
 
-                    <div className="empty-icon">
-                        ◷
-                    </div>
+                    <div className="transaction-loading">
 
-                    <h3>
-                        Loading transactions...
-                    </h3>
+                        <span
+                            className="transaction-loading-spinner"
+                            aria-hidden="true"
+                        />
+
+                        <span>
+                            Loading transactions...
+                        </span>
+
+                    </div>
 
                     <p>
                         Please wait while your transactions
@@ -624,16 +688,26 @@ const TransactionList = () => {
 
                     {!error && (
 
-                        <div className="transaction-count">
+                        <div className="transaction-count-row">
 
-                            Showing{" "}
+                            <div className="transaction-count">
 
-                            {filteredTransactions.length}
+                                <span>
+                                    Showing
+                                </span>
 
-                            {" "}transaction
-                            {filteredTransactions.length !== 1
-                                ? "s"
-                                : ""}
+                                <span className="transaction-count-number">
+                                    {filteredTransactions.length}
+                                </span>
+
+                                <span>
+                                    transaction
+                                    {filteredTransactions.length !== 1
+                                        ? "s"
+                                        : ""}
+                                </span>
+
+                            </div>
 
                         </div>
 
@@ -658,7 +732,9 @@ const TransactionList = () => {
                                         }
                                     >
 
-                                        {/* CARD HEADER */}
+                                        {/* =================================================
+                                            CARD HEADER
+                                        ================================================= */}
 
                                         <div className="transaction-card-header">
 
@@ -668,7 +744,7 @@ const TransactionList = () => {
                                                     Transaction ID
                                                 </span>
 
-                                                <h3>
+                                                <h3 className="transaction-id">
                                                     #
                                                     {transaction?.id ??
                                                         "-"}
@@ -676,14 +752,24 @@ const TransactionList = () => {
 
                                             </div>
 
-                                            <span className="transaction-status">
+                                            <span
+                                                className={`transaction-status ${getStatusClass(
+                                                    transaction?.status
+                                                )}`}
+                                                data-status={
+                                                    transaction?.status ||
+                                                    "PENDING"
+                                                }
+                                            >
                                                 {transaction?.status ||
                                                     "PENDING"}
                                             </span>
 
                                         </div>
 
-                                        {/* CARD BODY */}
+                                        {/* =================================================
+                                            CARD BODY
+                                        ================================================= */}
 
                                         <div className="transaction-card-body">
 
@@ -695,8 +781,12 @@ const TransactionList = () => {
 
                                                 <strong>
                                                     ₹{" "}
-                                                    {transaction?.amount ??
-                                                        "0"}
+                                                    {Number(
+                                                        transaction?.amount ??
+                                                        0
+                                                    ).toLocaleString(
+                                                        "en-IN"
+                                                    )}
                                                 </strong>
 
                                             </div>
@@ -733,7 +823,7 @@ const TransactionList = () => {
                                                     Reference ID
                                                 </span>
 
-                                                <strong>
+                                                <strong className="transaction-reference">
                                                     {transaction?.referenceId ??
                                                         "-"}
                                                 </strong>
@@ -746,7 +836,7 @@ const TransactionList = () => {
                                             ACTIONS
                                         ================================================= */}
 
-                                        <div className="transaction-card-actions">
+                                        <div className="transaction-actions">
 
                                             <button
                                                 type="button"
@@ -756,8 +846,21 @@ const TransactionList = () => {
                                                         transaction
                                                     )
                                                 }
+                                                title="Edit transaction"
+                                                aria-label={`Edit transaction ${transaction?.id}`}
                                             >
-                                                Edit
+
+                                                <span
+                                                    className="transaction-button-icon"
+                                                    aria-hidden="true"
+                                                >
+                                                    ✎
+                                                </span>
+
+                                                <span>
+                                                    Edit
+                                                </span>
+
                                             </button>
 
                                             <button
@@ -768,13 +871,27 @@ const TransactionList = () => {
                                                         transaction?.id
                                                     )
                                                 }
+                                                title="Reverse transaction"
+                                                aria-label={`Reverse transaction ${transaction?.id}`}
                                             >
-                                                Delete
+
+                                                <span
+                                                    className="transaction-button-icon"
+                                                    aria-hidden="true"
+                                                >
+                                                    ×
+                                                </span>
+
+                                                <span>
+                                                    Delete
+                                                </span>
+
                                             </button>
 
                                         </div>
 
                                     </div>
+
                                 )
                             )}
 
@@ -782,9 +899,12 @@ const TransactionList = () => {
 
                     ) : (
 
-                        <div className="no-transactions">
+                        <div className="transaction-empty-state">
 
-                            <div className="empty-icon">
+                            <div
+                                className="transaction-empty-icon"
+                                aria-hidden="true"
+                            >
                                 ↔
                             </div>
 
@@ -794,17 +914,25 @@ const TransactionList = () => {
 
                             <p>
                                 There are no transactions
-                                to display yet.
+                                matching your current search.
                             </p>
 
                             <button
                                 type="button"
-                                className="primary-button"
+                                className="transaction-create-button"
                                 onClick={
                                     handleCreateTransaction
                                 }
                             >
+                                <span
+                                    className="transaction-create-icon"
+                                    aria-hidden="true"
+                                >
+                                    +
+                                </span>
+
                                 Create Transaction
+
                             </button>
 
                         </div>
@@ -820,12 +948,19 @@ const TransactionList = () => {
 
             {editingTransaction && (
 
-                <div className="transaction-edit-overlay">
+                <div
+                    className="transaction-edit-overlay"
+                    role="presentation"
+                >
 
                     <section
                         className="transaction-edit-panel"
                         aria-label="Edit Transaction"
                     >
+
+                        {/* =================================================
+                            EDIT HEADER
+                        ================================================= */}
 
                         <div className="transaction-edit-header">
 
@@ -853,11 +988,17 @@ const TransactionList = () => {
                                     handleCloseEdit
                                 }
                                 disabled={actionLoading}
+                                aria-label="Close edit transaction"
+                                title="Close"
                             >
                                 ×
                             </button>
 
                         </div>
+
+                        {/* =================================================
+                            EDIT FORM
+                        ================================================= */}
 
                         <div className="transaction-edit-form">
 
@@ -1014,7 +1155,9 @@ const TransactionList = () => {
 
                         </div>
 
-                        {/* EDIT ACTIONS */}
+                        {/* =================================================
+                            EDIT ACTIONS
+                        ================================================= */}
 
                         <div className="transaction-edit-actions">
 
@@ -1037,9 +1180,26 @@ const TransactionList = () => {
                                 }
                                 disabled={actionLoading}
                             >
-                                {actionLoading
-                                    ? "Saving..."
-                                    : "Save Changes"}
+
+                                {actionLoading ? (
+                                    <>
+                                        <span
+                                            className="transaction-loading-spinner"
+                                            aria-hidden="true"
+                                        />
+
+                                        Saving...
+                                    </>
+                                ) : (
+                                    <>
+                                        <span aria-hidden="true">
+                                            ✓
+                                        </span>
+
+                                        Save Changes
+                                    </>
+                                )}
+
                             </button>
 
                         </div>
