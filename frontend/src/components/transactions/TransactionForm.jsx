@@ -9,87 +9,157 @@ const TransactionForm = () => {
     const [targetAccountId, setTargetAccountId] = useState("");
     const [referenceId, setReferenceId] = useState("");
 
+    const [accounts, setAccounts] = useState([]);
+
     const [successMessage, setSuccessMessage] = useState("");
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     /*
+     * Load all accounts when the transaction page opens.
+     */
+    useEffect(() => {
+
+        const loadAccounts = async () => {
+
+            try {
+
+                const response =
+                    await getAccounts();
+
+                const accountData =
+                    Array.isArray(response)
+                        ? response
+                        : response?.content || [];
+
+                console.log(
+                    "Accounts loaded for transaction:",
+                    accountData
+                );
+
+                setAccounts(accountData);
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to load accounts:",
+                    error
+                );
+
+                setAccounts([]);
+
+                setErrorMessage(
+                    "Unable to load account information."
+                );
+            }
+        };
+
+        loadAccounts();
+
+    }, []);
+
+    /*
      * Automatically remove success notification
      * after 3 seconds.
      */
     useEffect(() => {
+
         if (!successMessage) {
             return;
         }
 
         const timer = setTimeout(() => {
+
             setSuccessMessage("");
+
         }, 3000);
 
         return () => clearTimeout(timer);
+
     }, [successMessage]);
 
     /*
-     * Convert account name entered in the form
-     * into the actual database account ID.
+     * Find the actual database account ID.
      */
-    const getAccountId = async (accountValue) => {
+    const findAccountId = (accountValue) => {
+
         if (!accountValue) {
             return null;
         }
 
+        const value =
+            String(accountValue)
+                .trim()
+                .toLowerCase();
+
         /*
-         * If the value is already a numeric ID,
-         * keep it as it is.
+         * If the user entered an ID directly,
+         * accept it.
          */
-        if (/^\d+$/.test(String(accountValue).trim())) {
-            return accountValue;
+        if (/^\d+$/.test(value)) {
+
+            return Number(value);
         }
 
-        const accountsResponse = await getAccounts();
+        /*
+         * Find account by account name.
+         */
+        const account =
+            accounts.find((item) => {
 
-        const accounts = Array.isArray(accountsResponse)
-            ? accountsResponse
-            : accountsResponse?.content || [];
+                const accountName =
+                    item?.accountName ||
+                    item?.name ||
+                    "";
 
-        const enteredName =
-            String(accountValue).trim().toLowerCase();
-
-        const account = accounts.find((item) => {
-
-            const accountName =
-                item?.accountName ||
-                item?.name ||
-                "";
-
-            return (
-                String(accountName)
-                    .trim()
-                    .toLowerCase() === enteredName
-            );
-        });
+                return (
+                    String(accountName)
+                        .trim()
+                        .toLowerCase() === value
+                );
+            });
 
         if (!account) {
+
+            console.log(
+                "Account not found:",
+                accountValue
+            );
+
+            console.log(
+                "Available accounts:",
+                accounts
+            );
+
             return null;
         }
 
-        return account.id;
+        /*
+         * Account ID is normally `id`.
+         * The fallback supports accountId if
+         * the backend uses that name.
+         */
+        return (
+            account.id ??
+            account.accountId
+        );
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
 
         /*
          * Only TREASURER and ADMIN are allowed
          * to create transactions.
          */
-        const role = localStorage.getItem("role");
+        const role =
+            localStorage.getItem("role");
 
         if (
-            role &&
             role !== "TREASURER" &&
             role !== "ADMIN"
         ) {
+
             setErrorMessage(
                 "You are not authorized to create transactions."
             );
@@ -102,49 +172,34 @@ const TransactionForm = () => {
             !targetAccountId;
 
         if (accountsMissing) {
-            setWarningMessage("Account not selected");
-        } else {
-            setWarningMessage("");
-        }
 
-        if (accountsMissing) {
+            setWarningMessage(
+                "Account not selected"
+            );
+
             return;
+
+        } else {
+
+            setWarningMessage("");
         }
 
         setErrorMessage("");
 
-        let sourceId;
-        let targetId;
+        /*
+         * Convert account names into
+         * database account IDs.
+         */
+        const sourceId =
+            findAccountId(sourceAccountId);
 
-        try {
+        const targetId =
+            findAccountId(targetAccountId);
 
-            /*
-             * Resolve account names to database IDs.
-             */
-            sourceId =
-                await getAccountId(sourceAccountId);
-
-            targetId =
-                await getAccountId(targetAccountId);
-
-            if (!sourceId || !targetId) {
-
-                setErrorMessage(
-                    "Unable to find the selected account."
-                );
-
-                return;
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Unable to resolve account:",
-                error
-            );
+        if (!sourceId || !targetId) {
 
             setErrorMessage(
-                "Unable to load account information. Please try again."
+                "Unable to find the selected account."
             );
 
             return;
@@ -152,48 +207,36 @@ const TransactionForm = () => {
 
         /*
          * Keep this payload structure unchanged.
-         * The automated tests depend on these fields.
          *
-         * Account IDs are converted to numbers when
-         * the user entered account names.
+         * IMPORTANT:
+         * sourceAccountId and targetAccountId
+         * must be numbers because Spring Boot
+         * expects Long values.
          */
         const transactionData = {
-            amount,
+
+            amount: Number(amount),
+
             sourceAccountId:
-                /^\d+$/.test(String(sourceAccountId).trim())
-                    ? sourceAccountId
-                    : Number(sourceId),
+                Number(sourceId),
+
             targetAccountId:
-                /^\d+$/.test(String(targetAccountId).trim())
-                    ? targetAccountId
-                    : Number(targetId),
+                Number(targetId),
+
             referenceId
+
         };
 
-        /*
-         * Convert numeric fields for real backend requests.
-         *
-         * This is especially important when the form
-         * contains account names instead of IDs.
-         */
-        if (
-            !/^\d+$/.test(String(sourceAccountId).trim())
-        ) {
-            transactionData.sourceAccountId =
-                Number(sourceId);
-        }
-
-        if (
-            !/^\d+$/.test(String(targetAccountId).trim())
-        ) {
-            transactionData.targetAccountId =
-                Number(targetId);
-        }
+        console.log(
+            "Transaction payload:",
+            transactionData
+        );
 
         const token =
             localStorage.getItem("token");
 
         if (token) {
+
             axios.defaults.headers.common.Authorization =
                 `Bearer ${token}`;
         }
@@ -221,6 +264,7 @@ const TransactionForm = () => {
             );
 
             setIsSubmitting(false);
+
             return;
         }
 
@@ -232,7 +276,9 @@ const TransactionForm = () => {
             !request ||
             typeof request.then !== "function"
         ) {
+
             setIsSubmitting(false);
+
             return;
         }
 
@@ -245,16 +291,18 @@ const TransactionForm = () => {
 
                 setErrorMessage("");
                 setWarningMessage("");
+
                 setIsSubmitting(false);
 
                 /*
-                 * Clear only transaction input fields
+                 * Clear transaction input fields
                  * after successful submission.
                  */
                 setAmount("");
                 setSourceAccountId("");
                 setTargetAccountId("");
                 setReferenceId("");
+
             })
             .catch((error) => {
 
@@ -299,13 +347,19 @@ const TransactionForm = () => {
             <section className="transaction-form-header">
 
                 <div className="transaction-breadcrumb">
-                    <span>VAULTFLOW</span>
+
+                    <span>
+                        VAULTFLOW
+                    </span>
 
                     <span className="breadcrumb-divider">
                         /
                     </span>
 
-                    <strong>Transactions</strong>
+                    <strong>
+                        Transactions
+                    </strong>
+
                 </div>
 
                 <div className="transaction-header-content">
@@ -329,8 +383,11 @@ const TransactionForm = () => {
                     </div>
 
                     <div className="transaction-header-badge">
+
                         <span className="status-dot"></span>
+
                         Secure Entry
+
                     </div>
 
                 </div>
@@ -342,6 +399,7 @@ const TransactionForm = () => {
             ====================================== */}
 
             {successMessage && (
+
                 <div
                     className="transaction-alert transaction-alert-success"
                     data-testid="success-alert"
@@ -364,9 +422,11 @@ const TransactionForm = () => {
                     </div>
 
                 </div>
+
             )}
 
             {warningMessage && (
+
                 <div
                     className="transaction-alert transaction-alert-warning"
                     data-testid="warning-alert"
@@ -389,9 +449,11 @@ const TransactionForm = () => {
                     </div>
 
                 </div>
+
             )}
 
             {errorMessage && (
+
                 <div
                     className="transaction-alert transaction-alert-error"
                     data-testid="error-alert"
@@ -417,6 +479,7 @@ const TransactionForm = () => {
                     </div>
 
                 </div>
+
             )}
 
             {/* =====================================
@@ -459,8 +522,13 @@ const TransactionForm = () => {
                     <div className="transaction-form-group transaction-form-group-full">
 
                         <label htmlFor="transactionAmount">
+
                             Transaction Amount
-                            <span>*</span>
+
+                            <span>
+                                *
+                            </span>
+
                         </label>
 
                         <div className="transaction-input-wrapper transaction-amount-wrapper">
@@ -495,8 +563,13 @@ const TransactionForm = () => {
                     <div className="transaction-form-group">
 
                         <label htmlFor="sourceAccount">
+
                             Source Account
-                            <span>*</span>
+
+                            <span>
+                                *
+                            </span>
+
                         </label>
 
                         <div className="transaction-input-wrapper">
@@ -531,8 +604,13 @@ const TransactionForm = () => {
                     <div className="transaction-form-group">
 
                         <label htmlFor="destinationAccount">
+
                             Destination Account
-                            <span>*</span>
+
+                            <span>
+                                *
+                            </span>
+
                         </label>
 
                         <div className="transaction-input-wrapper">
@@ -567,8 +645,13 @@ const TransactionForm = () => {
                     <div className="transaction-form-group transaction-form-group-full">
 
                         <label htmlFor="referenceId">
+
                             Reference ID
-                            <span>*</span>
+
+                            <span>
+                                *
+                            </span>
+
                         </label>
 
                         <div className="transaction-input-wrapper">
@@ -634,8 +717,13 @@ const TransactionForm = () => {
                 <div className="transaction-form-footer">
 
                     <div className="required-note">
-                        <span>*</span>
+
+                        <span>
+                            *
+                        </span>
+
                         Required fields
+
                     </div>
 
                     <button
@@ -646,11 +734,15 @@ const TransactionForm = () => {
                     >
 
                         {isSubmitting ? (
+
                             <>
                                 <span className="button-spinner"></span>
+
                                 Processing...
                             </>
+
                         ) : (
+
                             <>
                                 Submit Transaction
 
@@ -658,6 +750,7 @@ const TransactionForm = () => {
                                     →
                                 </span>
                             </>
+
                         )}
 
                     </button>
