@@ -13,23 +13,19 @@ const getRoleFromToken = (token) => {
             return null;
         }
 
-
         const base64 = parts[1]
             .replace(/-/g, "+")
             .replace(/_/g, "/");
 
-
         const padded = base64.padEnd(
             base64.length +
-                (4 - (base64.length % 4)) % 4,
+            (4 - (base64.length % 4)) % 4,
             "="
         );
-
 
         const payload = JSON.parse(
             atob(padded)
         );
-
 
         let role =
             payload.role ||
@@ -37,11 +33,9 @@ const getRoleFromToken = (token) => {
             payload.authorities ||
             payload.authority;
 
-
         if (Array.isArray(role)) {
             role = role[0];
         }
-
 
         if (typeof role === "string") {
             role = role.replace(
@@ -49,7 +43,6 @@ const getRoleFromToken = (token) => {
                 ""
             );
         }
-
 
         return role || null;
 
@@ -83,6 +76,7 @@ const Login = ({ onLogin }) => {
     const handleLogin = () => {
 
         setLoading(true);
+
         setError("");
 
 
@@ -124,7 +118,7 @@ const Login = ({ onLogin }) => {
 
 
                 /*
-                 * Get role from login response first.
+                 * Get role from login response
                  */
 
                 let role =
@@ -139,41 +133,42 @@ const Login = ({ onLogin }) => {
                         : null;
 
 
-                /*
-                 * Handle role returned as an array.
-                 */
-
                 if (Array.isArray(role)) {
                     role = role[0];
                 }
 
 
                 /*
-                 * If role is not supplied by the API,
-                 * attempt to read it from the JWT.
+                 * If role is not returned directly,
+                 * read it from the JWT.
                  */
 
                 if (!role) {
+
                     role =
                         getRoleFromToken(token);
+
                 }
 
 
                 /*
-                 * Normalize role.
+                 * Normalize role
                  */
 
                 if (typeof role === "string") {
 
                     role = role
-                        .replace(/^ROLE_/, "")
+                        .replace(
+                            /^ROLE_/,
+                            ""
+                        )
                         .toUpperCase();
 
                 }
 
 
                 /*
-                 * Store role.
+                 * Store role
                  */
 
                 if (role) {
@@ -193,15 +188,16 @@ const Login = ({ onLogin }) => {
 
 
                 /*
-                 * Store user information when
-                 * supplied by the backend.
+                 * Store user information
                  */
 
                 if (data?.user) {
 
                     localStorage.setItem(
                         "user",
-                        JSON.stringify(data.user)
+                        JSON.stringify(
+                            data.user
+                        )
                     );
 
                 }
@@ -211,7 +207,7 @@ const Login = ({ onLogin }) => {
 
 
                 /*
-                 * Notify parent application.
+                 * Notify parent
                  */
 
                 if (onLogin) {
@@ -220,7 +216,7 @@ const Login = ({ onLogin }) => {
 
 
                 /*
-                 * Navigate to dashboard.
+                 * Navigate to dashboard
                  */
 
                 window.history.pushState(
@@ -228,7 +224,6 @@ const Login = ({ onLogin }) => {
                     "",
                     "/"
                 );
-
 
                 window.dispatchEvent(
                     new Event("popstate")
@@ -242,7 +237,6 @@ const Login = ({ onLogin }) => {
                     "Login error:",
                     err
                 );
-
 
                 setError(
                     "Invalid email or password"
@@ -263,7 +257,6 @@ const Login = ({ onLogin }) => {
 
         event.preventDefault();
 
-
         if (!loading) {
             handleLogin();
         }
@@ -272,7 +265,7 @@ const Login = ({ onLogin }) => {
 
 
     /*
-     * Navigate to registration page.
+     * Navigate to registration
      */
 
     const handleRegister = () => {
@@ -282,7 +275,6 @@ const Login = ({ onLogin }) => {
             "",
             "/register"
         );
-
 
         window.dispatchEvent(
             new Event("popstate")
@@ -301,392 +293,603 @@ const Login = ({ onLogin }) => {
             ================================================= */}
 
             <div
-                className="login-background-grid"
+                className="login-bg-grid"
                 aria-hidden="true"
             />
 
-
             <div
-                className="login-glow login-glow-one"
+                className="login-bg-glow login-bg-glow-blue"
                 aria-hidden="true"
             />
 
-
             <div
-                className="login-glow login-glow-two"
-                aria-hidden="true"
-            />
-
-
-            <div
-                className="login-background-line login-background-line-one"
-                aria-hidden="true"
-            />
-
-
-            <div
-                className="login-background-line login-background-line-two"
+                className="login-bg-glow login-bg-glow-purple"
                 aria-hidden="true"
             />
 
 
             {/* =================================================
-                LOGIN CARD
+                MAIN LAYOUT
             ================================================= */}
 
-            <section
-                className="login-card"
-                aria-label="VaultFlow login"
-            >
+            <div className="login-layout">
 
 
                 {/* =================================================
-                    BRAND
+                    LEFT BRAND PANEL
                 ================================================= */}
 
-                <div className="login-brand">
-
-                    <div className="login-logo">
-                        VF
-                    </div>
+                <section className="login-brand-panel">
 
 
-                    <div>
+                    {/* BRAND */}
 
-                        <div className="login-brand-name">
-                            VaultFlow
+                    <div className="login-brand">
+
+                        <div className="login-logo">
+                            VF
                         </div>
 
 
-                        <div className="login-brand-label">
-                            FINANCIAL OPERATIONS
+                        <div className="login-brand-details">
+
+                            <div className="login-brand-name">
+                                VaultFlow
+                            </div>
+
+                            <div className="login-brand-subtitle">
+                                FINANCIAL OPERATIONS
+                            </div>
+
                         </div>
 
                     </div>
 
-                </div>
+
+                    {/* HERO */}
+
+                    <div className="login-hero">
+
+                        <div className="login-hero-label">
+
+                            <span className="login-hero-dot" />
+
+                            SECURE FINANCIAL PLATFORM
+
+                        </div>
 
 
-                {/* =================================================
-                    HEADING
-                ================================================= */}
+                        <h1>
 
-                <div className="login-heading">
+                            Financial operations.
+                            <br />
 
-                    <div className="login-eyebrow">
-                        SECURE ACCESS
-                    </div>
-
-
-                    <h1>
-                        Welcome back
-                    </h1>
-
-
-                    <p>
-                        Sign in to securely manage your
-                        financial operations and transactions.
-                    </p>
-
-                </div>
-
-
-                {/* =================================================
-                    FORM
-                ================================================= */}
-
-                <form
-                    className="login-form"
-                    onSubmit={handleSubmit}
-                >
-
-
-                    {/* EMAIL */}
-
-                    <div className="login-field">
-
-                        <label htmlFor="email">
-                            Email Address
-                        </label>
-
-
-                        <div className="login-input-wrapper">
-
-                            <span
-                                className="login-input-icon"
-                                aria-hidden="true"
-                            >
-                                @
+                            <span>
+                                Simplified.
                             </span>
 
+                        </h1>
 
-                            <input
-                                id="email"
-                                type="email"
-                                placeholder="Email (auditor@vaultflow.io)"
-                                value={email}
-                                onChange={(e) =>
-                                    setEmail(
-                                        e.target.value
-                                    )
-                                }
-                                autoComplete="email"
-                            />
 
-                        </div>
+                        <p>
+
+                            Manage accounts, transactions,
+                            ledgers and audit activity from
+                            one secure financial operations
+                            platform.
+
+                        </p>
 
                     </div>
 
 
-                    {/* PASSWORD */}
+                    {/* =================================================
+                        FINANCIAL VISUAL
+                    ================================================= */}
 
-                    <div className="login-field">
-
-                        <label htmlFor="password">
-                            Password
-                        </label>
-
-
-                        <div className="login-input-wrapper">
-
-                            <span
-                                className="login-input-icon"
-                                aria-hidden="true"
-                            >
-                                •
-                            </span>
-
-
-                            <input
-                                id="password"
-                                type="password"
-                                placeholder="Password (Enter your secure account password)"
-                                value={password}
-                                onChange={(e) =>
-                                    setPassword(
-                                        e.target.value
-                                    )
-                                }
-                                autoComplete="current-password"
-                            />
-
-                        </div>
-
-                    </div>
-
-
-                    {/* SESSION */}
-
-                    <div className="login-options">
-
-                        <span>
-                            Protected session
-                        </span>
-
-
-                        <span className="login-session-status">
-
-                            <span
-                                className="login-status-dot"
-                                aria-hidden="true"
-                            />
-
-                            JWT secured
-
-                        </span>
-
-                    </div>
-
-
-                    {/* LOGIN */}
-
-                    <button
-                        type="submit"
-                        className="login-button"
-                        disabled={loading}
-                        aria-busy={loading}
-                        aria-label={
-                            loading
-                                ? "Login in progress"
-                                : "Login"
-                        }
+                    <div
+                        className="login-financial-visual"
+                        aria-hidden="true"
                     >
 
-                        {loading ? (
 
-                            <>
+                        <div className="visual-header">
 
-                                <span
-                                    className="login-spinner"
-                                    aria-hidden="true"
-                                />
+                            <span>
+                                TRANSACTION ACTIVITY
+                            </span>
+
+                            <span className="visual-live">
+                                LIVE
+                            </span>
+
+                        </div>
+
+
+                        <div className="visual-chart">
+
+                            <div className="chart-line chart-line-one" />
+                            <div className="chart-line chart-line-two" />
+                            <div className="chart-line chart-line-three" />
+
+                            <div className="chart-point chart-point-one" />
+                            <div className="chart-point chart-point-two" />
+                            <div className="chart-point chart-point-three" />
+                            <div className="chart-point chart-point-four" />
+                            <div className="chart-point chart-point-five" />
+
+                        </div>
+
+
+                        <div className="visual-stats">
+
+                            <div>
 
                                 <span>
-                                    Signing in...
+                                    SECURE
                                 </span>
 
-                            </>
+                                <strong>
+                                    99.9%
+                                </strong>
 
-                        ) : (
+                            </div>
 
-                            <>
+
+                            <div>
 
                                 <span>
-                                    Login
+                                    ACCESS
                                 </span>
 
-                                <span
-                                    className="login-button-arrow"
-                                    aria-hidden="true"
+                                <strong>
+                                    RBAC
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    AUDIT
+                                </span>
+
+                                <strong>
+                                    ACTIVE
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {/* =================================================
+                        FEATURES
+                    ================================================= */}
+
+                    <div className="login-features">
+
+
+                        <div className="login-feature">
+
+                            <div className="feature-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Role-based access
+                                </strong>
+
+                                <span>
+                                    Permissions designed around your role.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="login-feature">
+
+                            <div className="feature-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Secure transactions
+                                </strong>
+
+                                <span>
+                                    Controlled financial transaction processing.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="login-feature">
+
+                            <div className="feature-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Complete audit visibility
+                                </strong>
+
+                                <span>
+                                    Track important financial activity.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    {/* LEFT FOOTER */}
+
+                    <div className="login-brand-footer">
+
+                        <span>
+                            VaultFlow
+                        </span>
+
+                        <span>
+                            Secure Financial Management
+                        </span>
+
+                    </div>
+
+                </section>
+
+
+                {/* =================================================
+                    RIGHT LOGIN PANEL
+                ================================================= */}
+
+                <section className="login-form-panel">
+
+
+                    <div className="login-form-container">
+
+
+                        {/* MOBILE BRAND */}
+
+                        <div className="mobile-login-brand">
+
+                            <div className="login-logo">
+                                VF
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    VaultFlow
+                                </strong>
+
+                                <span>
+                                    FINANCIAL OPERATIONS
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* FORM HEADER */}
+
+                        <div className="login-heading">
+
+                            <div className="login-eyebrow">
+                                SECURE ACCESS
+                            </div>
+
+
+                            <h2>
+                                Welcome back
+                            </h2>
+
+
+                            <p>
+                                Sign in to securely manage your
+                                financial operations and transactions.
+                            </p>
+
+                        </div>
+
+
+                        {/* =================================================
+                            LOGIN FORM
+                        ================================================= */}
+
+                        <form
+                            className="login-form"
+                            onSubmit={handleSubmit}
+                        >
+
+
+                            {/* EMAIL */}
+
+                            <div className="login-field">
+
+                                <label htmlFor="email">
+                                    Email Address
+                                </label>
+
+
+                                <div className="login-input">
+
+                                    <span
+                                        className="login-input-icon"
+                                        aria-hidden="true"
+                                    >
+                                        @
+                                    </span>
+
+
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        placeholder="Email (auditor@vaultflow.io)"
+                                        value={email}
+                                        onChange={(event) =>
+                                            setEmail(
+                                                event.target.value
+                                            )
+                                        }
+                                        autoComplete="email"
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* PASSWORD */}
+
+                            <div className="login-field">
+
+                                <label htmlFor="password">
+                                    Password
+                                </label>
+
+
+                                <div className="login-input">
+
+                                    <span
+                                        className="login-input-icon"
+                                        aria-hidden="true"
+                                    >
+                                        •
+                                    </span>
+
+
+                                    <input
+                                        id="password"
+                                        type="password"
+                                        placeholder="Password (Enter your secure account password)"
+                                        value={password}
+                                        onChange={(event) =>
+                                            setPassword(
+                                                event.target.value
+                                            )
+                                        }
+                                        autoComplete="current-password"
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* SESSION STATUS */}
+
+                            <div className="login-session-row">
+
+                                <span>
+                                    Protected session
+                                </span>
+
+
+                                <span className="session-secure">
+
+                                    <span className="session-dot" />
+
+                                    JWT secured
+
+                                </span>
+
+                            </div>
+
+
+                            {/* LOGIN BUTTON */}
+
+                            <button
+                                type="submit"
+                                className="login-button"
+                                disabled={loading}
+                                aria-busy={loading}
+                                aria-label={
+                                    loading
+                                        ? "Login in progress"
+                                        : "Login"
+                                }
+                            >
+
+                                {loading ? (
+
+                                    <>
+
+                                        <span className="login-spinner" />
+
+                                        <span>
+                                            Signing in...
+                                        </span>
+
+                                    </>
+
+                                ) : (
+
+                                    <>
+
+                                        <span>
+                                            Login
+                                        </span>
+
+                                        <span className="login-arrow">
+                                            →
+                                        </span>
+
+                                    </>
+
+                                )}
+
+                            </button>
+
+
+                            {/* ERROR */}
+
+                            {error && (
+
+                                <div
+                                    className="login-error"
+                                    role="alert"
                                 >
+
+                                    <span className="error-icon">
+                                        !
+                                    </span>
+
+                                    <span>
+                                        {error}
+                                    </span>
+
+                                </div>
+
+                            )}
+
+                        </form>
+
+
+                        {/* =================================================
+                            REGISTER
+                        ================================================= */}
+
+                        <div className="register-section">
+
+
+                            <div className="register-divider">
+
+                                <span>
+                                    NEW TO VAULTFLOW?
+                                </span>
+
+                            </div>
+
+
+                            <button
+                                type="button"
+                                className="register-button"
+                                onClick={handleRegister}
+                            >
+
+                                <span className="register-symbol">
+                                    +
+                                </span>
+
+
+                                <span className="register-text">
+
+                                    <strong>
+                                        Create your account
+                                    </strong>
+
+                                    <small>
+                                        Set up your profile and access role
+                                    </small>
+
+                                </span>
+
+
+                                <span className="register-arrow">
                                     →
                                 </span>
 
-                            </>
+                            </button>
 
-                        )}
-
-                    </button>
+                        </div>
 
 
-                    {/* ERROR */}
+                        {/* =================================================
+                            SECURITY
+                        ================================================= */}
 
-                    {error && (
+                        <div className="security-panel">
 
-                        <div
-                            className="login-error"
-                            role="alert"
-                        >
-
-                            <span
-                                className="login-error-icon"
-                                aria-hidden="true"
-                            >
-                                !
-                            </span>
+                            <div className="security-icon">
+                                <span>
+                                    🔒
+                                </span>
+                            </div>
 
 
-                            <span>
-                                {error}
+                            <div className="security-content">
+
+                                <strong>
+                                    Secure authentication
+                                </strong>
+
+                                <span>
+                                    Your session is protected using
+                                    JWT-based authentication.
+                                </span>
+
+                            </div>
+
+
+                            <span className="security-status">
+                                SECURE
                             </span>
 
                         </div>
 
-                    )}
 
-                </form>
+                        {/* FOOTER */}
 
+                        <div className="login-footer">
 
-                {/* =================================================
-                    REGISTER
-                ================================================= */}
+                            <span>
+                                © VaultFlow
+                            </span>
 
-                <div className="login-register">
+                            <span>
+                                •
+                            </span>
 
+                            <span>
+                                Secure Financial Management
+                            </span>
 
-                    <div className="login-register-divider">
-
-                        <span>
-                            NEW TO VAULTFLOW?
-                        </span>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        className="login-register-button"
-                        onClick={handleRegister}
-                    >
-
-                        <span
-                            className="login-register-icon"
-                            aria-hidden="true"
-                        >
-                            +
-                        </span>
-
-
-                        <span className="login-register-content">
-
-                            <strong>
-                                Create an account
-                            </strong>
-
-
-                            <small>
-                                Register your profile and access your VaultFlow account
-                            </small>
-
-                        </span>
-
-
-                        <span
-                            className="login-register-arrow"
-                            aria-hidden="true"
-                        >
-                            →
-                        </span>
-
-                    </button>
-
-                </div>
-
-
-                {/* =================================================
-                    SECURITY
-                ================================================= */}
-
-                <div className="login-security">
-
-                    <div
-                        className="login-security-icon"
-                        aria-hidden="true"
-                    >
-                        🔒
-                    </div>
-
-
-                    <div>
-
-                        <strong>
-                            Secure authentication
-                        </strong>
-
-
-                        <span>
-                            Your session is protected using
-                            JWT-based authentication.
-                        </span>
+                        </div>
 
                     </div>
 
-                </div>
+                </section>
 
-
-                {/* =================================================
-                    FOOTER
-                ================================================= */}
-
-                <div className="login-footer">
-
-                    <span>
-                        VaultFlow
-                    </span>
-
-
-                    <span className="login-footer-separator">
-                        •
-                    </span>
-
-
-                    <span>
-                        Secure Financial Management
-                    </span>
-
-                </div>
-
-            </section>
+            </div>
 
         </main>
     );
