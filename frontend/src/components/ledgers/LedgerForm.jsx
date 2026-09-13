@@ -1,159 +1,365 @@
-import React, { useRef, useState } from "react";
-import ledgerService from "../../services/ledgerService";
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./LedgerForm.css";
 
-const LedgerForm = ({ editMode = false }) => {
+const LedgerForm = () => {
+
+    const navigate = useNavigate();
+
     const [ledgerId, setLedgerId] = useState("");
     const [description, setDescription] = useState("");
     const [createdAt, setCreatedAt] = useState("");
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
 
-    const descriptionRef = useRef(null);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const handleEdit = () => {
-        if (descriptionRef.current) {
-            descriptionRef.current.focus();
-        }
-    };
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
 
-        setMessage("");
-        setError("");
+    const handleSubmit = async (event) => {
 
-        if (!ledgerId || !description) {
-            setError("Please enter Ledger ID and Description");
+        event.preventDefault();
+
+        setSuccessMessage("");
+        setErrorMessage("");
+
+
+        if (!ledgerId.trim()) {
+
+            setErrorMessage(
+                "Ledger ID is required."
+            );
+
             return;
         }
 
+
+        if (!description.trim()) {
+
+            setErrorMessage(
+                "Ledger Description is required."
+            );
+
+            return;
+        }
+
+
         try {
+
+            setLoading(true);
+
+
+            const token =
+                localStorage.getItem("token");
+
+
             const ledgerData = {
-                id: Number(ledgerId),
-                description: description,
-                createdAt: createdAt
-                    ? `${createdAt}T00:00:00`
-                    : null
+                id: ledgerId.trim(),
+                description: description.trim(),
+                createdAt: createdAt || null
             };
 
-            await ledgerService.createLedger(ledgerData);
 
-            setMessage("Ledger added successfully");
+            await axios.post(
+                "/api/ledgers",
+                ledgerData,
+                {
+                    headers: token
+                        ? {
+                              Authorization:
+                                  `Bearer ${token}`
+                          }
+                        : {}
+                }
+            );
 
-            setLedgerId("");
-            setDescription("");
-            setCreatedAt("");
-        } catch (err) {
-            console.error("Ledger creation error:", err);
-            setError("Unable to create ledger. Please try again.");
+
+            setSuccessMessage(
+                "Ledger added successfully"
+            );
+
+
+            /*
+             * Give the user a short confirmation,
+             * then return to the Ledgers page.
+             */
+            setTimeout(() => {
+
+                navigate("/ledgers", {
+                    replace: true
+                });
+
+            }, 700);
+
+
+        } catch (error) {
+
+            console.error(
+                "Unable to create ledger:",
+                error
+            );
+
+
+            if (
+                error.response &&
+                error.response.status === 401
+            ) {
+
+                localStorage.removeItem("token");
+
+                setErrorMessage(
+                    "Session expired. Please log in again"
+                );
+
+                setTimeout(() => {
+
+                    navigate("/login", {
+                        replace: true
+                    });
+
+                }, 700);
+
+                return;
+            }
+
+
+            if (
+                error.response &&
+                error.response.status === 403
+            ) {
+
+                setErrorMessage(
+                    "You are not authorized to create a ledger."
+                );
+
+                return;
+            }
+
+
+            if (
+                error.response &&
+                error.response.data
+            ) {
+
+                const responseData =
+                    error.response.data;
+
+
+                if (
+                    typeof responseData === "string"
+                ) {
+
+                    setErrorMessage(
+                        responseData
+                    );
+
+                    return;
+                }
+
+
+                if (
+                    responseData.message
+                ) {
+
+                    setErrorMessage(
+                        responseData.message
+                    );
+
+                    return;
+                }
+            }
+
+
+            setErrorMessage(
+                "Unable to create ledger. Please try again."
+            );
+
+
+        } finally {
+
+            setLoading(false);
+
         }
     };
 
+
     return (
-        <div className="ledger-form-page">
+
+        <div className="ledger-form-container">
 
             <div className="ledger-form-header">
+
                 <div>
-                    <span className="ledger-eyebrow">
+
+                    <span className="ledger-form-eyebrow">
                         VAULTFLOW
                     </span>
 
-                    <h2>Create Ledger</h2>
+                    <h2>
+                        Create Ledger
+                    </h2>
 
                     <p>
                         Add a new financial ledger to the system.
                     </p>
+
                 </div>
+
             </div>
 
-            {message && (
-                <div className="ledger-success">
-                    {message}
+
+            {successMessage && (
+
+                <div className="ledger-form-success">
+
+                    <span className="ledger-success-icon">
+                        ✓
+                    </span>
+
+                    <span>
+                        {successMessage}
+                    </span>
+
                 </div>
+
             )}
 
-            {error && (
-                <div className="ledger-error">
-                    {error}
+
+            {errorMessage && (
+
+                <div className="ledger-form-error">
+
+                    <span className="ledger-error-icon">
+                        !
+                    </span>
+
+                    <span>
+                        {errorMessage}
+                    </span>
+
                 </div>
+
             )}
+
 
             <form
-                className="ledger-form-card"
+                className="ledger-form"
                 onSubmit={handleSubmit}
             >
 
-                <div className="ledger-field">
-                    <label htmlFor="ledgerId">
+                <div className="ledger-form-field">
+
+                    <label htmlFor="ledger-id">
                         Ledger ID
                     </label>
 
                     <input
-                        id="ledgerId"
-                        type="number"
-                        placeholder="Enter Ledger ID"
+                        id="ledger-id"
+                        type="text"
                         value={ledgerId}
-                        onChange={(e) =>
-                            setLedgerId(e.target.value)
+                        onChange={(event) =>
+                            setLedgerId(
+                                event.target.value
+                            )
                         }
+                        placeholder="Enter Ledger ID"
+                        autoComplete="off"
+                        required
                     />
+
+                    <small>
+                        Enter a unique identifier for this ledger.
+                    </small>
+
                 </div>
 
-                <div className="ledger-field">
-                    <label htmlFor="ledgerDescription">
+
+                <div className="ledger-form-field">
+
+                    <label htmlFor="ledger-description">
                         Ledger Description
                     </label>
 
                     <input
-                        id="ledgerDescription"
-                        ref={descriptionRef}
+                        id="ledger-description"
                         type="text"
-                        placeholder="Ledger Description"
                         value={description}
-                        onChange={(e) =>
-                            setDescription(e.target.value)
+                        onChange={(event) =>
+                            setDescription(
+                                event.target.value
+                            )
                         }
+                        placeholder="Ledger Description"
+                        autoComplete="off"
+                        required
                     />
+
+                    <small>
+                        Describe the purpose of this financial ledger.
+                    </small>
+
                 </div>
 
-                <div className="ledger-field">
-                    <label htmlFor="ledgerCreatedAt">
+
+                <div className="ledger-form-field">
+
+                    <label htmlFor="created-date">
                         Created Date
                     </label>
 
                     <input
-                        id="ledgerCreatedAt"
+                        id="created-date"
                         type="date"
                         value={createdAt}
-                        onChange={(e) =>
-                            setCreatedAt(e.target.value)
+                        onChange={(event) =>
+                            setCreatedAt(
+                                event.target.value
+                            )
                         }
                     />
+
                 </div>
+
 
                 <div className="ledger-form-actions">
 
                     <button
                         type="submit"
                         className="ledger-submit-button"
+                        disabled={loading}
                     >
-                        Add Ledger
+
+                        {loading ? (
+                            <>
+                                <span className="ledger-spinner"></span>
+                                Creating Ledger...
+                            </>
+                        ) : (
+                            <>
+                                <span>+</span>
+                                Add Ledger
+                            </>
+                        )}
+
                     </button>
 
-                    {editMode && (
-                        <button
-                            type="button"
-                            className="ledger-edit-button"
-                            onClick={handleEdit}
-                        >
-                            Edit Ledger
-                        </button>
-                    )}
+
+                    <button
+                        type="button"
+                        className="ledger-cancel-button"
+                        onClick={() =>
+                            navigate("/ledgers")
+                        }
+                        disabled={loading}
+                    >
+                        Cancel
+                    </button>
 
                 </div>
 
             </form>
+
         </div>
     );
 };
