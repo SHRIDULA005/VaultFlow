@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { getAccounts } from "../../services/accountService";
 import "./TransactionForm.css";
-
 const TransactionForm = () => {
 
     /*
@@ -23,13 +21,7 @@ const TransactionForm = () => {
         useState("");
 
 
-    /*
-     * =========================================================
-     * ACCOUNT STATE
-     * =========================================================
-     */
 
-    const [accounts, setAccounts] = useState([]);
 
 
     /*
