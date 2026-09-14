@@ -9,37 +9,98 @@ import {
 const Navbar = ({ isAdmin = false }) => {
     const inRouter = useInRouterContext();
 
+    /*
+     * Get the logged-in user's role.
+     *
+     * The login process stores the role in localStorage:
+     *
+     *     localStorage.setItem("role", role)
+     *
+     * Supported roles:
+     *
+     *     TREASURER
+     *     ADMIN
+     */
+    const storedRole =
+        localStorage.getItem("role")?.trim().toUpperCase() || "";
+
+    /*
+     * The Approve Transaction button should be visible
+     * to both TREASURER and ADMIN.
+     */
+    const canApproveTransactions =
+        isAdmin ||
+        storedRole === "TREASURER" ||
+        storedRole === "ADMIN";
+
     if (inRouter) {
-        return <RouterNavbar isAdmin={isAdmin} />;
+        return (
+            <RouterNavbar
+                isAdmin={isAdmin}
+                role={storedRole}
+                canApproveTransactions={canApproveTransactions}
+            />
+        );
     }
 
     return (
         <NavbarContent
             isAdmin={isAdmin}
+            role={storedRole}
+            canApproveTransactions={canApproveTransactions}
             pathname={window.location.pathname}
             navigate={null}
         />
     );
 };
 
-const RouterNavbar = ({ isAdmin }) => {
+
+/*
+ * =========================================================
+ * ROUTER NAVBAR
+ * =========================================================
+ */
+
+const RouterNavbar = ({
+    isAdmin,
+    role,
+    canApproveTransactions
+}) => {
     const navigate = useNavigate();
     const location = useLocation();
 
     return (
         <NavbarContent
             isAdmin={isAdmin}
+            role={role}
+            canApproveTransactions={canApproveTransactions}
             pathname={location.pathname}
             navigate={navigate}
         />
     );
 };
 
+
+/*
+ * =========================================================
+ * NAVBAR CONTENT
+ * =========================================================
+ */
+
 const NavbarContent = ({
     isAdmin = false,
+    role = "",
+    canApproveTransactions = false,
     pathname = "/",
     navigate = null
 }) => {
+
+    /*
+     * Safe navigation helper.
+     *
+     * When React Router is available, use navigate().
+     * Otherwise use normal browser navigation.
+     */
     const goTo = (path) => {
         if (navigate) {
             navigate(path);
@@ -48,18 +109,47 @@ const NavbarContent = ({
         }
     };
 
+
+    /*
+     * =====================================================
+     * LOGOUT
+     * =====================================================
+     */
+
     const handleLogout = () => {
+
+        /*
+         * Remove all authentication information
+         * stored by the application.
+         */
         localStorage.removeItem("token");
         localStorage.removeItem("role");
+        localStorage.removeItem("user");
 
+        /*
+         * Return to login page.
+         */
         if (navigate) {
-            navigate("/login", { replace: true });
+            navigate("/login", {
+                replace: true
+            });
         } else {
             window.location.href = "/login";
         }
     };
 
+
+    /*
+     * =====================================================
+     * ACTIVE NAVIGATION
+     * =====================================================
+     */
+
     const isActive = (path) => {
+
+        /*
+         * Dashboard should only be active on "/".
+         */
         if (path === "/") {
             return pathname === "/";
         }
@@ -67,18 +157,24 @@ const NavbarContent = ({
         return pathname.startsWith(path);
     };
 
+
     /*
-     * Safe navigation link.
+     * =====================================================
+     * SAFE LINK
+     * =====================================================
      *
-     * React Router <Link> can only be rendered inside a Router.
-     * The test suite renders Navbar directly without a Router,
-     * so we use a normal <a> element in that situation.
+     * React Router <Link> requires a Router.
+     *
+     * Some tests render Navbar without a Router,
+     * so use <a> in that situation.
      */
+
     const SafeLink = ({
         to,
         children,
         style
     }) => {
+
         if (navigate) {
             return (
                 <Link
@@ -100,6 +196,13 @@ const NavbarContent = ({
         );
     };
 
+
+    /*
+     * =====================================================
+     * NAVBAR UI
+     * =====================================================
+     */
+
     return (
         <nav
             aria-label="Main navigation"
@@ -120,7 +223,11 @@ const NavbarContent = ({
                 backdropFilter: "blur(16px)"
             }}
         >
-            {/* Brand */}
+
+            {/* =================================================
+                BRAND
+            ================================================= */}
+
             <SafeLink
                 to="/"
                 style={{
@@ -134,6 +241,7 @@ const NavbarContent = ({
                     letterSpacing: "-0.02em"
                 }}
             >
+
                 <span
                     style={{
                         width: "36px",
@@ -156,9 +264,14 @@ const NavbarContent = ({
                 <span>
                     VaultFlow
                 </span>
+
             </SafeLink>
 
-            {/* Main navigation */}
+
+            {/* =================================================
+                MAIN NAVIGATION
+            ================================================= */}
+
             <div
                 style={{
                     display: "flex",
@@ -167,6 +280,9 @@ const NavbarContent = ({
                     flex: 1
                 }}
             >
+
+                {/* DASHBOARD */}
+
                 <SafeLink
                     to="/"
                     style={{
@@ -178,6 +294,9 @@ const NavbarContent = ({
                 >
                     Dashboard
                 </SafeLink>
+
+
+                {/* ACCOUNTS */}
 
                 <SafeLink
                     to="/accounts"
@@ -191,6 +310,9 @@ const NavbarContent = ({
                     Accounts
                 </SafeLink>
 
+
+                {/* TRANSACTIONS */}
+
                 <SafeLink
                     to="/transactions"
                     style={{
@@ -203,6 +325,9 @@ const NavbarContent = ({
                     Transactions
                 </SafeLink>
 
+
+                {/* LEDGERS */}
+
                 <SafeLink
                     to="/ledgers"
                     style={{
@@ -214,9 +339,14 @@ const NavbarContent = ({
                 >
                     Ledgers
                 </SafeLink>
+
             </div>
 
-            {/* Actions */}
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
             <div
                 style={{
                     display: "flex",
@@ -224,12 +354,20 @@ const NavbarContent = ({
                     gap: "10px"
                 }}
             >
-                {isAdmin && (
+
+                {/* =================================================
+                    APPROVE TRANSACTION
+                    TREASURER + ADMIN
+                ================================================= */}
+
+                {canApproveTransactions && (
+
                     <button
                         type="button"
                         onClick={() =>
                             goTo("/transactions/approval")
                         }
+                        aria-label="Approve Transaction"
                         style={{
                             ...actionButtonStyle,
                             background:
@@ -241,17 +379,26 @@ const NavbarContent = ({
                                 "0 8px 20px rgba(37, 99, 235, 0.22)"
                         }}
                     >
+
                         <span aria-hidden="true">
                             ✓
                         </span>
 
                         Approve Transaction
+
                     </button>
+
                 )}
+
+
+                {/* =================================================
+                    LOGOUT
+                ================================================= */}
 
                 <button
                     type="button"
                     onClick={handleLogout}
+                    aria-label="Logout"
                     style={{
                         ...actionButtonStyle,
                         background:
@@ -261,16 +408,27 @@ const NavbarContent = ({
                             "1px solid rgba(148, 163, 184, 0.2)"
                     }}
                 >
+
                     <span aria-hidden="true">
                         ↪
                     </span>
 
                     Logout
+
                 </button>
+
             </div>
+
         </nav>
     );
 };
+
+
+/*
+ * =========================================================
+ * NAVIGATION STYLES
+ * =========================================================
+ */
 
 const navLinkStyle = {
     display: "inline-flex",
@@ -284,11 +442,13 @@ const navLinkStyle = {
     transition: "all 0.2s ease"
 };
 
+
 const activeNavLinkStyle = {
     color: "#ffffff",
     background:
         "rgba(59, 130, 246, 0.14)"
 };
+
 
 const actionButtonStyle = {
     display: "inline-flex",
@@ -303,5 +463,6 @@ const actionButtonStyle = {
     cursor: "pointer",
     transition: "all 0.2s ease"
 };
+
 
 export default Navbar;
