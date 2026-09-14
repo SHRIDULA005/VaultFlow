@@ -1,74 +1,89 @@
 package com.example.demo.controller;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.dto.LedgerDTO;
 import com.example.demo.model.Ledger;
 import com.example.demo.service.LedgerService;
+
 
 @RestController
 @RequestMapping("/api/ledgers")
 public class LedgerController {
 
+
     @Autowired
-    private LedgerService ser;
+    private LedgerService ledgerService;
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
-    public ResponseEntity<String> postLedger(
-            @RequestBody Ledger ledger) {
 
-        return ResponseEntity.ok(
-                ser.postledger(ledger)
-        );
-    }
+    // =========================================================
+    // GET ALL LEDGERS
+    // =========================================================
 
-    @PreAuthorize("hasAnyRole('AUDITOR', 'TREASURER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<LedgerDTO>> getAllLedgers(
-            Pageable pageable) {
+    public List<Ledger> getAllLedgers() {
 
-        return ResponseEntity.ok(
-                ser.getAllLedgers(pageable)
-        );
+        return ledgerService.getAllLedgers();
     }
+
+
+    // =========================================================
+    // GET LEDGER BY ID
+    // =========================================================
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Ledger>> getLedgerById(
+    public Ledger getLedgerById(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(
-                ser.getledgerbyid(id)
-        );
+        return ledgerService.getLedgerById(id);
     }
 
+
+    // =========================================================
+    // CREATE LEDGER
+    // AUDITOR + ADMIN
+    // =========================================================
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
+    public Ledger createLedger(
+            @RequestBody Ledger ledger) {
+
+        return ledgerService.createLedger(ledger);
+    }
+
+
+    // =========================================================
+    // UPDATE LEDGER
+    // AUDITOR + ADMIN
+    // =========================================================
+
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
-    public ResponseEntity<Ledger> updateLedger(
+    @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
+    public Ledger updateLedger(
             @PathVariable Long id,
             @RequestBody Ledger ledger) {
 
-        return ResponseEntity.ok(
-                ser.updateLedger(id, ledger)
+        return ledgerService.updateLedger(
+                id,
+                ledger
         );
     }
 
+
+    // =========================================================
+    // DELETE LEDGER
+    // AUDITOR + ADMIN
+    // =========================================================
+
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
-    public ResponseEntity<String> deleteLedger(
+    @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
+    public void deleteLedger(
             @PathVariable Long id) {
 
-        ser.deleteLedger(id);
-
-        return ResponseEntity.ok(
-                "Ledger deleted successfully."
-        );
+        ledgerService.deleteLedger(id);
     }
 }
