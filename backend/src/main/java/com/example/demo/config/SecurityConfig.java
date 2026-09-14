@@ -177,226 +177,227 @@ public class SecurityConfig {
                 // AUTHORIZATION
                 // =================================================
 
-                .authorizeHttpRequests(auth -> auth)
+                .authorizeHttpRequests(auth -> auth
 
 
-                // =================================================
-                // PUBLIC AUTHENTICATION ENDPOINTS
-                // =================================================
+                        // =========================================
+                        // PUBLIC AUTHENTICATION ENDPOINTS
+                        // =========================================
 
-                .requestMatchers(
-                        "/auth/login",
-                        "/auth/register",
-                        "/auth/logout"
+                        .requestMatchers(
+                                "/auth/login",
+                                "/auth/register",
+                                "/auth/logout"
+                        )
+                        .permitAll()
+
+
+                        // =========================================
+                        // SWAGGER / OPENAPI
+                        // =========================================
+
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        )
+                        .permitAll()
+
+
+                        // =========================================
+                        // CORS PREFLIGHT REQUESTS
+                        // =========================================
+
+                        .requestMatchers(
+                                HttpMethod.OPTIONS,
+                                "/**"
+                        )
+                        .permitAll()
+
+
+                        // =====================================================
+                        // LEDGER MANAGEMENT
+                        // =====================================================
+
+                        // -----------------------------------------
+                        // VIEW LEDGERS
+                        // -----------------------------------------
+                        // Any authenticated user can view ledgers.
+                        //
+                        // GET /api/ledgers
+                        // GET /api/ledgers/{id}
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/ledgers",
+                                "/api/ledgers/**"
+                        )
+                        .authenticated()
+
+
+                        // -----------------------------------------
+                        // CREATE LEDGER
+                        // -----------------------------------------
+                        // AUDITOR + ADMIN
+                        //
+                        // POST /api/ledgers
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/ledgers",
+                                "/api/ledgers/**"
+                        )
+                        .hasAnyRole(
+                                "AUDITOR",
+                                "ADMIN"
+                        )
+
+
+                        // -----------------------------------------
+                        // EDIT LEDGER
+                        // -----------------------------------------
+                        // AUDITOR + ADMIN
+                        //
+                        // PUT /api/ledgers/{id}
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/ledgers/**"
+                        )
+                        .hasAnyRole(
+                                "AUDITOR",
+                                "ADMIN"
+                        )
+
+
+                        // -----------------------------------------
+                        // DELETE LEDGER
+                        // -----------------------------------------
+                        // AUDITOR + ADMIN
+                        //
+                        // DELETE /api/ledgers/{id}
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/ledgers/**"
+                        )
+                        .hasAnyRole(
+                                "AUDITOR",
+                                "ADMIN"
+                        )
+
+
+                        // =====================================================
+                        // TRANSACTION MANAGEMENT
+                        // =====================================================
+
+                        // -----------------------------------------
+                        // VIEW TRANSACTIONS
+                        // -----------------------------------------
+                        // Any authenticated user can view transactions.
+                        //
+                        // GET /api/transactions
+                        // GET /api/transactions/{id}
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/transactions",
+                                "/api/transactions/**"
+                        )
+                        .authenticated()
+
+
+                        // -----------------------------------------
+                        // CREATE TRANSACTION
+                        // -----------------------------------------
+                        // TREASURER + ADMIN
+                        //
+                        // POST /api/transactions
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/transactions",
+                                "/api/transactions/**"
+                        )
+                        .hasAnyRole(
+                                "TREASURER",
+                                "ADMIN"
+                        )
+
+
+                        // -----------------------------------------
+                        // EDIT / APPROVE TRANSACTION
+                        // -----------------------------------------
+                        // TREASURER + ADMIN
+                        //
+                        // PUT /api/transactions/{id}
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/transactions/**"
+                        )
+                        .hasAnyRole(
+                                "TREASURER",
+                                "ADMIN"
+                        )
+
+
+                        // -----------------------------------------
+                        // DELETE / REVERSE TRANSACTION
+                        // -----------------------------------------
+                        // TREASURER + ADMIN
+                        //
+                        // DELETE /api/transactions/{id}
+                        // -----------------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/transactions/**"
+                        )
+                        .hasAnyRole(
+                                "TREASURER",
+                                "ADMIN"
+                        )
+
+
+                        // =====================================================
+                        // ADMIN-ONLY DELETE ROUTES
+                        // =====================================================
+
+                        .requestMatchers(
+                                "/delete/**"
+                        )
+                        .hasRole("ADMIN")
+
+
+                        // =====================================================
+                        // ALL OTHER ENDPOINTS
+                        // =====================================================
+
+                        .anyRequest()
+                        .authenticated()
                 )
-                .permitAll()
 
 
-                // =================================================
-                // SWAGGER / OPENAPI
-                // =================================================
-
-                .requestMatchers(
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs/**"
-                )
-                .permitAll()
-
-
-                // =================================================
-                // CORS PREFLIGHT
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.OPTIONS,
-                        "/**"
-                )
-                .permitAll()
-
-
-                // =================================================
-                // LEDGER VIEW
-                // =================================================
-                //
-                // Any authenticated user can view ledgers.
-                //
-                // GET /api/ledgers
-                // GET /api/ledgers/{id}
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.GET,
-                        "/api/ledgers",
-                        "/api/ledgers/**"
-                )
-                .authenticated()
-
-
-                // =================================================
-                // LEDGER CREATE
-                // =================================================
-                //
-                // AUDITOR + ADMIN
-                //
-                // POST /api/ledgers
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.POST,
-                        "/api/ledgers",
-                        "/api/ledgers/**"
-                )
-                .hasAnyRole(
-                        "AUDITOR",
-                        "ADMIN"
-                )
-
-
-                // =================================================
-                // LEDGER EDIT
-                // =================================================
-                //
-                // AUDITOR + ADMIN
-                //
-                // PUT /api/ledgers/{id}
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.PUT,
-                        "/api/ledgers/**"
-                )
-                .hasAnyRole(
-                        "AUDITOR",
-                        "ADMIN"
-                )
-
-
-                // =================================================
-                // LEDGER DELETE
-                // =================================================
-                //
-                // AUDITOR + ADMIN
-                //
-                // DELETE /api/ledgers/{id}
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.DELETE,
-                        "/api/ledgers/**"
-                )
-                .hasAnyRole(
-                        "AUDITOR",
-                        "ADMIN"
-                )
-
-
-                // =================================================
-                // TRANSACTION READ ACCESS
-                // =================================================
-                //
-                // Any authenticated user can view transactions.
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.GET,
-                        "/api/transactions",
-                        "/api/transactions/**"
-                )
-                .authenticated()
-
-
-                // =================================================
-                // TRANSACTION CREATE
-                // =================================================
-                //
-                // TREASURER + ADMIN
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.POST,
-                        "/api/transactions",
-                        "/api/transactions/**"
-                )
-                .hasAnyRole(
-                        "TREASURER",
-                        "ADMIN"
-                )
-
-
-                // =================================================
-                // TRANSACTION UPDATE
-                // =================================================
-                //
-                // TREASURER + ADMIN
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.PUT,
-                        "/api/transactions/**"
-                )
-                .hasAnyRole(
-                        "TREASURER",
-                        "ADMIN"
-                )
-
-
-                // =================================================
-                // TRANSACTION DELETE / REVERSE
-                // =================================================
-                //
-                // TREASURER + ADMIN
-                //
-                // =================================================
-
-                .requestMatchers(
-                        HttpMethod.DELETE,
-                        "/api/transactions/**"
-                )
-                .hasAnyRole(
-                        "TREASURER",
-                        "ADMIN"
-                )
-
-
-                // =================================================
-                // ADMIN-ONLY DELETE ROUTES
-                // =================================================
-
-                .requestMatchers(
-                        "/delete/**"
-                )
-                .hasRole("ADMIN")
-
-
-                // =================================================
-                // ALL OTHER ENDPOINTS
-                // =================================================
-
-                .anyRequest()
-                .authenticated()
-
-
-                // =================================================
+                // =========================================================
                 // AUTHENTICATION PROVIDER
-                // =================================================
+                // =========================================================
 
-                .and()
                 .authenticationProvider(
                         authenticationProvider()
                 )
 
 
-                // =================================================
+                // =========================================================
                 // JWT FILTER
-                // =================================================
+                // =========================================================
 
                 .addFilterBefore(
                         jwtFilter,
