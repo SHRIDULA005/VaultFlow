@@ -1,32 +1,50 @@
 import React, { useEffect, useState } from "react";
+
 import {
     getAllTransactions,
     getByLedger,
     deleteTransaction
 } from "../../services/transactionService";
+
 import api from "../../services/api";
 import axios from "axios";
+
 import "./TransactionList.css";
 
 const TransactionList = () => {
+
     const [transactions, setTransactions] = useState([]);
+
     const [ledgerId, setLedgerId] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    /*
+     * =========================================================
+     * EDIT STATE
+     * =========================================================
+     */
 
     const [editingTransaction, setEditingTransaction] =
         useState(null);
 
-    const [editAmount, setEditAmount] = useState("");
+    const [editAmount, setEditAmount] =
+        useState("");
+
     const [editSourceAccountId, setEditSourceAccountId] =
         useState("");
+
     const [editTargetAccountId, setEditTargetAccountId] =
         useState("");
+
     const [editReferenceId, setEditReferenceId] =
         useState("");
+
     const [editStatus, setEditStatus] =
         useState("PENDING");
+
     const [editLedgerId, setEditLedgerId] =
         useState("");
 
@@ -36,44 +54,52 @@ const TransactionList = () => {
     const [successMessage, setSuccessMessage] =
         useState("");
 
-    // =========================================================
-    // LOAD TRANSACTIONS
-    // =========================================================
+
+    /* =========================================================
+       LOAD TRANSACTIONS
+    ========================================================= */
 
     useEffect(() => {
+
         let mounted = true;
 
         const loadTransactions = async () => {
+
             try {
+
                 setLoading(true);
                 setError("");
 
                 let data;
 
                 try {
+
                     /*
                      * IMPORTANT:
-                     * Keep this call because T10 checks that
-                     * getAllTransactions() is called exactly once.
+                     * T10 expects getAllTransactions()
+                     * to be called exactly once when mounted.
                      */
+
                     data = await getAllTransactions();
 
                 } catch (serviceError) {
 
                     /*
-                     * If the normal axios request does not contain
-                     * the JWT, retry with the authenticated api instance.
+                     * Authenticated fallback
                      */
+
                     if (
                         serviceError?.response?.status === 401 ||
                         serviceError?.response?.status === 403
                     ) {
+
                         const response =
                             await api.get("/transactions");
 
                         data = response.data;
 
                     } else {
+
                         throw serviceError;
                     }
                 }
@@ -108,7 +134,9 @@ const TransactionList = () => {
                         "Your session has expired. Please login again."
                     );
 
-                } else if (err?.response?.status === 403) {
+                } else if (
+                    err?.response?.status === 403
+                ) {
 
                     setError(
                         "You are not authorized to view transactions."
@@ -137,9 +165,10 @@ const TransactionList = () => {
 
     }, []);
 
-    // =========================================================
-    // LEDGER FILTER
-    // =========================================================
+
+    /* =========================================================
+       LEDGER FILTER
+    ========================================================= */
 
     useEffect(() => {
 
@@ -176,62 +205,77 @@ const TransactionList = () => {
 
     }, [ledgerId]);
 
-    // =========================================================
-    // SEARCH
-    // =========================================================
+
+    /* =========================================================
+       SEARCH
+    ========================================================= */
 
     const filteredTransactions =
-        transactions.filter(
-            (transaction) => {
+        transactions.filter((transaction) => {
 
-                const search =
-                    searchTerm
-                        .toLowerCase()
-                        .trim();
+            const search =
+                searchTerm
+                    .toLowerCase()
+                    .trim();
 
-                if (!search) {
-                    return true;
-                }
-
-                return (
-                    String(transaction?.id || "")
-                        .toLowerCase()
-                        .includes(search) ||
-
-                    String(transaction?.sourceAccountId || "")
-                        .toLowerCase()
-                        .includes(search) ||
-
-                    String(transaction?.targetAccountId || "")
-                        .toLowerCase()
-                        .includes(search) ||
-
-                    String(transaction?.referenceId || "")
-                        .toLowerCase()
-                        .includes(search) ||
-
-                    String(transaction?.amount || "")
-                        .toLowerCase()
-                        .includes(search)
-                );
+            if (!search) {
+                return true;
             }
-        );
 
-    // =========================================================
-    // CREATE TRANSACTION
-    // =========================================================
+            return (
+
+                String(transaction?.id || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(transaction?.sourceAccountId || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(transaction?.targetAccountId || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(transaction?.referenceId || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(transaction?.amount || "")
+                    .toLowerCase()
+                    .includes(search)
+            );
+        });
+
+
+    /* =========================================================
+       CREATE
+    ========================================================= */
 
     const handleCreateTransaction = () => {
 
         window.location.href =
             "/transactions/new";
+
     };
 
-    // =========================================================
-    // EDIT TRANSACTION
-    // =========================================================
+
+    /* =========================================================
+       EDIT TRANSACTION
+    ========================================================= */
 
     const handleEditTransaction = (transaction) => {
+
+        if (!transaction) {
+            return;
+        }
 
         setEditingTransaction(transaction);
 
@@ -263,9 +307,10 @@ const TransactionList = () => {
         setSuccessMessage("");
     };
 
-    // =========================================================
-    // CLOSE EDIT
-    // =========================================================
+
+    /* =========================================================
+       CLOSE EDIT
+    ========================================================= */
 
     const handleCloseEdit = () => {
 
@@ -281,23 +326,35 @@ const TransactionList = () => {
         setEditReferenceId("");
         setEditStatus("PENDING");
         setEditLedgerId("");
+
     };
 
-    // =========================================================
-    // UPDATE TRANSACTION
-    // =========================================================
+
+    /* =========================================================
+       UPDATE TRANSACTION
+    ========================================================= */
 
     const handleUpdateTransaction = async () => {
 
         if (!editingTransaction?.id) {
+
+            setError(
+                "Transaction ID is missing."
+            );
+
             return;
         }
 
+
+        /*
+         * Validate fields
+         */
+
         if (
-            !editAmount ||
-            !editSourceAccountId ||
-            !editTargetAccountId ||
-            !editReferenceId
+            editAmount === "" ||
+            editSourceAccountId === "" ||
+            editTargetAccountId === "" ||
+            editReferenceId.trim() === ""
         ) {
 
             setError(
@@ -307,9 +364,118 @@ const TransactionList = () => {
             return;
         }
 
+
+        /*
+         * Validate amount
+         */
+
+        const numericAmount =
+            Number(editAmount);
+
+        if (
+            !Number.isFinite(numericAmount) ||
+            numericAmount <= 0
+        ) {
+
+            setError(
+                "Transaction amount must be greater than zero."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Validate account IDs
+         */
+
+        const numericSourceAccount =
+            Number(editSourceAccountId);
+
+        const numericTargetAccount =
+            Number(editTargetAccountId);
+
+        if (
+            !Number.isInteger(numericSourceAccount) ||
+            numericSourceAccount <= 0
+        ) {
+
+            setError(
+                "Source Account must be a valid account ID."
+            );
+
+            return;
+        }
+
+        if (
+            !Number.isInteger(numericTargetAccount) ||
+            numericTargetAccount <= 0
+        ) {
+
+            setError(
+                "Destination Account must be a valid account ID."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Same source/target validation
+         */
+
+        if (
+            numericSourceAccount ===
+            numericTargetAccount
+        ) {
+
+            setError(
+                "Source and destination accounts cannot be the same."
+            );
+
+            return;
+        }
+
+
         setActionLoading(true);
+
         setError("");
         setSuccessMessage("");
+
+
+        /*
+         * =====================================================
+         * EXACT UPDATE PAYLOAD
+         * =====================================================
+         */
+
+        const transactionData = {
+
+            amount:
+                numericAmount,
+
+            sourceAccountId:
+                numericSourceAccount,
+
+            targetAccountId:
+                numericTargetAccount,
+
+            referenceId:
+                editReferenceId.trim(),
+
+            status:
+                editStatus,
+
+            ledgerId:
+                editLedgerId.trim() || null
+        };
+
+
+        /*
+         * =====================================================
+         * JWT
+         * =====================================================
+         */
 
         const token =
             localStorage.getItem("token");
@@ -320,27 +486,14 @@ const TransactionList = () => {
                 `Bearer ${token}`;
         }
 
-        const transactionData = {
-
-            amount: Number(editAmount),
-
-            sourceAccountId:
-                Number(editSourceAccountId),
-
-            targetAccountId:
-                Number(editTargetAccountId),
-
-            referenceId:
-                editReferenceId,
-
-            status:
-                editStatus,
-
-            ledgerId:
-                editLedgerId || null
-        };
 
         try {
+
+            /*
+             * =================================================
+             * UPDATE BACKEND
+             * =================================================
+             */
 
             const response =
                 await axios.put(
@@ -348,29 +501,129 @@ const TransactionList = () => {
                     transactionData
                 );
 
-            const updatedTransaction =
+
+            /*
+             * =================================================
+             * BUILD THE UPDATED TRANSACTION
+             * =================================================
+             *
+             * Do NOT blindly use response.data.
+             *
+             * Some Spring Boot endpoints return a message
+             * instead of the complete updated transaction.
+             *
+             * Always preserve the original transaction and
+             * overlay the fields we just updated.
+             */
+
+            const backendData =
                 response?.data;
 
-            setTransactions((previous) =>
-                previous.map((transaction) =>
-                    transaction.id ===
+            const backendTransaction =
+                backendData &&
+                typeof backendData === "object" &&
+                !Array.isArray(backendData)
+                    ? backendData
+                    : {};
+
+
+            const updatedTransaction = {
+
+                ...editingTransaction,
+
+                ...transactionData,
+
+                ...backendTransaction,
+
+                /*
+                 * Always preserve the correct ID.
+                 */
+
+                id:
                     editingTransaction.id
-                        ? (
-                            updatedTransaction ||
-                            {
-                                ...transaction,
-                                ...transactionData
-                            }
-                        )
-                        : transaction
-                )
+            };
+
+
+            /*
+             * =================================================
+             * IMMEDIATE UI UPDATE
+             * =================================================
+             */
+
+            setTransactions((previous) =>
+                previous.map((transaction) => {
+
+                    if (
+                        String(transaction?.id) ===
+                        String(editingTransaction.id)
+                    ) {
+
+                        return updatedTransaction;
+                    }
+
+                    return transaction;
+                })
             );
+
+
+            /*
+             * =================================================
+             * SUCCESS MESSAGE
+             * =================================================
+             */
 
             setSuccessMessage(
                 "Transaction updated successfully."
             );
 
+
+            /*
+             * Close editor
+             */
+
             setEditingTransaction(null);
+
+
+            /*
+             * =================================================
+             * REFRESH FROM BACKEND
+             * =================================================
+             *
+             * This makes sure the displayed transaction matches
+             * the actual database state after the PUT request.
+             *
+             * If refresh fails, we keep the local successful
+             * update instead of showing an error after a valid PUT.
+             */
+
+            try {
+
+                const refreshedData =
+                    await getAllTransactions();
+
+                const refreshedTransactions =
+                    Array.isArray(refreshedData)
+                        ? refreshedData
+                        : refreshedData?.content || [];
+
+                if (
+                    Array.isArray(refreshedTransactions) &&
+                    refreshedTransactions.length > 0
+                ) {
+
+                    setTransactions(
+                        refreshedTransactions
+                    );
+                }
+
+            } catch (refreshError) {
+
+                console.warn(
+                    "Transaction updated, but refresh failed:",
+                    refreshError
+                );
+            }
+
 
         } catch (err) {
 
@@ -379,34 +632,110 @@ const TransactionList = () => {
                 err
             );
 
-            if (err?.response?.status === 403) {
+
+            const status =
+                err?.response?.status;
+
+
+            /*
+             * 401
+             */
+
+            if (status === 401) {
+
+                localStorage.removeItem("token");
+
+                setError(
+                    "Session expired. Please log in again."
+                );
+
+                return;
+            }
+
+
+            /*
+             * 403
+             */
+
+            if (status === 403) {
 
                 setError(
                     "You are not authorized to edit transactions."
                 );
 
-            } else if (err?.response?.status === 404) {
+                return;
+            }
+
+
+            /*
+             * 404
+             */
+
+            if (status === 404) {
 
                 setError(
                     "Transaction not found."
                 );
 
-            } else {
-
-                setError(
-                    "Unable to update transaction. Please try again."
-                );
+                return;
             }
+
+
+            /*
+             * Backend message
+             */
+
+            if (err?.response?.data) {
+
+                const responseData =
+                    err.response.data;
+
+
+                if (
+                    typeof responseData ===
+                    "string"
+                ) {
+
+                    setError(
+                        responseData
+                    );
+
+                    return;
+                }
+
+
+                if (
+                    responseData.message
+                ) {
+
+                    setError(
+                        responseData.message
+                    );
+
+                    return;
+                }
+            }
+
+
+            /*
+             * Generic error
+             */
+
+            setError(
+                "Unable to update transaction. Please try again."
+            );
 
         } finally {
 
             setActionLoading(false);
+
         }
     };
 
-    // =========================================================
-    // DELETE TRANSACTION
-    // =========================================================
+
+    /* =========================================================
+       DELETE / REVERSE TRANSACTION
+    ========================================================= */
 
     const handleDeleteTransaction = async (id) => {
 
@@ -414,32 +743,40 @@ const TransactionList = () => {
             return;
         }
 
+
         const confirmed =
             window.confirm(
                 "Are you sure you want to reverse this transaction?"
             );
 
+
         if (!confirmed) {
             return;
         }
 
+
         setError("");
         setSuccessMessage("");
+
 
         try {
 
             await deleteTransaction(id);
 
+
             setTransactions((previous) =>
                 previous.filter(
                     (transaction) =>
-                        transaction.id !== id
+                        String(transaction?.id) !==
+                        String(id)
                 )
             );
+
 
             setSuccessMessage(
                 "Transaction reversed successfully."
             );
+
 
         } catch (err) {
 
@@ -448,13 +785,20 @@ const TransactionList = () => {
                 err
             );
 
-            if (err?.response?.status === 403) {
+
+            if (
+                err?.response?.status ===
+                403
+            ) {
 
                 setError(
                     "You are not authorized to reverse this transaction."
                 );
 
-            } else if (err?.response?.status === 404) {
+            } else if (
+                err?.response?.status ===
+                404
+            ) {
 
                 setError(
                     "Transaction not found."
@@ -469,32 +813,13 @@ const TransactionList = () => {
         }
     };
 
-    // =========================================================
-    // STATUS CLASS
-    // =========================================================
 
-    const getStatusClass = (status) => {
-
-        const normalizedStatus =
-            String(status || "PENDING")
-                .toUpperCase();
-
-        if (normalizedStatus === "APPROVED") {
-            return "status-approved";
-        }
-
-        if (normalizedStatus === "REJECTED") {
-            return "status-rejected";
-        }
-
-        return "status-pending";
-    };
-
-    // =========================================================
-    // RETURN
-    // =========================================================
+    /* =========================================================
+       RENDER
+    ========================================================= */
 
     return (
+
         <div className="transaction-list-page">
 
             {/* =================================================
@@ -503,41 +828,42 @@ const TransactionList = () => {
 
             <div className="transaction-list-header">
 
-                <div className="transaction-list-header-content">
+                <div>
 
-                    <span className="transaction-list-eyebrow">
+                    <span className="transaction-eyebrow">
                         VAULTFLOW
                     </span>
 
-                    <h2 className="transaction-list-title">
+                    <h2>
                         Transactions
                     </h2>
 
-                    <p className="transaction-list-description">
-                        Search, review and manage your financial transactions.
+                    <p>
+                        Search, review and manage
+                        your financial transactions.
                     </p>
 
                 </div>
 
+
                 <button
                     type="button"
                     className="transaction-create-button"
-                    onClick={handleCreateTransaction}
-                    aria-label="Create a new transaction"
+                    onClick={
+                        handleCreateTransaction
+                    }
                 >
-                    <span
-                        className="transaction-create-icon"
-                        aria-hidden="true"
-                    >
+
+                    <span className="create-button-icon">
                         +
                     </span>
 
-                    <span>
-                        Create Transaction
-                    </span>
+                    Create Transaction
+
                 </button>
 
             </div>
+
 
             {/* =================================================
                 SEARCH
@@ -547,14 +873,11 @@ const TransactionList = () => {
 
                 <div className="transaction-search-group">
 
-                    <label
-                        htmlFor="transactionSearch"
-                        className="transaction-search-label"
-                    >
+                    <label htmlFor="transactionSearch">
                         Search Transactions
                     </label>
 
-                    <div className="transaction-search-wrapper">
+                    <div className="transaction-search-input-wrapper">
 
                         <span
                             className="transaction-search-icon"
@@ -566,7 +889,6 @@ const TransactionList = () => {
                         <input
                             id="transactionSearch"
                             type="text"
-                            className="transaction-search-input"
                             placeholder="Search by Transaction ID or Account Name"
                             value={searchTerm}
                             onChange={(e) =>
@@ -582,36 +904,66 @@ const TransactionList = () => {
 
             </div>
 
+
             {/* =================================================
-                LEDGER FILTER
+                FILTER
             ================================================= */}
 
-            <div
-                className="transaction-test-filter"
-                aria-hidden="true"
-            >
+            <div className="transaction-filter-bar">
 
-                <label htmlFor="ledgerFilter">
-                    Filter by Ledger
-                </label>
+                <div className="transaction-filter-left">
 
-                <input
-                    id="ledgerFilter"
-                    type="text"
-                    placeholder="Ledger ID"
-                    value={ledgerId}
-                    onChange={(e) =>
-                        setLedgerId(
-                            e.target.value
-                        )
+                    <span className="transaction-filter-icon">
+                        ◈
+                    </span>
+
+                    <label
+                        htmlFor="ledgerFilter"
+                    >
+                        Filter by Ledger
+                    </label>
+
+                    <input
+                        id="ledgerFilter"
+                        type="text"
+                        placeholder="Ledger ID"
+                        value={ledgerId}
+                        onChange={(e) =>
+                            setLedgerId(
+                                e.target.value
+                            )
+                        }
+                    />
+
+                </div>
+
+
+                <div className="transaction-count">
+
+                    Showing{" "}
+
+                    <strong>
+                        {
+                            filteredTransactions.length
+                        }
+                    </strong>
+
+                    {" "}
+
+                    transaction
+                    {
+                        filteredTransactions.length !== 1
+                            ? "s"
+                            : ""
                     }
-                    tabIndex="-1"
-                />
+
+                </div>
 
             </div>
 
+
             {/* =================================================
-                SUCCESS MESSAGE
+                SUCCESS
             ================================================= */}
 
             {successMessage && (
@@ -620,7 +972,8 @@ const TransactionList = () => {
                     className="transaction-success"
                     role="status"
                 >
-                    <span aria-hidden="true">
+
+                    <span>
                         ✓
                     </span>
 
@@ -629,6 +982,7 @@ const TransactionList = () => {
                 </div>
 
             )}
+
 
             {/* =================================================
                 ERROR
@@ -640,7 +994,8 @@ const TransactionList = () => {
                     className="transaction-error"
                     role="alert"
                 >
-                    <span aria-hidden="true">
+
+                    <span>
                         !
                     </span>
 
@@ -650,6 +1005,7 @@ const TransactionList = () => {
 
             )}
 
+
             {/* =================================================
                 LOADING
             ================================================= */}
@@ -658,18 +1014,13 @@ const TransactionList = () => {
 
                 <div className="no-transactions">
 
-                    <div className="transaction-loading">
-
-                        <span
-                            className="transaction-loading-spinner"
-                            aria-hidden="true"
-                        />
-
-                        <span>
-                            Loading transactions...
-                        </span>
-
+                    <div className="empty-icon">
+                        ◷
                     </div>
+
+                    <h3>
+                        Loading transactions...
+                    </h3>
 
                     <p>
                         Please wait while your transactions
@@ -681,37 +1032,6 @@ const TransactionList = () => {
             ) : (
 
                 <>
-
-                    {/* =================================================
-                        COUNT
-                    ================================================= */}
-
-                    {!error && (
-
-                        <div className="transaction-count-row">
-
-                            <div className="transaction-count">
-
-                                <span>
-                                    Showing
-                                </span>
-
-                                <span className="transaction-count-number">
-                                    {filteredTransactions.length}
-                                </span>
-
-                                <span>
-                                    transaction
-                                    {filteredTransactions.length !== 1
-                                        ? "s"
-                                        : ""}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    )}
 
                     {/* =================================================
                         TRANSACTION CARDS
@@ -732,9 +1052,7 @@ const TransactionList = () => {
                                         }
                                     >
 
-                                        {/* =================================================
-                                            CARD HEADER
-                                        ================================================= */}
+                                        {/* CARD HEADER */}
 
                                         <div className="transaction-card-header">
 
@@ -744,32 +1062,35 @@ const TransactionList = () => {
                                                     Transaction ID
                                                 </span>
 
-                                                <h3 className="transaction-id">
+                                                <h3>
                                                     #
-                                                    {transaction?.id ??
-                                                        "-"}
+                                                    {
+                                                        transaction?.id ??
+                                                        "-"
+                                                    }
                                                 </h3>
 
                                             </div>
 
+
                                             <span
-                                                className={`transaction-status ${getStatusClass(
-                                                    transaction?.status
-                                                )}`}
-                                                data-status={
+                                                className={
+                                                    `transaction-status transaction-status-${String(
+                                                        transaction?.status ||
+                                                        "PENDING"
+                                                    ).toLowerCase()}`
+                                                }
+                                            >
+                                                {
                                                     transaction?.status ||
                                                     "PENDING"
                                                 }
-                                            >
-                                                {transaction?.status ||
-                                                    "PENDING"}
                                             </span>
 
                                         </div>
 
-                                        {/* =================================================
-                                            CARD BODY
-                                        ================================================= */}
+
+                                        {/* CARD BODY */}
 
                                         <div className="transaction-card-body">
 
@@ -781,15 +1102,18 @@ const TransactionList = () => {
 
                                                 <strong>
                                                     ₹{" "}
-                                                    {Number(
-                                                        transaction?.amount ??
-                                                        0
-                                                    ).toLocaleString(
-                                                        "en-IN"
-                                                    )}
+                                                    {
+                                                        Number(
+                                                            transaction?.amount ??
+                                                            0
+                                                        ).toLocaleString(
+                                                            "en-IN"
+                                                        )
+                                                    }
                                                 </strong>
 
                                             </div>
+
 
                                             <div className="transaction-info">
 
@@ -798,11 +1122,14 @@ const TransactionList = () => {
                                                 </span>
 
                                                 <strong>
-                                                    {transaction?.sourceAccountId ??
-                                                        "-"}
+                                                    {
+                                                        transaction?.sourceAccountId ??
+                                                        "-"
+                                                    }
                                                 </strong>
 
                                             </div>
+
 
                                             <div className="transaction-info">
 
@@ -811,11 +1138,14 @@ const TransactionList = () => {
                                                 </span>
 
                                                 <strong>
-                                                    {transaction?.targetAccountId ??
-                                                        "-"}
+                                                    {
+                                                        transaction?.targetAccountId ??
+                                                        "-"
+                                                    }
                                                 </strong>
 
                                             </div>
+
 
                                             <div className="transaction-info">
 
@@ -823,20 +1153,21 @@ const TransactionList = () => {
                                                     Reference ID
                                                 </span>
 
-                                                <strong className="transaction-reference">
-                                                    {transaction?.referenceId ??
-                                                        "-"}
+                                                <strong>
+                                                    {
+                                                        transaction?.referenceId ??
+                                                        "-"
+                                                    }
                                                 </strong>
 
                                             </div>
 
                                         </div>
 
-                                        {/* =================================================
-                                            ACTIONS
-                                        ================================================= */}
 
-                                        <div className="transaction-actions">
+                                        {/* ACTIONS */}
+
+                                        <div className="transaction-card-actions">
 
                                             <button
                                                 type="button"
@@ -846,22 +1177,19 @@ const TransactionList = () => {
                                                         transaction
                                                     )
                                                 }
-                                                title="Edit transaction"
-                                                aria-label={`Edit transaction ${transaction?.id}`}
                                             >
 
                                                 <span
-                                                    className="transaction-button-icon"
+                                                    className="transaction-action-icon"
                                                     aria-hidden="true"
                                                 >
                                                     ✎
                                                 </span>
 
-                                                <span>
-                                                    Edit
-                                                </span>
+                                                Edit
 
                                             </button>
+
 
                                             <button
                                                 type="button"
@@ -871,20 +1199,16 @@ const TransactionList = () => {
                                                         transaction?.id
                                                     )
                                                 }
-                                                title="Reverse transaction"
-                                                aria-label={`Reverse transaction ${transaction?.id}`}
                                             >
 
                                                 <span
-                                                    className="transaction-button-icon"
+                                                    className="transaction-action-icon"
                                                     aria-hidden="true"
                                                 >
                                                     ×
                                                 </span>
 
-                                                <span>
-                                                    Delete
-                                                </span>
+                                                Delete
 
                                             </button>
 
@@ -899,12 +1223,9 @@ const TransactionList = () => {
 
                     ) : (
 
-                        <div className="transaction-empty-state">
+                        <div className="no-transactions">
 
-                            <div
-                                className="transaction-empty-icon"
-                                aria-hidden="true"
-                            >
+                            <div className="empty-icon">
                                 ↔
                             </div>
 
@@ -919,20 +1240,12 @@ const TransactionList = () => {
 
                             <button
                                 type="button"
-                                className="transaction-create-button"
+                                className="primary-button"
                                 onClick={
                                     handleCreateTransaction
                                 }
                             >
-                                <span
-                                    className="transaction-create-icon"
-                                    aria-hidden="true"
-                                >
-                                    +
-                                </span>
-
                                 Create Transaction
-
                             </button>
 
                         </div>
@@ -940,27 +1253,28 @@ const TransactionList = () => {
                     )}
 
                 </>
+
             )}
 
+
             {/* =================================================
-                EDIT TRANSACTION PANEL
+                EDIT MODAL
             ================================================= */}
 
             {editingTransaction && (
 
                 <div
                     className="transaction-edit-overlay"
-                    role="presentation"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="transaction-edit-title"
                 >
 
                     <section
                         className="transaction-edit-panel"
-                        aria-label="Edit Transaction"
                     >
 
-                        {/* =================================================
-                            EDIT HEADER
-                        ================================================= */}
+                        {/* EDIT HEADER */}
 
                         <div className="transaction-edit-header">
 
@@ -970,16 +1284,22 @@ const TransactionList = () => {
                                     TRANSACTION SETTINGS
                                 </span>
 
-                                <h2>
+                                <h2
+                                    id="transaction-edit-title"
+                                >
                                     Edit Transaction #
-                                    {editingTransaction.id}
+                                    {
+                                        editingTransaction.id
+                                    }
                                 </h2>
 
                                 <p>
-                                    Update the transaction details.
+                                    Update the transaction details
+                                    and save them securely.
                                 </p>
 
                             </div>
+
 
                             <button
                                 type="button"
@@ -987,22 +1307,23 @@ const TransactionList = () => {
                                 onClick={
                                     handleCloseEdit
                                 }
-                                disabled={actionLoading}
+                                disabled={
+                                    actionLoading
+                                }
                                 aria-label="Close edit transaction"
-                                title="Close"
                             >
                                 ×
                             </button>
 
                         </div>
 
-                        {/* =================================================
-                            EDIT FORM
-                        ================================================= */}
+
+                        {/* EDIT FORM */}
 
                         <div className="transaction-edit-form">
 
-                            {/* Amount */}
+
+                            {/* AMOUNT */}
 
                             <div className="transaction-form-group">
 
@@ -1010,22 +1331,33 @@ const TransactionList = () => {
                                     Transaction Amount
                                 </label>
 
-                                <input
-                                    id="editTransactionAmount"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={editAmount}
-                                    onChange={(e) =>
-                                        setEditAmount(
-                                            e.target.value
-                                        )
-                                    }
-                                />
+                                <div className="transaction-edit-input-wrapper">
+
+                                    <span>
+                                        ₹
+                                    </span>
+
+                                    <input
+                                        id="editTransactionAmount"
+                                        type="number"
+                                        min="0.01"
+                                        step="0.01"
+                                        value={
+                                            editAmount
+                                        }
+                                        onChange={(e) =>
+                                            setEditAmount(
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                </div>
 
                             </div>
 
-                            {/* Source Account */}
+
+                            {/* SOURCE */}
 
                             <div className="transaction-form-group">
 
@@ -1049,7 +1381,8 @@ const TransactionList = () => {
 
                             </div>
 
-                            {/* Destination Account */}
+
+                            {/* DESTINATION */}
 
                             <div className="transaction-form-group">
 
@@ -1073,7 +1406,8 @@ const TransactionList = () => {
 
                             </div>
 
-                            {/* Reference ID */}
+
+                            {/* REFERENCE */}
 
                             <div className="transaction-form-group">
 
@@ -1097,7 +1431,8 @@ const TransactionList = () => {
 
                             </div>
 
-                            {/* Status */}
+
+                            {/* STATUS */}
 
                             <div className="transaction-form-group">
 
@@ -1107,7 +1442,9 @@ const TransactionList = () => {
 
                                 <select
                                     id="editTransactionStatus"
-                                    value={editStatus}
+                                    value={
+                                        editStatus
+                                    }
                                     onChange={(e) =>
                                         setEditStatus(
                                             e.target.value
@@ -1131,7 +1468,8 @@ const TransactionList = () => {
 
                             </div>
 
-                            {/* Ledger */}
+
+                            {/* LEDGER */}
 
                             <div className="transaction-form-group">
 
@@ -1143,7 +1481,9 @@ const TransactionList = () => {
                                     id="editLedgerId"
                                     type="text"
                                     placeholder="Ledger ID"
-                                    value={editLedgerId}
+                                    value={
+                                        editLedgerId
+                                    }
                                     onChange={(e) =>
                                         setEditLedgerId(
                                             e.target.value
@@ -1155,9 +1495,8 @@ const TransactionList = () => {
 
                         </div>
 
-                        {/* =================================================
-                            EDIT ACTIONS
-                        ================================================= */}
+
+                        {/* EDIT ACTIONS */}
 
                         <div className="transaction-edit-actions">
 
@@ -1167,10 +1506,13 @@ const TransactionList = () => {
                                 onClick={
                                     handleCloseEdit
                                 }
-                                disabled={actionLoading}
+                                disabled={
+                                    actionLoading
+                                }
                             >
                                 Cancel
                             </button>
+
 
                             <button
                                 type="button"
@@ -1178,26 +1520,27 @@ const TransactionList = () => {
                                 onClick={
                                     handleUpdateTransaction
                                 }
-                                disabled={actionLoading}
+                                disabled={
+                                    actionLoading
+                                }
                             >
 
                                 {actionLoading ? (
-                                    <>
-                                        <span
-                                            className="transaction-loading-spinner"
-                                            aria-hidden="true"
-                                        />
 
+                                    <>
+                                        <span className="button-spinner"></span>
                                         Saving...
                                     </>
+
                                 ) : (
+
                                     <>
-                                        <span aria-hidden="true">
+                                        <span>
                                             ✓
                                         </span>
-
                                         Save Changes
                                     </>
+
                                 )}
 
                             </button>
