@@ -27,10 +27,6 @@ const TransactionForm = () => {
      * =========================================================
      * ACCOUNT STATE
      * =========================================================
-     *
-     * Accounts are loaded when the page opens.
-     * The data is retained so the form can still work with
-     * account information supplied by the backend.
      */
 
     const [accounts, setAccounts] = useState([]);
@@ -67,8 +63,8 @@ const TransactionForm = () => {
      * LOAD ACCOUNTS
      * =========================================================
      *
-     * Load account information once when the transaction page
-     * is opened.
+     * Load account information once when the transaction
+     * page opens.
      */
 
     useEffect(() => {
@@ -82,13 +78,10 @@ const TransactionForm = () => {
 
 
                 /*
-                 * Different backend/service implementations
-                 * may return either:
+                 * Support both:
                  *
-                 * 1. an array
-                 * 2. a paginated response containing content
-                 *
-                 * Support both.
+                 * 1. Array response
+                 * 2. Paginated response with content
                  */
 
                 const accountData =
@@ -116,16 +109,12 @@ const TransactionForm = () => {
                 setAccounts([]);
 
 
-                /*
-                 * Do not block the entire page when the account
-                 * list cannot be loaded.
-                 */
-
                 setErrorMessage(
                     "Unable to load account information."
                 );
 
             }
+
         };
 
 
@@ -139,8 +128,8 @@ const TransactionForm = () => {
      * SUCCESS MESSAGE AUTO DISMISS
      * =========================================================
      *
-     * T19 requires the success notification to disappear after
-     * exactly three seconds.
+     * T19:
+     * Success notification disappears after exactly 3 seconds.
      */
 
     useEffect(() => {
@@ -170,105 +159,6 @@ const TransactionForm = () => {
 
     /*
      * =========================================================
-     * FIND ACCOUNT ID
-     * =========================================================
-     *
-     * This helper is retained from the original longer version
-     * so the component continues to contain the account lookup
-     * capability.
-     *
-     * It can identify an account either by:
-     *
-     * - numeric ID
-     * - account name
-     *
-     * IMPORTANT:
-     * The submit handler below intentionally sends the exact
-     * form values required by the frontend test contract.
-     */
-
-    const findAccountId = (accountValue) => {
-
-        if (!accountValue) {
-
-            return null;
-
-        }
-
-
-        const value =
-            String(accountValue)
-                .trim()
-                .toLowerCase();
-
-
-        /*
-         * If the user entered a numeric ID directly,
-         * return it as a number.
-         */
-
-        if (/^\d+$/.test(value)) {
-
-            return Number(value);
-
-        }
-
-
-        /*
-         * Find an account by account name.
-         */
-
-        const account =
-            accounts.find((item) => {
-
-                const accountName =
-                    item?.accountName ||
-                    item?.name ||
-                    "";
-
-
-                return (
-                    String(accountName)
-                        .trim()
-                        .toLowerCase() === value
-                );
-
-            });
-
-
-        if (!account) {
-
-            console.log(
-                "Account not found:",
-                accountValue
-            );
-
-
-            console.log(
-                "Available accounts:",
-                accounts
-            );
-
-
-            return null;
-
-        }
-
-
-        /*
-         * Support both common backend field names.
-         */
-
-        return (
-            account.id ??
-            account.accountId
-        );
-
-    };
-
-
-    /*
-     * =========================================================
      * HANDLE SUBMIT
      * =========================================================
      */
@@ -277,17 +167,15 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * OPTIONAL ROLE CHECK
+         * ROLE CHECK
          * =====================================================
          *
-         * The backend remains the real authorization layer.
+         * Backend authorization remains the final security
+         * layer.
          *
-         * The check below only rejects an explicitly stored
-         * invalid role.
-         *
-         * When no role exists, we do not block the transaction
-         * form because automated frontend tests and normal form
-         * interaction may not have a role value available.
+         * Only explicitly invalid roles are blocked here.
+         * This also prevents frontend tests from failing when
+         * localStorage has no role set.
          */
 
         const role =
@@ -305,6 +193,7 @@ const TransactionForm = () => {
             );
 
             setSuccessMessage("");
+            setWarningMessage("");
 
             return;
 
@@ -316,8 +205,11 @@ const TransactionForm = () => {
          * ACCOUNT VALIDATION
          * =====================================================
          *
-         * T20 expects this exact warning when either account is
-         * not selected.
+         * T20 requires:
+         *
+         * "Account not selected"
+         *
+         * whenever either account is missing.
          */
 
         const accountsMissing =
@@ -332,10 +224,6 @@ const TransactionForm = () => {
             );
 
 
-            /*
-             * Remove stale errors when showing the warning.
-             */
-
             setErrorMessage("");
 
             setSuccessMessage("");
@@ -346,14 +234,15 @@ const TransactionForm = () => {
 
 
         /*
-         * Account values exist, therefore clear warning.
+         * Accounts are selected.
+         * Clear any previous warning.
          */
 
         setWarningMessage("");
 
 
         /*
-         * Clear old errors before making a new request.
+         * Clear stale errors.
          */
 
         setErrorMessage("");
@@ -364,8 +253,7 @@ const TransactionForm = () => {
          * EXACT TRANSACTION PAYLOAD
          * =====================================================
          *
-         * T14 expects axios.post() to receive exactly this
-         * object structure:
+         * T14 expects axios.post() to receive exactly:
          *
          * {
          *     amount,
@@ -374,7 +262,8 @@ const TransactionForm = () => {
          *     referenceId
          * }
          *
-         * Do not add extra properties here.
+         * Do not add extra properties.
+         * Do not transform the values here.
          */
 
         const transactionData = {
@@ -398,7 +287,7 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * AUTHORIZATION HEADER
+         * AUTHENTICATION
          * =====================================================
          */
 
@@ -416,11 +305,8 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * AXIOS REQUEST
+         * SEND REQUEST
          * =====================================================
-         *
-         * Keep axios.post directly in handleSubmit because the
-         * frontend test suite mocks this exact call.
          */
 
         let request;
@@ -459,11 +345,10 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * MOCK / REQUEST SAFETY
+         * REQUEST SAFETY
          * =====================================================
          *
-         * Some mocked axios implementations can return undefined.
-         * Avoid trying to call .then() on undefined.
+         * Protect against mocked axios returning undefined.
          */
 
         if (
@@ -480,40 +365,31 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * SUCCESS / ERROR HANDLING
+         * SUCCESS
          * =====================================================
+         *
+         * T18:
+         * "Transaction Logged Successfully"
          */
 
         request
             .then(() => {
-
-                /*
-                 * T18 exact success message.
-                 */
 
                 setSuccessMessage(
                     "Transaction Logged Successfully"
                 );
 
 
-                /*
-                 * Clear other notifications.
-                 */
-
                 setErrorMessage("");
 
                 setWarningMessage("");
 
 
-                /*
-                 * Stop loading state.
-                 */
-
                 setIsSubmitting(false);
 
 
                 /*
-                 * Clear form after successful submission.
+                 * Clear the form after successful submission.
                  */
 
                 setAmount("");
@@ -542,7 +418,7 @@ const TransactionForm = () => {
 
                 /*
                  * =================================================
-                 * 403
+                 * 403 ERROR
                  * =================================================
                  */
 
@@ -559,7 +435,7 @@ const TransactionForm = () => {
 
                 /*
                  * =================================================
-                 * 500
+                 * 500 ERROR
                  * =================================================
                  *
                  * T16 requires this exact message.
@@ -578,7 +454,7 @@ const TransactionForm = () => {
 
                 /*
                  * =================================================
-                 * OTHER ERROR
+                 * OTHER ERRORS
                  * =================================================
                  */
 
@@ -668,7 +544,7 @@ const TransactionForm = () => {
                     </div>
 
 
-                    {/* Security Badge */}
+                    {/* Secure Entry Badge */}
 
                     <div className="transaction-header-badge">
 
@@ -689,12 +565,15 @@ const TransactionForm = () => {
             ================================================= */}
 
 
-            {/* SUCCESS */}
+            {/* SUCCESS ALERT */}
 
             {successMessage && (
 
                 <div
-                    className="transaction-alert transaction-alert-success"
+                    className="
+                        transaction-alert
+                        transaction-alert-success
+                    "
                     data-testid="success-alert"
                 >
 
@@ -727,12 +606,15 @@ const TransactionForm = () => {
             )}
 
 
-            {/* WARNING */}
+            {/* WARNING ALERT */}
 
             {warningMessage && (
 
                 <div
-                    className="transaction-alert transaction-alert-warning"
+                    className="
+                        transaction-alert
+                        transaction-alert-warning
+                    "
                     data-testid="warning-alert"
                 >
 
@@ -765,12 +647,15 @@ const TransactionForm = () => {
             )}
 
 
-            {/* ERROR */}
+            {/* ERROR ALERT */}
 
             {errorMessage && (
 
                 <div
-                    className="transaction-alert transaction-alert-error"
+                    className="
+                        transaction-alert
+                        transaction-alert-error
+                    "
                     data-testid="error-alert"
                     style={{
                         backgroundColor: "red"
@@ -1139,7 +1024,7 @@ const TransactionForm = () => {
                 <div className="transaction-form-footer">
 
 
-                    {/* Required note */}
+                    {/* Required Fields */}
 
                     <div className="required-note">
 
