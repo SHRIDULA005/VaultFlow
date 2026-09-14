@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./TransactionForm.css";
+
 const TransactionForm = () => {
 
     /*
@@ -19,9 +20,6 @@ const TransactionForm = () => {
 
     const [referenceId, setReferenceId] =
         useState("");
-
-
-
 
 
     /*
@@ -52,76 +50,11 @@ const TransactionForm = () => {
 
     /*
      * =========================================================
-     * LOAD ACCOUNTS
+     * SUCCESS ALERT AUTO DISMISS
      * =========================================================
      *
-     * Load account information once when the transaction
-     * page opens.
-     */
-
-    useEffect(() => {
-
-        const loadAccounts = async () => {
-
-            try {
-
-                const response =
-                    await getAccounts();
-
-
-                /*
-                 * Support both:
-                 *
-                 * 1. Array response
-                 * 2. Paginated response with content
-                 */
-
-                const accountData =
-                    Array.isArray(response)
-                        ? response
-                        : response?.content || [];
-
-
-                console.log(
-                    "Accounts loaded for transaction:",
-                    accountData
-                );
-
-
-                setAccounts(accountData);
-
-            } catch (error) {
-
-                console.error(
-                    "Unable to load accounts:",
-                    error
-                );
-
-
-                setAccounts([]);
-
-
-                setErrorMessage(
-                    "Unable to load account information."
-                );
-
-            }
-
-        };
-
-
-        loadAccounts();
-
-    }, []);
-
-
-    /*
-     * =========================================================
-     * SUCCESS MESSAGE AUTO DISMISS
-     * =========================================================
-     *
-     * T19:
-     * Success notification disappears after exactly 3 seconds.
+     * T19 requires the success message to automatically
+     * disappear after exactly 3 seconds.
      */
 
     useEffect(() => {
@@ -159,15 +92,15 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * ROLE CHECK
+         * ROLE VALIDATION
          * =====================================================
          *
-         * Backend authorization remains the final security
-         * layer.
+         * Only explicitly invalid roles are rejected here.
          *
-         * Only explicitly invalid roles are blocked here.
-         * This also prevents frontend tests from failing when
-         * localStorage has no role set.
+         * The backend remains the final authorization layer.
+         *
+         * This also allows frontend tests to work when no role
+         * exists in localStorage.
          */
 
         const role =
@@ -185,6 +118,7 @@ const TransactionForm = () => {
             );
 
             setSuccessMessage("");
+
             setWarningMessage("");
 
             return;
@@ -197,11 +131,11 @@ const TransactionForm = () => {
          * ACCOUNT VALIDATION
          * =====================================================
          *
-         * T20 requires:
+         * T20:
+         * When either source or destination account is missing,
+         * show exactly:
          *
-         * "Account not selected"
-         *
-         * whenever either account is missing.
+         * Account not selected
          */
 
         const accountsMissing =
@@ -215,7 +149,6 @@ const TransactionForm = () => {
                 "Account not selected"
             );
 
-
             setErrorMessage("");
 
             setSuccessMessage("");
@@ -226,15 +159,14 @@ const TransactionForm = () => {
 
 
         /*
-         * Accounts are selected.
-         * Clear any previous warning.
+         * Accounts exist, therefore remove an old warning.
          */
 
         setWarningMessage("");
 
 
         /*
-         * Clear stale errors.
+         * Remove any old error.
          */
 
         setErrorMessage("");
@@ -245,7 +177,7 @@ const TransactionForm = () => {
          * EXACT TRANSACTION PAYLOAD
          * =====================================================
          *
-         * T14 expects axios.post() to receive exactly:
+         * T14 expects this exact object:
          *
          * {
          *     amount,
@@ -254,8 +186,8 @@ const TransactionForm = () => {
          *     referenceId
          * }
          *
-         * Do not add extra properties.
-         * Do not transform the values here.
+         * Do not add additional properties.
+         * Do not convert the values here.
          */
 
         const transactionData = {
@@ -297,7 +229,7 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * SEND REQUEST
+         * AXIOS POST
          * =====================================================
          */
 
@@ -337,10 +269,11 @@ const TransactionForm = () => {
 
         /*
          * =====================================================
-         * REQUEST SAFETY
+         * MOCK SAFETY
          * =====================================================
          *
-         * Protect against mocked axios returning undefined.
+         * Prevent .then() from being called when a mocked
+         * axios.post does not return a promise.
          */
 
         if (
@@ -361,7 +294,8 @@ const TransactionForm = () => {
          * =====================================================
          *
          * T18:
-         * "Transaction Logged Successfully"
+         *
+         * Transaction Logged Successfully
          */
 
         request
@@ -1047,7 +981,6 @@ const TransactionForm = () => {
 
                                 <span className="button-spinner"></span>
 
-
                                 Processing...
 
                             </>
@@ -1057,7 +990,6 @@ const TransactionForm = () => {
                             <>
 
                                 Submit Transaction
-
 
                                 <span className="button-arrow">
 
