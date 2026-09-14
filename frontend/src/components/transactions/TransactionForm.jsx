@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { getAccounts } from "../../services/accountService";
 import "./TransactionForm.css";
 
 const API_BASE_URL = "http://localhost:8080";
@@ -21,6 +22,105 @@ const TransactionForm = () => {
 
     const [referenceId, setReferenceId] =
         useState("");
+
+    /*
+     * =========================================================
+     * ACCOUNT DATA
+     * =========================================================
+     *
+     * The backend expects sourceAccountId and targetAccountId
+     * as Long values. The UI may contain an account name such
+     * as "Main Operating Account", so load the real database
+     * accounts and translate names to their numeric IDs before
+     * sending the transaction.
+     */
+    const [accounts, setAccounts] = useState([]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const loadAccounts = async () => {
+            try {
+                const response = await getAccounts();
+
+                const accountData =
+                    Array.isArray(response)
+                        ? response
+                        : response?.content || [];
+
+                if (mounted) {
+                    setAccounts(accountData);
+                }
+
+                console.log(
+                    "Accounts loaded for transaction:",
+                    accountData
+                );
+            } catch (error) {
+                console.error(
+                    "Unable to load accounts for transaction:",
+                    error
+                );
+
+                if (mounted) {
+                    setAccounts([]);
+                }
+            }
+        };
+
+        loadAccounts();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    /*
+     * =========================================================
+     * RESOLVE ACCOUNT ID
+     * =========================================================
+     *
+     * Accept either:
+     *   1. a numeric database ID, or
+     *   2. an account name displayed by the UI.
+     */
+    const resolveAccountId = (value) => {
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
+            return null;
+        }
+
+        const normalized = String(value).trim();
+
+        if (/^\d+$/.test(normalized)) {
+            return Number(normalized);
+        }
+
+        const account = accounts.find((item) => {
+            const name =
+                item?.accountName ||
+                item?.name ||
+                "";
+
+            return (
+                String(name).trim().toLowerCase() ===
+                normalized.toLowerCase()
+            );
+        });
+
+        if (!account) {
+            return null;
+        }
+
+        const id = account?.id ?? account?.accountId;
+
+        return id === null || id === undefined
+            ? null
+            : Number(id);
+    };
 
     /*
      * =========================================================
@@ -120,11 +220,64 @@ const TransactionForm = () => {
          * Keep these values exactly as entered.
          */
 
+        const resolvedSourceAccountId =
+            resolveAccountId(sourceAccountId);
+
+        const resolvedTargetAccountId =
+            resolveAccountId(targetAccountId);
+
+        /*
+         * Do not send account names to Spring Boot.
+         * TransactionDTO expects Long account IDs.
+         *
+         * If a non-numeric account name was entered but cannot
+         * be resolved, stop and show a useful error instead of
+         * causing a backend 500.
+         */
+        if (
+            resolvedSourceAccountId === null ||
+            resolvedTargetAccountId === null
+        ) {
+            setErrorMessage(
+                "Unable to find the selected account. Please select a valid account."
+            );
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (
+            resolvedSourceAccountId ===
+            resolvedTargetAccountId
+        ) {
+            setErrorMessage(
+                "Source and destination accounts cannot be the same."
+            );
+            setIsSubmitting(false);
+            return;
+        }
+
+        const numericAmount = Number(amount);
+
+        if (
+            !Number.isFinite(numericAmount) ||
+            numericAmount <= 0
+        ) {
+            setErrorMessage(
+                "Transaction amount must be greater than zero."
+            );
+            setIsSubmitting(false);
+            return;
+        }
+
         const transactionData = {
-            amount,
-            sourceAccountId,
-            targetAccountId,
-            referenceId
+            amount: numericAmount,
+            sourceAccountId: Number(
+                resolvedSourceAccountId
+            ),
+            targetAccountId: Number(
+                resolvedTargetAccountId
+            ),
+            referenceId: referenceId.trim()
         };
 
         /*
