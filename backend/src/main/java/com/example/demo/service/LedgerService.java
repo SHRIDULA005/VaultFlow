@@ -22,34 +22,26 @@ public class LedgerService {
     // =========================================================
     // CREATE LEDGER
     // =========================================================
-    // AUDITOR + ADMIN
-    // =========================================================
 
     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
-    public String postledger(Ledger ledger) {
+    public Ledger createLedger(Ledger ledger) {
 
-        repo.save(ledger);
-
-        return "Ledger added successfully";
+        return repo.save(ledger);
     }
 
 
     // =========================================================
     // GET LEDGER BY ID
     // =========================================================
-    // Any authenticated user can view
-    // =========================================================
 
-    public Optional<Ledger> getledgerbyid(Long id) {
+    public Optional<Ledger> getLedgerById(Long id) {
 
         return repo.findById(id);
     }
 
 
     // =========================================================
-    // GET ALL LEDGERS
-    // =========================================================
-    // Any authenticated user can view
+    // GET ALL LEDGERS - PAGINATED
     // =========================================================
 
     public Page<LedgerDTO> getAllLedgers(Pageable pageable) {
@@ -61,7 +53,20 @@ public class LedgerService {
 
 
     // =========================================================
-    // CONVERT ENTITY TO DTO
+    // GET ALL LEDGERS - WITHOUT PAGINATION
+    // =========================================================
+    // This method is provided because your Controller is
+    // currently calling getAllLedgers() without Pageable.
+    // =========================================================
+
+    public java.util.List<Ledger> getAllLedgers() {
+
+        return repo.findAll();
+    }
+
+
+    // =========================================================
+    // CONVERT LEDGER ENTITY TO DTO
     // =========================================================
 
     private LedgerDTO convertToDTO(Ledger ledger) {
@@ -85,8 +90,6 @@ public class LedgerService {
     // =========================================================
     // UPDATE LEDGER
     // =========================================================
-    // AUDITOR + ADMIN
-    // =========================================================
 
     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
     public Ledger updateLedger(
@@ -100,12 +103,10 @@ public class LedgerService {
                         )
                 );
 
-        // Update description
         existingLedger.setDescription(
                 ledger.getDescription()
         );
 
-        // Update created date/time
         existingLedger.setCreatedAt(
                 ledger.getCreatedAt()
         );
@@ -116,8 +117,6 @@ public class LedgerService {
 
     // =========================================================
     // DELETE LEDGER
-    // =========================================================
-    // AUDITOR + ADMIN
     // =========================================================
 
     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
