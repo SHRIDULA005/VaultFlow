@@ -7,11 +7,25 @@ import {
 } from "../../services/transactionService";
 
 import api from "../../services/api";
-import axios from "axios";
 
 import "./TransactionList.css";
 
 const TransactionList = () => {
+
+    const API_BASE_URL = "http://localhost:8080/api";
+
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem("token");
+
+        return token
+            ? {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+            : {
+                "Content-Type": "application/json",
+            };
+    };
 
     const [transactions, setTransactions] = useState([]);
 
@@ -473,17 +487,22 @@ const TransactionList = () => {
 
         /*
          * =====================================================
-         * JWT
+         * JWT / AUTHORIZATION
          * =====================================================
+         *
+         * Always send the current JWT explicitly.
+         * This prevents the PUT request from accidentally going
+         * to the React server (port 3000) without authentication.
          */
 
-        const token =
-            localStorage.getItem("token");
+        const token = localStorage.getItem("token");
 
-        if (token) {
-
-            axios.defaults.headers.common.Authorization =
-                `Bearer ${token}`;
+        if (!token) {
+            setError(
+                "Your session has expired. Please login again."
+            );
+            setActionLoading(false);
+            return;
         }
 
 
@@ -493,13 +512,69 @@ const TransactionList = () => {
              * =================================================
              * UPDATE BACKEND
              * =================================================
+             *
+             * IMPORTANT:
+             * Use the Spring Boot API directly:
+             *
+             * http://localhost:8080/api/transactions/{id}
+             *
+             * instead of a relative /api URL on port 3000.
              */
 
-            const response =
-                await axios.put(
-                    `/api/transactions/${editingTransaction.id}`,
-                    transactionData
+            const fetchResponse =
+                await fetch(
+                    `${API_BASE_URL}/transactions/${editingTransaction.id}`,
+                    {
+                        method: "PUT",
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify(transactionData),
+                    }
                 );
+
+            /*
+             * Convert HTTP errors into the same error-handling
+             * flow used below.
+             */
+
+            if (!fetchResponse.ok) {
+
+                let responseData = null;
+
+                try {
+                    responseData = await fetchResponse.json();
+                } catch (parseError) {
+                    responseData = null;
+                }
+
+                const requestError = new Error(
+                    `Transaction update failed with status ${fetchResponse.status}`
+                );
+
+                requestError.response = {
+                    status: fetchResponse.status,
+                    data: responseData,
+                };
+
+                throw requestError;
+            }
+
+            const responseData = await fetchResponse.text();
+
+            const parsedResponseData =
+                responseData
+                    ? (() => {
+                        try {
+                            return JSON.parse(responseData);
+                        } catch (parseError) {
+                            return responseData;
+                        }
+                    })()
+                    : null;
+
+            const response = {
+                data: parsedResponseData,
+                status: 200,
+            };
 
 
             /*
@@ -606,10 +681,7 @@ const TransactionList = () => {
                         ? refreshedData
                         : refreshedData?.content || [];
 
-                if (
-                    Array.isArray(refreshedTransactions) &&
-                    refreshedTransactions.length > 0
-                ) {
+                if (Array.isArray(refreshedTransactions)) {
 
                     setTransactions(
                         refreshedTransactions
@@ -644,6 +716,8 @@ const TransactionList = () => {
             if (status === 401) {
 
                 localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user");
 
                 setError(
                     "Session expired. Please log in again."
@@ -787,6 +861,19 @@ const TransactionList = () => {
 
 
             if (
+                err?.response?.status ===
+                401
+            ) {
+
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user");
+
+                setError(
+                    "Session expired. Please log in again."
+                );
+
+            } else if (
                 err?.response?.status ===
                 403
             ) {
