@@ -1,71 +1,42 @@
-// package com.example.demo.service;
-
-// import org.springframework.stereotype.Service;
-// import jakarta.servlet.http.HttpServletRequest;
-// import jakarta.servlet.http.HttpSession;
-
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.security.authentication.AuthenticationManager;
-// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-// import org.springframework.security.core.Authentication;
-// import org.springframework.security.core.context.SecurityContextHolder;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-// import org.springframework.stereotype.Service;
-
-// import com.example.demo.dto.LoginRequest;
-// import com.example.demo.security.JwtUtil;
-
-// @Service
-// public class AuthService {
-//     @Autowired
-//     private AuthenticationManager authenticationManager;
-
-//     @Autowired
-//     private JwtUtil jwtService;
-//     public String login(LoginRequest request) {
-//         Authentication authentication = authenticationManager.authenticate(
-//                         new UsernamePasswordAuthenticationToken(
-//                                 request.getEmail(),
-//                                 request.getPassword()
-//                         ));
-//         // SecurityContextHolder.getContext().setAuthentication(authentication);
-//         // HttpSession session = httpRequest.getSession(true);
-//         // System.out.println("Session ID: " + session.getId());
-//         // session.setAttribute(
-//         //         HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-//         //         SecurityContextHolder.getContext()
-//         // );
-//         UserDetails us=(UserDetails)authentication.getPrincipal();
-//         return jwtService.generateToken(us);
-//         // return "Login Successful";
-//     }
-// }
-
 package com.example.demo.service;
-
-import org.springframework.stereotype.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.LoginResponse;
 import com.example.demo.security.JwtUtil;
 
+
 @Service
 public class AuthService {
+
 
     @Autowired
     private AuthenticationManager authenticationManager;
 
+
     @Autowired
     private JwtUtil jwtService;
 
-    public LoginResponse login(LoginRequest request) {
+
+    /*
+     * =========================================================
+     * LOGIN
+     * =========================================================
+     */
+
+    public LoginResponse login(
+            LoginRequest request) {
+
+
+        /*
+         * Authenticate email + password
+         */
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -75,24 +46,49 @@ public class AuthService {
                         )
                 );
 
-        UserDetails us =
+
+        /*
+         * Get authenticated user
+         */
+
+        UserDetails user =
                 (UserDetails) authentication.getPrincipal();
 
+
+        /*
+         * Generate JWT
+         */
+
         String token =
-                jwtService.generateToken(us);
+                jwtService.generateToken(user);
+
+
+        /*
+         * Get role
+         *
+         * ROLE_TREASURER
+         *       ↓
+         * TREASURER
+         */
 
         String role =
-                us.getAuthorities()
+                user.getAuthorities()
                         .stream()
                         .findFirst()
                         .map(authority ->
-                                authority.getAuthority()
-                                        .replaceFirst(
-                                                "^ROLE_",
-                                                ""
-                                        )
+                                authority
+                                    .getAuthority()
+                                    .replaceFirst(
+                                            "^ROLE_",
+                                            ""
+                                    )
                         )
                         .orElse(null);
+
+
+        /*
+         * Return token + role
+         */
 
         return new LoginResponse(
                 token,
