@@ -17,53 +17,74 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    
-    @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
+    // =========================================================
+    // GET ALL USERS
+    // =========================================================
 
-        return ResponseEntity.ok(userService.registerUser(user));
-    }
-
-    
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
 
-        return ResponseEntity.ok(userService.getAllUsers());
+        return ResponseEntity.ok(
+                userService.getAllUsers()
+        );
     }
 
-    
+    // =========================================================
+    // GET USER BY ID
+    // =========================================================
+
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(
+            @PathVariable Long id) {
 
-        Optional<User> user = userService.getUserById(id);
+        Optional<User> user =
+                userService.getUserById(id);
 
-        return user.map(ResponseEntity::ok)
-                   .orElse(ResponseEntity.notFound().build());
+        return user
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    
+    // =========================================================
+    // GET USER BY EMAIL
+    // =========================================================
+
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<User> getUserByEmail(
+            @PathVariable String email) {
 
-        Optional<User> user = userService.getUserByEmail(email);
+        Optional<User> user =
+                userService.getUserByEmail(email);
 
-        return user.map(ResponseEntity::ok)
-                   .orElse(ResponseEntity.notFound().build());
+        return user
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-   
+    // =========================================================
+    // UPDATE USER
+    // =========================================================
+
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(
             @PathVariable Long id,
             @RequestBody User user) {
 
-        return ResponseEntity.ok(userService.updateUser(id, user));
+        return ResponseEntity.ok(
+                userService.updateUser(id, user)
+        );
     }
 
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    // =========================================================
+    // DELETE USER
+    // =========================================================
 
-        return ResponseEntity.ok(userService.deleteUser(id));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                userService.deleteUser(id)
+        );
     }
 }
