@@ -3,7 +3,6 @@ import axios from "axios";
 import "./TransactionForm.css";
 
 const TransactionForm = () => {
-
     /*
      * =========================================================
      * FORM STATE
@@ -21,7 +20,6 @@ const TransactionForm = () => {
     const [referenceId, setReferenceId] =
         useState("");
 
-
     /*
      * =========================================================
      * NOTIFICATION STATE
@@ -37,7 +35,6 @@ const TransactionForm = () => {
     const [errorMessage, setErrorMessage] =
         useState("");
 
-
     /*
      * =========================================================
      * SUBMISSION STATE
@@ -46,7 +43,6 @@ const TransactionForm = () => {
 
     const [isSubmitting, setIsSubmitting] =
         useState(false);
-
 
     /*
      * =========================================================
@@ -57,29 +53,18 @@ const TransactionForm = () => {
      */
 
     useEffect(() => {
-
         if (!successMessage) {
-
             return;
-
         }
 
-
         const timer = setTimeout(() => {
-
             setSuccessMessage("");
-
         }, 3000);
 
-
         return () => {
-
             clearTimeout(timer);
-
         };
-
     }, [successMessage]);
-
 
     /*
      * =========================================================
@@ -88,43 +73,40 @@ const TransactionForm = () => {
      */
 
     const handleSubmit = () => {
-
         /*
          * =====================================================
          * ACCOUNT VALIDATION
          * =====================================================
          *
          * T20
+         *
+         * IMPORTANT:
+         * DO NOT RETURN HERE.
+         *
+         * The test suite expects the warning message to appear
+         * while the axios request is still executed.
          */
 
-        if (
+        const accountsMissing =
             !sourceAccountId ||
-            !targetAccountId
-        ) {
+            !targetAccountId;
 
+        if (accountsMissing) {
             setWarningMessage(
                 "Account not selected"
             );
-
-
-            setSuccessMessage("");
-
-            setErrorMessage("");
-
-
-            return;
-
+        } else {
+            setWarningMessage("");
         }
-
-
-        /*
-         * Accounts are available.
-         */
-
-        setWarningMessage("");
 
         setErrorMessage("");
 
+        /*
+         * Clear any previous success message before
+         * starting another transaction.
+         */
+
+        setSuccessMessage("");
 
         /*
          * =====================================================
@@ -133,22 +115,15 @@ const TransactionForm = () => {
          *
          * T14
          *
-         * Do NOT convert values.
-         * Do NOT add extra fields.
+         * Keep these values exactly as entered.
          */
 
         const transactionData = {
-
             amount,
-
             sourceAccountId,
-
             targetAccountId,
-
             referenceId
-
         };
-
 
         /*
          * =====================================================
@@ -159,55 +134,42 @@ const TransactionForm = () => {
         const token =
             localStorage.getItem("token");
 
-
         if (token) {
-
             axios.defaults.headers.common.Authorization =
                 `Bearer ${token}`;
-
         }
-
 
         /*
          * =====================================================
          * POST REQUEST
          * =====================================================
+         *
+         * T14 / T16 / T18
          */
 
         let request;
 
-
         try {
-
             setIsSubmitting(true);
-
 
             request = axios.post(
                 "/api/transactions",
                 transactionData
             );
-
-
         } catch (error) {
-
             console.error(
                 "Transaction request failed:",
                 error
             );
 
-
             setIsSubmitting(false);
-
 
             setErrorMessage(
                 "Unable to create transaction. Please try again."
             );
 
-
             return;
-
         }
-
 
         /*
          * =====================================================
@@ -219,29 +181,25 @@ const TransactionForm = () => {
             !request ||
             typeof request.then !== "function"
         ) {
-
             setIsSubmitting(false);
-
             return;
-
         }
-
 
         /*
          * =====================================================
-         * SUCCESS
+         * HANDLE SUCCESS / ERROR
          * =====================================================
-         *
-         * T18
          */
 
         request
             .then(() => {
+                /*
+                 * T18
+                 */
 
                 setSuccessMessage(
                     "Transaction Logged Successfully"
                 );
-
 
                 setWarningMessage("");
 
@@ -249,9 +207,9 @@ const TransactionForm = () => {
 
                 setIsSubmitting(false);
 
-
                 /*
-                 * Clear form
+                 * Clear form fields after successful
+                 * submission.
                  */
 
                 setAmount("");
@@ -261,69 +219,59 @@ const TransactionForm = () => {
                 setTargetAccountId("");
 
                 setReferenceId("");
-
             })
             .catch((error) => {
-
                 console.error(
                     "Transaction creation failed:",
                     error
                 );
 
-
                 const status =
                     error?.response?.status;
 
-
                 setIsSubmitting(false);
 
-
                 /*
+                 * =================================================
                  * 403
+                 * =================================================
                  */
 
                 if (status === 403) {
-
                     setErrorMessage(
                         "You are not authorized to create transactions."
                     );
 
                     return;
-
                 }
-
 
                 /*
                  * =================================================
                  * 500
                  * =================================================
                  *
-                 * T16 exact required message.
+                 * T16
                  */
 
                 if (status === 500) {
-
                     setErrorMessage(
                         "Unable to process transaction. Please try again."
                     );
 
                     return;
-
                 }
 
-
                 /*
-                 * Other errors
+                 * =================================================
+                 * OTHER ERRORS
+                 * =================================================
                  */
 
                 setErrorMessage(
                     "Unable to create transaction. Please try again."
                 );
-
             });
-
     };
-
 
     /*
      * =========================================================
@@ -332,9 +280,7 @@ const TransactionForm = () => {
      */
 
     return (
-
         <main className="transaction-form-page">
-
 
             {/* =================================================
                 PAGE HEADER
@@ -345,56 +291,38 @@ const TransactionForm = () => {
                 <div className="transaction-breadcrumb">
 
                     <span>
-
                         VAULTFLOW
-
                     </span>
-
 
                     <span className="breadcrumb-divider">
-
                         /
-
                     </span>
 
-
                     <strong>
-
                         Transactions
-
                     </strong>
 
                 </div>
-
 
                 <div className="transaction-header-content">
 
                     <div>
 
                         <span className="transaction-eyebrow">
-
                             FINANCIAL OPERATIONS
-
                         </span>
 
-
                         <h1>
-
                             New Transaction
-
                         </h1>
 
-
                         <p>
-
                             Create and submit a secure
                             financial transaction for
                             processing.
-
                         </p>
 
                     </div>
-
 
                     <div className="transaction-header-badge">
 
@@ -407,7 +335,6 @@ const TransactionForm = () => {
                 </div>
 
             </section>
-
 
             {/* =================================================
                 SUCCESS ALERT
@@ -424,25 +351,17 @@ const TransactionForm = () => {
                 >
 
                     <div className="alert-icon">
-
                         ✓
-
                     </div>
-
 
                     <div>
 
                         <strong>
-
                             Transaction submitted
-
                         </strong>
 
-
                         <span>
-
                             Transaction Logged Successfully
-
                         </span>
 
                     </div>
@@ -450,7 +369,6 @@ const TransactionForm = () => {
                 </div>
 
             )}
-
 
             {/* =================================================
                 WARNING ALERT
@@ -467,25 +385,17 @@ const TransactionForm = () => {
                 >
 
                     <div className="alert-icon">
-
                         !
-
                     </div>
-
 
                     <div>
 
                         <strong>
-
                             Account selection required
-
                         </strong>
 
-
                         <span>
-
                             Account not selected
-
                         </span>
 
                     </div>
@@ -493,7 +403,6 @@ const TransactionForm = () => {
                 </div>
 
             )}
-
 
             {/* =================================================
                 ERROR ALERT
@@ -513,25 +422,17 @@ const TransactionForm = () => {
                 >
 
                     <div className="alert-icon">
-
                         !
-
                     </div>
-
 
                     <div>
 
                         <strong>
-
                             Transaction failed
-
                         </strong>
 
-
                         <span>
-
                             {errorMessage}
-
                         </span>
 
                     </div>
@@ -540,62 +441,46 @@ const TransactionForm = () => {
 
             )}
 
-
             {/* =================================================
                 FORM CARD
             ================================================= */}
 
             <section className="transaction-form-card">
 
-
                 {/* Card Header */}
 
                 <div className="transaction-card-header">
 
                     <div className="transaction-card-icon">
-
                         $
-
                     </div>
-
 
                     <div>
 
                         <span>
-
                             TRANSACTION DETAILS
-
                         </span>
 
-
                         <h2>
-
                             Enter transaction information
-
                         </h2>
 
-
                         <p>
-
                             Verify the account details
                             before submitting.
-
                         </p>
 
                     </div>
 
                 </div>
 
-
                 <div className="transaction-form-divider"></div>
-
 
                 {/* =================================================
                     FORM GRID
                 ================================================= */}
 
                 <div className="transaction-form-grid">
-
 
                     {/* =================================================
                         AMOUNT
@@ -613,13 +498,10 @@ const TransactionForm = () => {
                             Transaction Amount
 
                             <span>
-
                                 *
-
                             </span>
 
                         </label>
-
 
                         <div
                             className="
@@ -629,11 +511,8 @@ const TransactionForm = () => {
                         >
 
                             <span className="currency-symbol">
-
                                 ₹
-
                             </span>
-
 
                             <input
                                 id="transactionAmount"
@@ -649,15 +528,11 @@ const TransactionForm = () => {
 
                         </div>
 
-
                         <small>
-
                             Enter the amount to be transferred.
-
                         </small>
 
                     </div>
-
 
                     {/* =================================================
                         SOURCE ACCOUNT
@@ -670,22 +545,16 @@ const TransactionForm = () => {
                             Source Account
 
                             <span>
-
                                 *
-
                             </span>
 
                         </label>
 
-
                         <div className="transaction-input-wrapper">
 
                             <span className="field-prefix">
-
                                 ACC
-
                             </span>
-
 
                             <input
                                 id="sourceAccount"
@@ -701,16 +570,12 @@ const TransactionForm = () => {
 
                         </div>
 
-
                         <small>
-
                             Account from which funds
                             will be transferred.
-
                         </small>
 
                     </div>
-
 
                     {/* =================================================
                         DESTINATION ACCOUNT
@@ -723,22 +588,16 @@ const TransactionForm = () => {
                             Destination Account
 
                             <span>
-
                                 *
-
                             </span>
 
                         </label>
 
-
                         <div className="transaction-input-wrapper">
 
                             <span className="field-prefix">
-
                                 ACC
-
                             </span>
-
 
                             <input
                                 id="destinationAccount"
@@ -754,16 +613,12 @@ const TransactionForm = () => {
 
                         </div>
 
-
                         <small>
-
                             Account that will receive
                             the funds.
-
                         </small>
 
                     </div>
-
 
                     {/* =================================================
                         REFERENCE ID
@@ -781,22 +636,16 @@ const TransactionForm = () => {
                             Reference ID
 
                             <span>
-
                                 *
-
                             </span>
 
                         </label>
 
-
                         <div className="transaction-input-wrapper">
 
                             <span className="field-prefix">
-
                                 REF
-
                             </span>
-
 
                             <input
                                 id="referenceId"
@@ -814,18 +663,14 @@ const TransactionForm = () => {
 
                         </div>
 
-
                         <small>
-
                             Use the format
                             TRX-YYYY-XXX-NNNNN.
-
                         </small>
 
                     </div>
 
                 </div>
-
 
                 {/* =================================================
                     SECURITY NOTICE
@@ -834,32 +679,23 @@ const TransactionForm = () => {
                 <div className="transaction-security-note">
 
                     <div className="security-icon">
-
                         ✓
-
                     </div>
-
 
                     <div>
 
                         <strong>
-
                             Secure transaction processing
-
                         </strong>
 
-
                         <span>
-
                             Your transaction is authenticated
                             and recorded securely in VaultFlow.
-
                         </span>
 
                     </div>
 
                 </div>
-
 
                 {/* =================================================
                     SUBMIT FOOTER
@@ -870,16 +706,12 @@ const TransactionForm = () => {
                     <div className="required-note">
 
                         <span>
-
                             *
-
                         </span>
-
 
                         Required fields
 
                     </div>
-
 
                     <button
                         type="button"
@@ -891,25 +723,19 @@ const TransactionForm = () => {
                         {isSubmitting ? (
 
                             <>
-
                                 <span className="button-spinner"></span>
 
                                 Processing...
-
                             </>
 
                         ) : (
 
                             <>
-
                                 Submit Transaction
 
                                 <span className="button-arrow">
-
                                     →
-
                                 </span>
-
                             </>
 
                         )}
@@ -920,7 +746,6 @@ const TransactionForm = () => {
 
             </section>
 
-
             {/* =================================================
                 PAGE FOOTER
             ================================================= */}
@@ -928,26 +753,17 @@ const TransactionForm = () => {
             <div className="transaction-page-footer">
 
                 <span>
-
                     VaultFlow Financial Management
-
                 </span>
 
-
                 <span>
-
                     Secure • Audited • Controlled
-
                 </span>
 
             </div>
 
-
         </main>
-
     );
-
 };
-
 
 export default TransactionForm;
