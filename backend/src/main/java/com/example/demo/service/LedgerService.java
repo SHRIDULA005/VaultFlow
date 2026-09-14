@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,9 +34,22 @@ public class LedgerService {
     // GET LEDGER BY ID
     // =========================================================
 
-    public Optional<Ledger> getLedgerById(Long id) {
+    public Ledger getLedgerById(Long id) {
 
-        return repo.findById(id);
+        return repo.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Ledger not found")
+                );
+    }
+
+
+    // =========================================================
+    // GET ALL LEDGERS
+    // =========================================================
+
+    public List<Ledger> getAllLedgers() {
+
+        return repo.findAll();
     }
 
 
@@ -53,20 +66,7 @@ public class LedgerService {
 
 
     // =========================================================
-    // GET ALL LEDGERS - WITHOUT PAGINATION
-    // =========================================================
-    // This method is provided because your Controller is
-    // currently calling getAllLedgers() without Pageable.
-    // =========================================================
-
-    public java.util.List<Ledger> getAllLedgers() {
-
-        return repo.findAll();
-    }
-
-
-    // =========================================================
-    // CONVERT LEDGER ENTITY TO DTO
+    // CONVERT LEDGER TO DTO
     // =========================================================
 
     private LedgerDTO convertToDTO(Ledger ledger) {
