@@ -1,308 +1,559 @@
-.ledger-form-container {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
+/* =========================================================
+   VAULTFLOW LEDGER FORM
+   ========================================================= */
+
+.ledger-form-page {
+  min-height: 100vh;
+
+  background: #f5f7fc;
+
+  color: #14213d;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
+
+.ledger-form-main {
+  width: 100%;
+  max-width: 920px;
+
+  margin: 0 auto;
+
+  padding: 45px 30px 60px;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .ledger-form-header {
-    margin-bottom: 28px;
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 25px;
+
+  margin-bottom: 30px;
 }
 
-.ledger-form-eyebrow {
-    display: block;
-    margin-bottom: 8px;
-    color: #4f46e5;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1.6px;
+.ledger-form-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #315bea;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  margin-bottom: 10px;
 }
 
-.ledger-form-header h2 {
-    margin: 0;
-    color: #111827;
-    font-size: 30px;
-    font-weight: 750;
-    letter-spacing: -0.6px;
+.ledger-form-brand span {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #2d63f5;
+
+  box-shadow:
+    0 0 0 5px rgba(45, 99, 245, 0.1);
+}
+
+.ledger-form-header h1 {
+  margin: 0;
+
+  font-size: 32px;
+
+  letter-spacing: -0.8px;
+
+  color: #111d37;
 }
 
 .ledger-form-header p {
-    margin: 8px 0 0;
-    color: #64748b;
-    font-size: 14px;
+  margin: 8px 0 0;
+
+  color: #73809a;
+
+  font-size: 14px;
 }
 
+.ledger-back-button {
+  height: 42px;
 
-/* ================================
-   ALERTS
-================================ */
+  padding: 0 15px;
 
-.ledger-form-success,
-.ledger-form-error {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-    padding: 13px 16px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
+  border: 1px solid #d5deed;
+
+  background: white;
+
+  color: #45536d;
+
+  border-radius: 9px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  cursor: pointer;
 }
 
-.ledger-form-success {
-    border: 1px solid #bbf7d0;
-    background: #f0fdf4;
-    color: #15803d;
+.ledger-back-button:hover {
+  background: #f7f9fc;
 }
 
-.ledger-form-error {
-    border: 1px solid #fecaca;
-    background: #fef2f2;
-    color: #dc2626;
+/* =========================================================
+   ALERT
+   ========================================================= */
+
+.ledger-form-alert {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 14px 16px;
+
+  margin-bottom: 20px;
+
+  border-radius: 10px;
+
+  border: 1px solid;
 }
 
-.ledger-success-icon,
-.ledger-error-icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border-radius: 50%;
-    font-size: 13px;
-    font-weight: 800;
+.ledger-form-alert.error {
+  background: #fff4f4;
+
+  border-color: #ffd0d0;
+
+  color: #a52530;
 }
 
-.ledger-success-icon {
-    background: #dcfce7;
-    color: #16a34a;
+.ledger-form-alert.success {
+  background: #effcf5;
+
+  border-color: #c4ecd5;
+
+  color: #177342;
 }
 
-.ledger-error-icon {
-    background: #fee2e2;
-    color: #dc2626;
+.ledger-form-alert > span {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.6);
+
+  font-weight: 800;
 }
 
+.ledger-form-alert strong {
+  display: block;
 
-/* ================================
+  font-size: 13px;
+}
+
+.ledger-form-alert p {
+  margin: 2px 0 0;
+
+  font-size: 12px;
+}
+
+.ledger-form-alert button {
+  margin-left: auto;
+
+  border: none;
+
+  background: transparent;
+
+  color: inherit;
+
+  font-size: 20px;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   FORM CARD
+   ========================================================= */
+
+.ledger-form-card {
+  background: white;
+
+  border: 1px solid #dfe5ef;
+
+  border-radius: 17px;
+
+  box-shadow:
+    0 8px 25px rgba(29, 51, 91, 0.06);
+
+  overflow: hidden;
+}
+
+.ledger-form-card-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 27px 30px;
+
+  border-bottom: 1px solid #e9edf3;
+}
+
+.ledger-form-icon {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: linear-gradient(
+    135deg,
+    #2e69ff,
+    #4d5ee7
+  );
+
+  color: white;
+
+  font-size: 23px;
+
+  box-shadow:
+    0 8px 18px rgba(48, 95, 230, 0.22);
+}
+
+.ledger-form-card-header h2 {
+  margin: 0 0 4px;
+
+  color: #17233c;
+
+  font-size: 18px;
+
+  font-weight: 800;
+}
+
+.ledger-form-card-header p {
+  margin: 0;
+
+  color: #78859d;
+
+  font-size: 12px;
+}
+
+/* =========================================================
    FORM
-================================ */
+   ========================================================= */
 
-.ledger-form {
-    padding: 30px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+.ledger-create-form {
+  padding: 30px;
 }
 
 .ledger-form-field {
-    margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .ledger-form-field label {
-    display: block;
-    margin-bottom: 8px;
-    color: #1e293b;
-    font-size: 13px;
-    font-weight: 650;
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #1a2740;
+
+  font-size: 13px;
+
+  font-weight: 750;
+}
+
+.ledger-form-field label span {
+  color: #e24955;
+
+  margin-left: 3px;
 }
 
 .ledger-form-field input {
-    width: 100%;
-    height: 48px;
-    padding: 0 14px;
-    box-sizing: border-box;
+  width: 100%;
 
-    border: 1px solid #cbd5e1;
-    border-radius: 9px;
+  height: 48px;
 
-    background: #ffffff;
-    color: #0f172a;
+  box-sizing: border-box;
 
-    font-family: inherit;
-    font-size: 14px;
+  border: 1px solid #d4ddeb;
 
-    outline: none;
+  border-radius: 9px;
 
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
+  padding: 0 14px;
 
-.ledger-form-field input::placeholder {
-    color: #94a3b8;
-}
+  background: white;
 
-.ledger-form-field input:hover {
-    border-color: #94a3b8;
+  color: #17223a;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .ledger-form-field input:focus {
-    border-color: #4f46e5;
-    background: #ffffff;
-    box-shadow:
-        0 0 0 3px rgba(79, 70, 229, 0.10);
+  border-color: #3765e9;
+
+  box-shadow:
+    0 0 0 3px rgba(52, 94, 224, 0.1);
 }
 
 .ledger-form-field small {
-    display: block;
-    margin-top: 7px;
-    color: #94a3b8;
-    font-size: 12px;
+  display: block;
+
+  margin-top: 7px;
+
+  color: #8a96aa;
+
+  font-size: 11px;
 }
 
+/* =========================================================
+   DIVIDER
+   ========================================================= */
 
-/* ================================
-   BUTTONS
-================================ */
+.ledger-form-divider {
+  height: 1px;
+
+  background: #e9edf3;
+
+  margin: 30px 0 20px;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
 
 .ledger-form-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 28px;
-    padding-top: 22px;
-    border-top: 1px solid #f1f5f9;
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
 }
 
-.ledger-submit-button {
-    min-width: 145px;
-    height: 44px;
+.ledger-form-cancel,
+.ledger-form-edit,
+.ledger-form-save {
+  height: 44px;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+  padding: 0 18px;
 
-    padding: 0 18px;
+  border-radius: 9px;
 
-    border: none;
-    border-radius: 9px;
+  font-size: 12px;
 
-    background: linear-gradient(
-        135deg,
-        #2563eb,
-        #4f46e5
-    );
+  font-weight: 700;
 
-    color: #ffffff;
-
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 5px 14px rgba(79, 70, 229, 0.22);
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        opacity 0.2s ease;
+  cursor: pointer;
 }
 
-.ledger-submit-button:hover:not(:disabled) {
-    transform: translateY(-1px);
+.ledger-form-cancel {
+  background: white;
 
-    box-shadow:
-        0 8px 18px rgba(79, 70, 229, 0.28);
+  color: #59677f;
+
+  border: 1px solid #d4ddea;
 }
 
-.ledger-submit-button:active:not(:disabled) {
-    transform: translateY(0);
+.ledger-form-cancel:hover {
+  background: #f7f9fc;
 }
 
-.ledger-submit-button:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
+.ledger-form-edit {
+  background: #f2f5ff;
+
+  color: #2e5de5;
+
+  border: 1px solid #d4ddff;
 }
 
-.ledger-submit-button > span:first-child {
-    font-size: 18px;
-    line-height: 1;
+.ledger-form-edit:hover {
+  background: #eaf0ff;
 }
 
-.ledger-cancel-button {
-    height: 44px;
-    padding: 0 18px;
+.ledger-form-save {
+  display: inline-flex;
 
-    border: 1px solid #dbe2ea;
-    border-radius: 9px;
+  align-items: center;
+  justify-content: center;
 
-    background: #ffffff;
-    color: #475569;
+  gap: 8px;
 
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 650;
+  min-width: 135px;
 
-    cursor: pointer;
+  border: none;
 
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
+  background: linear-gradient(
+    135deg,
+    #2862ff,
+    #3e55df
+  );
+
+  color: white;
+
+  box-shadow:
+    0 7px 18px rgba(43, 88, 230, 0.24);
 }
 
-.ledger-cancel-button:hover:not(:disabled) {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    color: #1e293b;
+.ledger-form-save:hover {
+  box-shadow:
+    0 10px 22px rgba(43, 88, 230, 0.32);
 }
 
-.ledger-cancel-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.ledger-form-save:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
 }
 
+/* =========================================================
+   PERMISSION NOTE
+   ========================================================= */
 
-/* ================================
-   LOADING
-================================ */
+.ledger-permission-note {
+  display: flex;
 
-.ledger-spinner {
-    width: 14px;
-    height: 14px;
+  align-items: center;
 
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-top-color: #ffffff;
+  gap: 13px;
 
-    border-radius: 50%;
+  margin-top: 20px;
 
-    animation: ledger-spin 0.7s linear infinite;
+  padding: 15px 17px;
+
+  border-radius: 10px;
+
+  border: 1px solid #dfe6f2;
+
+  background: white;
 }
 
-@keyframes ledger-spin {
-    to {
-        transform: rotate(360deg);
-    }
+.permission-icon {
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #edf8f2;
+
+  color: #1b8b55;
+
+  font-weight: 800;
 }
 
+.ledger-permission-note strong {
+  display: block;
 
-/* ================================
+  color: #26334d;
+
+  font-size: 12px;
+}
+
+.ledger-permission-note p {
+  margin: 3px 0 0;
+
+  color: #78869e;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   SPINNER
+   ========================================================= */
+
+.form-button-spinner {
+  width: 14px;
+  height: 14px;
+
+  border: 2px solid rgba(255, 255, 255, 0.4);
+
+  border-top-color: white;
+
+  border-radius: 50%;
+
+  animation: form-spin 0.7s linear infinite;
+}
+
+@keyframes form-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
    RESPONSIVE
-================================ */
+   ========================================================= */
 
-@media (max-width: 700px) {
+@media (max-width: 650px) {
+  .ledger-form-main {
+    padding: 30px 18px 45px;
+  }
 
-    .ledger-form {
-        padding: 22px;
-    }
+  .ledger-form-header {
+    flex-direction: column;
+  }
 
-    .ledger-form-header h2 {
-        font-size: 26px;
-    }
+  .ledger-back-button {
+    width: 100%;
+  }
 
-    .ledger-form-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .ledger-form-card-header {
+    padding: 22px;
+  }
 
-    .ledger-submit-button,
-    .ledger-cancel-button {
-        width: 100%;
-    }
+  .ledger-create-form {
+    padding: 22px;
+  }
+
+  .ledger-form-actions {
+    flex-direction: column;
+  }
+
+  .ledger-form-cancel,
+  .ledger-form-edit,
+  .ledger-form-save {
+    width: 100%;
+  }
+
+  .ledger-permission-note {
+    align-items: flex-start;
+  }
 }
