@@ -6,48 +6,75 @@ import {
     useNavigate
 } from "react-router-dom";
 
+
 const Navbar = ({ isAdmin = false }) => {
+
     const inRouter = useInRouterContext();
 
-    /*
-     * Get the logged-in user's role.
-     *
-     * The login process stores the role in localStorage:
-     *
-     *     localStorage.setItem("role", role)
-     *
-     * Supported roles:
-     *
-     *     TREASURER
-     *     ADMIN
-     */
-    const storedRole =
-        localStorage.getItem("role")?.trim().toUpperCase() || "";
 
-    /*
-     * The Approve Transaction button should be visible
-     * to both TREASURER and ADMIN.
-     */
+    // =========================================================
+    // GET ROLE
+    // =========================================================
+
+    const storedRole =
+        localStorage
+            .getItem("role")
+            ?.trim()
+            .toUpperCase()
+            .replace(/^ROLE_/, "") || "";
+
+
+    // =========================================================
+    // ROLE PERMISSIONS
+    // =========================================================
+
     const canApproveTransactions =
         isAdmin ||
         storedRole === "TREASURER" ||
         storedRole === "ADMIN";
 
+
+    const canManageLedgers =
+        storedRole === "AUDITOR" ||
+        storedRole === "ADMIN" ||
+        isAdmin;
+
+
+    // =========================================================
+    // ROUTER MODE
+    // =========================================================
+
     if (inRouter) {
+
         return (
             <RouterNavbar
                 isAdmin={isAdmin}
                 role={storedRole}
-                canApproveTransactions={canApproveTransactions}
+                canApproveTransactions={
+                    canApproveTransactions
+                }
+                canManageLedgers={
+                    canManageLedgers
+                }
             />
         );
     }
+
+
+    // =========================================================
+    // NON-ROUTER MODE
+    // =========================================================
 
     return (
         <NavbarContent
             isAdmin={isAdmin}
             role={storedRole}
-            canApproveTransactions={canApproveTransactions}
+            canApproveTransactions={
+                canApproveTransactions
+            }
+            canManageLedgers={
+                canManageLedgers
+            }
             pathname={window.location.pathname}
             navigate={null}
         />
@@ -64,16 +91,24 @@ const Navbar = ({ isAdmin = false }) => {
 const RouterNavbar = ({
     isAdmin,
     role,
-    canApproveTransactions
+    canApproveTransactions,
+    canManageLedgers
 }) => {
+
     const navigate = useNavigate();
     const location = useLocation();
+
 
     return (
         <NavbarContent
             isAdmin={isAdmin}
             role={role}
-            canApproveTransactions={canApproveTransactions}
+            canApproveTransactions={
+                canApproveTransactions
+            }
+            canManageLedgers={
+                canManageLedgers
+            }
             pathname={location.pathname}
             navigate={navigate}
         />
@@ -91,17 +126,18 @@ const NavbarContent = ({
     isAdmin = false,
     role = "",
     canApproveTransactions = false,
+    canManageLedgers = false,
     pathname = "/",
     navigate = null
 }) => {
 
-    /*
-     * Safe navigation helper.
-     *
-     * When React Router is available, use navigate().
-     * Otherwise use normal browser navigation.
-     */
+
+    // =========================================================
+    // NAVIGATION
+    // =========================================================
+
     const goTo = (path) => {
+
         if (navigate) {
             navigate(path);
         } else {
@@ -110,46 +146,36 @@ const NavbarContent = ({
     };
 
 
-    /*
-     * =====================================================
-     * LOGOUT
-     * =====================================================
-     */
+    // =========================================================
+    // LOGOUT
+    // =========================================================
 
     const handleLogout = () => {
 
-        /*
-         * Remove all authentication information
-         * stored by the application.
-         */
         localStorage.removeItem("token");
         localStorage.removeItem("role");
         localStorage.removeItem("user");
 
-        /*
-         * Return to login page.
-         */
+
         if (navigate) {
+
             navigate("/login", {
                 replace: true
             });
+
         } else {
+
             window.location.href = "/login";
         }
     };
 
 
-    /*
-     * =====================================================
-     * ACTIVE NAVIGATION
-     * =====================================================
-     */
+    // =========================================================
+    // ACTIVE LINK
+    // =========================================================
 
     const isActive = (path) => {
 
-        /*
-         * Dashboard should only be active on "/".
-         */
         if (path === "/") {
             return pathname === "/";
         }
@@ -158,16 +184,9 @@ const NavbarContent = ({
     };
 
 
-    /*
-     * =====================================================
-     * SAFE LINK
-     * =====================================================
-     *
-     * React Router <Link> requires a Router.
-     *
-     * Some tests render Navbar without a Router,
-     * so use <a> in that situation.
-     */
+    // =========================================================
+    // SAFE LINK
+    // =========================================================
 
     const SafeLink = ({
         to,
@@ -176,6 +195,7 @@ const NavbarContent = ({
     }) => {
 
         if (navigate) {
+
             return (
                 <Link
                     to={to}
@@ -185,6 +205,7 @@ const NavbarContent = ({
                 </Link>
             );
         }
+
 
         return (
             <a
@@ -197,13 +218,12 @@ const NavbarContent = ({
     };
 
 
-    /*
-     * =====================================================
-     * NAVBAR UI
-     * =====================================================
-     */
+    // =========================================================
+    // NAVBAR UI
+    // =========================================================
 
     return (
+
         <nav
             aria-label="Main navigation"
             style={{
@@ -223,6 +243,7 @@ const NavbarContent = ({
                 backdropFilter: "blur(16px)"
             }}
         >
+
 
             {/* =================================================
                 BRAND
@@ -261,6 +282,7 @@ const NavbarContent = ({
                     VF
                 </span>
 
+
                 <span>
                     VaultFlow
                 </span>
@@ -280,6 +302,7 @@ const NavbarContent = ({
                     flex: 1
                 }}
             >
+
 
                 {/* DASHBOARD */}
 
@@ -326,19 +349,26 @@ const NavbarContent = ({
                 </SafeLink>
 
 
-                {/* LEDGERS */}
+                {/* =================================================
+                    LEDGERS
+                    AUDITOR + ADMIN
+                ================================================= */}
 
-                <SafeLink
-                    to="/ledgers"
-                    style={{
-                        ...navLinkStyle,
-                        ...(isActive("/ledgers")
-                            ? activeNavLinkStyle
-                            : {})
-                    }}
-                >
-                    Ledgers
-                </SafeLink>
+                {canManageLedgers && (
+
+                    <SafeLink
+                        to="/ledgers"
+                        style={{
+                            ...navLinkStyle,
+                            ...(isActive("/ledgers")
+                                ? activeNavLinkStyle
+                                : {})
+                        }}
+                    >
+                        Ledgers
+                    </SafeLink>
+
+                )}
 
             </div>
 
@@ -355,6 +385,32 @@ const NavbarContent = ({
                 }}
             >
 
+
+                {/* =================================================
+                    ROLE INDICATOR
+                ================================================= */}
+
+                {role && (
+
+                    <span
+                        style={{
+                            padding: "7px 11px",
+                            borderRadius: "8px",
+                            background:
+                                "rgba(255, 255, 255, 0.06)",
+                            border:
+                                "1px solid rgba(148, 163, 184, 0.18)",
+                            color: "#cbd5e1",
+                            fontSize: "12px",
+                            fontWeight: 700
+                        }}
+                    >
+                        {role}
+                    </span>
+
+                )}
+
+
                 {/* =================================================
                     APPROVE TRANSACTION
                     TREASURER + ADMIN
@@ -365,7 +421,9 @@ const NavbarContent = ({
                     <button
                         type="button"
                         onClick={() =>
-                            goTo("/transactions/approval")
+                            goTo(
+                                "/transactions/approval"
+                            )
                         }
                         aria-label="Approve Transaction"
                         style={{
@@ -431,6 +489,7 @@ const NavbarContent = ({
  */
 
 const navLinkStyle = {
+
     display: "inline-flex",
     alignItems: "center",
     padding: "9px 13px",
@@ -444,13 +503,16 @@ const navLinkStyle = {
 
 
 const activeNavLinkStyle = {
+
     color: "#ffffff",
+
     background:
         "rgba(59, 130, 246, 0.14)"
 };
 
 
 const actionButtonStyle = {
+
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
