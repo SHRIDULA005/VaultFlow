@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
 import "./TransactionApproval.css";
@@ -39,23 +39,192 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
         "";
 
 
+    const initialTransactionId =
+        String(resolvedTransactionId).trim();
+
+
+    const initialTransactionIdIsValid =
+        initialTransactionId !== "" &&
+        /^\d+$/.test(initialTransactionId);
+
+
+    const [selectedTransactionId, setSelectedTransactionId] =
+        useState(
+            initialTransactionIdIsValid
+                ? initialTransactionId
+                : ""
+        );
+
+    const [status, setStatus] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [resolvingTransaction, setResolvingTransaction] =
+        useState(!initialTransactionIdIsValid);
+    const [error, setError] = useState("");
+
+
     /*
      * ---------------------------------------------------------
-     * VALIDATE TRANSACTION ID
+     * RESOLVE TRANSACTION ID
      * ---------------------------------------------------------
+     *
+     * The application currently routes the Approvals page as:
+     *
+     *     /transactions/approval
+     *
+     * without passing a transactionId.
+     *
+     * Therefore, when no valid ID is supplied through a prop,
+     * URL parameter, or query parameter, fetch the transactions
+     * and automatically select the first PENDING transaction.
+     *
+     * This prevents the approval page from opening with:
+     *
+     *     "Must receive a valid transactionId"
+     *
+     * while still supporting direct links such as:
+     *
+     *     /transactions/approval/15
+     *     /transactions/approval?transactionId=15
      */
+    useEffect(() => {
+        let cancelled = false;
+
+
+        if (initialTransactionIdIsValid) {
+            setSelectedTransactionId(initialTransactionId);
+            setResolvingTransaction(false);
+            return () => {
+                cancelled = true;
+            };
+        }
+
+
+        const loadPendingTransaction = async () => {
+            const token =
+                localStorage.getItem("token");
+
+
+            if (!token) {
+                if (!cancelled) {
+                    setResolvingTransaction(false);
+                    setError(
+                        "Your session has expired. Please login again."
+                    );
+                }
+
+                return;
+            }
+
+
+            try {
+                setResolvingTransaction(true);
+                setError("");
+
+
+                const response = await axios.get(
+                    `${API_BASE_URL}/transactions`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
+
+
+                const transactions =
+                    Array.isArray(response?.data)
+                        ? response.data
+                        : [];
+
+
+                const pendingTransaction =
+                    transactions.find(
+                        (transaction) =>
+                            String(
+                                transaction?.status || ""
+                            ).toUpperCase() === "PENDING" &&
+                            transaction?.id !== null &&
+                            transaction?.id !== undefined &&
+                            /^\d+$/.test(
+                                String(transaction.id).trim()
+                            )
+                    );
+
+
+                if (!cancelled) {
+                    if (pendingTransaction) {
+                        setSelectedTransactionId(
+                            String(pendingTransaction.id).trim()
+                        );
+
+                        setStatus(
+                            String(
+                                pendingTransaction.status || ""
+                            ).toUpperCase() === "APPROVED"
+                                ? "APPROVED"
+                                : ""
+                        );
+                    } else {
+                        setSelectedTransactionId("");
+                        setError(
+                            "There are no pending transactions available for approval."
+                        );
+                    }
+                }
+
+            } catch (error) {
+                console.error(
+                    "Unable to load pending transactions:",
+                    error
+                );
+
+
+                if (!cancelled) {
+                    if (error?.response?.status === 401) {
+                        setError(
+                            "Your session has expired. Please login again."
+                        );
+                    } else if (
+                        error?.response?.status === 403
+                    ) {
+                        setError(
+                            "You are not authorized to view transactions."
+                        );
+                    } else {
+                        setError(
+                            "Unable to load pending transactions. Please try again."
+                        );
+                    }
+                }
+
+            } finally {
+                if (!cancelled) {
+                    setResolvingTransaction(false);
+                }
+            }
+        };
+
+
+        loadPendingTransaction();
+
+
+        return () => {
+            cancelled = true;
+        };
+    }, [
+        initialTransactionId,
+        initialTransactionIdIsValid
+    ]);
+
+
     const transactionId =
-        String(resolvedTransactionId).trim();
+        String(selectedTransactionId || "").trim();
 
 
     const isValidTransactionId =
         transactionId !== "" &&
         /^\d+$/.test(transactionId);
-
-
-    const [status, setStatus] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
 
 
     /*
@@ -79,7 +248,7 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
         if (!isValidTransactionId) {
 
             setError(
-                "A valid transaction ID is required to approve this transaction."
+                "No pending transaction is available for approval."
             );
 
             return;
@@ -311,9 +480,11 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
 
                     <span className="transaction-detail-value">
 
-                        {isValidTransactionId
-                            ? transactionId
-                            : "Not available"}
+                        {resolvingTransaction
+                            ? "Loading..."
+                            : isValidTransactionId
+                                ? transactionId
+                                : "Not available"}
 
                     </span>
 
@@ -327,7 +498,8 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
                 INVALID TRANSACTION ID
             ================================================= */}
 
-            {!isValidTransactionId && (
+            {!resolvingTransaction &&
+                !isValidTransactionId && (
 
                 <div
                     className="transaction-approval-error"
@@ -351,6 +523,41 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
 
             )}
 
+
+
+            {/* =================================================
+                RESOLVING TRANSACTION
+            ================================================= */}
+
+            {resolvingTransaction && (
+
+                <div
+                    className="transaction-approval-notice"
+                    role="status"
+                >
+
+                    <span
+                        className="transaction-notice-icon"
+                        aria-hidden="true"
+                    >
+                        ...
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Loading pending transaction
+                        </strong>
+
+                        <span>
+                            Finding a pending transaction that can be approved.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            )}
 
 
             {/* =================================================
@@ -434,7 +641,7 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
             ================================================= */}
 
             {error &&
-                isValidTransactionId &&
+                !resolvingTransaction &&
                 !isApproved && (
 
                 <div
