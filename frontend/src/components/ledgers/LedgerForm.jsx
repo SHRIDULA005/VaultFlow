@@ -2,154 +2,295 @@ import React, { useRef, useState } from "react";
 import axios from "axios";
 import "./LedgerForm.css";
 
+const API_BASE_URL = "http://localhost:8080";
+
 const LedgerForm = () => {
+
+    // =========================================================
+    // FORM STATE
+    // =========================================================
+
     const [ledgerId, setLedgerId] = useState("");
     const [description, setDescription] = useState("");
     const [createdAt, setCreatedAt] = useState("");
 
+    // =========================================================
+    // UI STATE
+    // =========================================================
+
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-
     const [loading, setLoading] = useState(false);
 
-    /*
-     * =========================================================
-     * DESCRIPTION INPUT REF
-     * =========================================================
-     *
-     * T12:
-     * Clicking "Edit Ledger" should focus the
-     * Ledger Description input.
-     */
+    // =========================================================
+    // DESCRIPTION INPUT REF
+    // =========================================================
+    //
+    // T12:
+    // Clicking "Edit Ledger" focuses the Ledger Description input.
+    //
+    // =========================================================
+
     const descriptionRef = useRef(null);
 
-    /*
-     * =========================================================
-     * NAVIGATION
-     * =========================================================
-     *
-     * We are not using useNavigate() here because the component
-     * is also rendered directly by the Jest test without a Router.
-     *
-     * This keeps LedgerForm test-safe while still allowing the
-     * application to move to the requested route.
-     */
+
+    // =========================================================
+    // NAVIGATION
+    // =========================================================
+
     const navigate = (path, options = {}) => {
+
         try {
+
             if (options.replace) {
-                window.history.replaceState({}, "", path);
+
+                window.history.replaceState(
+                    {},
+                    "",
+                    path
+                );
+
             } else {
-                window.history.pushState({}, "", path);
+
+                window.history.pushState(
+                    {},
+                    "",
+                    path
+                );
             }
 
-            window.dispatchEvent(new PopStateEvent("popstate"));
+            window.dispatchEvent(
+                new PopStateEvent("popstate")
+            );
+
         } catch (error) {
-            console.error("Navigation error:", error);
+
+            console.error(
+                "Navigation error:",
+                error
+            );
         }
     };
 
-    /*
-     * =========================================================
-     * EDIT LEDGER
-     * =========================================================
-     */
+
+    // =========================================================
+    // EDIT LEDGER BUTTON
+    // =========================================================
+
     const handleEdit = () => {
+
         if (descriptionRef.current) {
+
             descriptionRef.current.focus();
         }
     };
 
-    /*
-     * =========================================================
-     * SUBMIT
-     * =========================================================
-     */
+
+    // =========================================================
+    // SUBMIT FORM
+    // =========================================================
+
     const handleSubmit = async (event) => {
+
         event.preventDefault();
 
+        // Clear old messages
         setSuccessMessage("");
         setErrorMessage("");
 
-        /*
-         * Validate Ledger ID
-         */
-        if (!ledgerId.trim()) {
-            setErrorMessage("Ledger ID is required.");
+
+        // =====================================================
+        // CHECK ROLE
+        // =====================================================
+
+        const storedRole =
+            localStorage.getItem("role") || "";
+
+        const role =
+            storedRole
+                .replace(/^ROLE_/i, "")
+                .trim()
+                .toUpperCase();
+
+        if (
+            role !== "AUDITOR" &&
+            role !== "ADMIN"
+        ) {
+
+            setErrorMessage(
+                "You are not authorized to create a ledger."
+            );
+
             return;
         }
 
-        /*
-         * Validate Description
-         */
-        if (!description.trim()) {
-            setErrorMessage("Ledger Description is required.");
+
+        // =====================================================
+        // VALIDATE LEDGER ID
+        // =====================================================
+
+        if (!ledgerId.trim()) {
+
+            setErrorMessage(
+                "Ledger ID is required."
+            );
+
             return;
         }
+
+
+        // =====================================================
+        // VALIDATE DESCRIPTION
+        // =====================================================
+
+        if (!description.trim()) {
+
+            setErrorMessage(
+                "Ledger Description is required."
+            );
+
+            return;
+        }
+
 
         try {
+
             setLoading(true);
 
-            const token = localStorage.getItem("token");
+
+            // =================================================
+            // GET JWT TOKEN
+            // =================================================
+
+            const token =
+                localStorage.getItem("token");
+
+
+            // =================================================
+            // REQUEST PAYLOAD
+            // =================================================
 
             const ledgerData = {
+
                 id: ledgerId.trim(),
-                description: description.trim(),
-                createdAt: createdAt || null
+
+                description:
+                    description.trim(),
+
+                createdAt:
+                    createdAt || null
             };
 
+
+            // =================================================
+            // CREATE LEDGER
+            // =================================================
+
             await axios.post(
-                "/api/ledgers",
+                `${API_BASE_URL}/api/ledgers`,
                 ledgerData,
                 {
                     headers: token
                         ? {
-                              Authorization: `Bearer ${token}`
+                              Authorization:
+                                  `Bearer ${token}`,
+                              "Content-Type":
+                                  "application/json"
                           }
-                        : {}
+                        : {
+                              "Content-Type":
+                                  "application/json"
+                          }
                 }
             );
 
-            /*
-             * Success
-             */
-            setSuccessMessage("Ledger added successfully");
+
+            // =================================================
+            // SUCCESS
+            // =================================================
+
+            setSuccessMessage(
+                "Ledger added successfully"
+            );
+
+
+            // Clear form
 
             setLedgerId("");
             setDescription("");
             setCreatedAt("");
 
+
+            // Go back to ledger list
+
             setTimeout(() => {
-                navigate("/ledgers", {
-                    replace: true
-                });
-            }, 700);
 
-        } catch (error) {
-            console.error("Unable to create ledger:", error);
-
-            /*
-             * 401 - Session expired
-             */
-            if (error?.response?.status === 401) {
-                localStorage.removeItem("token");
-
-                setErrorMessage(
-                    "Session expired. Please log in again"
+                navigate(
+                    "/ledgers",
+                    {
+                        replace: true
+                    }
                 );
 
+            }, 700);
+
+
+        } catch (error) {
+
+            console.error(
+                "Unable to create ledger:",
+                error
+            );
+
+
+            const status =
+                error?.response?.status;
+
+
+            // =================================================
+            // 401 - SESSION EXPIRED
+            // =================================================
+
+            if (status === 401) {
+
+                localStorage.removeItem(
+                    "token"
+                );
+
+                localStorage.removeItem(
+                    "role"
+                );
+
+                localStorage.removeItem(
+                    "user"
+                );
+
+                setErrorMessage(
+                    "Session expired. Please log in again."
+                );
+
+
                 setTimeout(() => {
-                    navigate("/login", {
-                        replace: true
-                    });
+
+                    navigate(
+                        "/login",
+                        {
+                            replace: true
+                        }
+                    );
+
                 }, 700);
 
                 return;
             }
 
-            /*
-             * 403 - Unauthorized
-             */
-            if (error?.response?.status === 403) {
+
+            // =================================================
+            // 403 - FORBIDDEN
+            // =================================================
+
+            if (status === 403) {
+
                 setErrorMessage(
                     "You are not authorized to create a ledger."
                 );
@@ -157,41 +298,103 @@ const LedgerForm = () => {
                 return;
             }
 
-            /*
-             * Backend error response
-             */
-            if (error?.response?.data) {
-                const responseData = error.response.data;
 
-                if (typeof responseData === "string") {
-                    setErrorMessage(responseData);
+            // =================================================
+            // 400 - BAD REQUEST
+            // =================================================
+
+            if (status === 400) {
+
+                const responseData =
+                    error?.response?.data;
+
+                if (
+                    typeof responseData ===
+                    "string"
+                ) {
+
+                    setErrorMessage(
+                        responseData
+                    );
+
+                } else if (
+                    responseData?.message
+                ) {
+
+                    setErrorMessage(
+                        responseData.message
+                    );
+
+                } else {
+
+                    setErrorMessage(
+                        "Invalid ledger information."
+                    );
+                }
+
+                return;
+            }
+
+
+            // =================================================
+            // BACKEND ERROR
+            // =================================================
+
+            if (
+                error?.response?.data
+            ) {
+
+                const responseData =
+                    error.response.data;
+
+
+                if (
+                    typeof responseData ===
+                    "string"
+                ) {
+
+                    setErrorMessage(
+                        responseData
+                    );
+
                     return;
                 }
 
-                if (responseData.message) {
-                    setErrorMessage(responseData.message);
+
+                if (
+                    responseData.message
+                ) {
+
+                    setErrorMessage(
+                        responseData.message
+                    );
+
                     return;
                 }
             }
 
-            /*
-             * Generic error
-             */
+
+            // =================================================
+            // GENERIC ERROR
+            // =================================================
+
             setErrorMessage(
                 "Unable to create ledger. Please try again."
             );
 
         } finally {
+
             setLoading(false);
         }
     };
 
-    /*
-     * =========================================================
-     * CANCEL
-     * =========================================================
-     */
+
+    // =========================================================
+    // CANCEL
+    // =========================================================
+
     const handleCancel = () => {
+
         if (loading) {
             return;
         }
@@ -199,12 +402,13 @@ const LedgerForm = () => {
         navigate("/ledgers");
     };
 
-    /*
-     * =========================================================
-     * RENDER
-     * =========================================================
-     */
+
+    // =========================================================
+    // RENDER
+    // =========================================================
+
     return (
+
         <div className="ledger-form-container">
 
             {/* =================================================
@@ -231,11 +435,13 @@ const LedgerForm = () => {
 
             </div>
 
+
             {/* =================================================
-                SUCCESS
+                SUCCESS MESSAGE
             ================================================= */}
 
             {successMessage && (
+
                 <div className="ledger-form-success">
 
                     <span className="ledger-success-icon">
@@ -249,12 +455,17 @@ const LedgerForm = () => {
                 </div>
             )}
 
+
             {/* =================================================
-                ERROR
+                ERROR MESSAGE
             ================================================= */}
 
             {errorMessage && (
-                <div className="ledger-form-error">
+
+                <div
+                    className="ledger-form-error"
+                    role="alert"
+                >
 
                     <span className="ledger-error-icon">
                         !
@@ -267,6 +478,7 @@ const LedgerForm = () => {
                 </div>
             )}
 
+
             {/* =================================================
                 FORM
             ================================================= */}
@@ -276,7 +488,9 @@ const LedgerForm = () => {
                 onSubmit={handleSubmit}
             >
 
-                {/* Ledger ID */}
+                {/* =================================================
+                    LEDGER ID
+                ================================================= */}
 
                 <div className="ledger-form-field">
 
@@ -289,11 +503,14 @@ const LedgerForm = () => {
                         type="text"
                         value={ledgerId}
                         onChange={(event) =>
-                            setLedgerId(event.target.value)
+                            setLedgerId(
+                                event.target.value
+                            )
                         }
                         placeholder="Enter Ledger ID"
                         autoComplete="off"
                         required
+                        disabled={loading}
                     />
 
                     <small>
@@ -302,7 +519,10 @@ const LedgerForm = () => {
 
                 </div>
 
-                {/* Ledger Description */}
+
+                {/* =================================================
+                    DESCRIPTION
+                ================================================= */}
 
                 <div className="ledger-form-field">
 
@@ -316,11 +536,14 @@ const LedgerForm = () => {
                         type="text"
                         value={description}
                         onChange={(event) =>
-                            setDescription(event.target.value)
+                            setDescription(
+                                event.target.value
+                            )
                         }
                         placeholder="Ledger Description"
                         autoComplete="off"
                         required
+                        disabled={loading}
                     />
 
                     <small>
@@ -329,7 +552,10 @@ const LedgerForm = () => {
 
                 </div>
 
-                {/* Created Date */}
+
+                {/* =================================================
+                    CREATED DATE
+                ================================================= */}
 
                 <div className="ledger-form-field">
 
@@ -342,19 +568,27 @@ const LedgerForm = () => {
                         type="date"
                         value={createdAt}
                         onChange={(event) =>
-                            setCreatedAt(event.target.value)
+                            setCreatedAt(
+                                event.target.value
+                            )
                         }
+                        disabled={loading}
                     />
+
+                    <small>
+                        Select the ledger creation date.
+                    </small>
 
                 </div>
 
+
                 {/* =================================================
-                    ACTIONS
+                    ACTION BUTTONS
                 ================================================= */}
 
                 <div className="ledger-form-actions">
 
-                    {/* Add Ledger */}
+                    {/* ADD LEDGER */}
 
                     <button
                         type="submit"
@@ -363,20 +597,29 @@ const LedgerForm = () => {
                     >
 
                         {loading ? (
+
                             <>
                                 <span className="ledger-spinner"></span>
+
                                 Creating Ledger...
                             </>
+
                         ) : (
+
                             <>
-                                <span>+</span>
+                                <span>
+                                    +
+                                </span>
+
                                 Add Ledger
                             </>
+
                         )}
 
                     </button>
 
-                    {/* Cancel */}
+
+                    {/* CANCEL */}
 
                     <button
                         type="button"
@@ -387,12 +630,14 @@ const LedgerForm = () => {
                         Cancel
                     </button>
 
+
                     {/* =================================================
                         EDIT LEDGER
-
-                        IMPORTANT:
-                        This button is intentionally rendered directly
-                        so T12 can find it immediately.
+                        =================================================
+                        
+                        T12 REQUIREMENT:
+                        Clicking this button must focus the
+                        Ledger Description input.
                     ================================================= */}
 
                     <button
