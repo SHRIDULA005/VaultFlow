@@ -81,17 +81,30 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
+
+    // =========================================================
+    // CREATE TRANSACTION
+    // =========================================================
+
     @PostMapping
     @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
     public ResponseEntity<TransactionDTO> createTransaction(
-        @Valid @RequestBody TransactionDTO transactionDTO) {
+            @Valid @RequestBody TransactionDTO transactionDTO) {
 
-        TransactionDTO saved = transactionService.createTransaction(transactionDTO);
+        TransactionDTO saved =
+                transactionService.createTransaction(
+                        transactionDTO
+                );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(saved);
     }
+
+
+    // =========================================================
+    // GET ALL TRANSACTIONS
+    // =========================================================
 
     @GetMapping
     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
@@ -101,40 +114,78 @@ public class TransactionController {
         );
     }
 
+
+    // =========================================================
+    // GET TRANSACTIONS BY LEDGER
+    // =========================================================
+
     @GetMapping("/ledger/{ledgerId}")
     public ResponseEntity<List<TransactionDTO>> getTransactionsByLedger(
-        @PathVariable String ledgerId) {
+            @PathVariable String ledgerId) {
 
         return ResponseEntity.ok(
-                transactionService.getTransactionsByLedger(ledgerId)
+                transactionService.getTransactionsByLedger(
+                        ledgerId
+                )
         );
     }
 
+
+    // =========================================================
+    // GET TRANSACTION BY ID
+    // =========================================================
+
     @GetMapping("/{id}")
     public Optional<Transaction> getTransactionById(
-        @PathVariable Long id) {
+            @PathVariable Long id) {
 
         return transactionService.getTransactionById(id);
     }
 
+
+    // =========================================================
+    // UPDATE COMPLETE TRANSACTION
+    // =========================================================
+    //
+    // IMPORTANT:
+    // This updates:
+    // 1. Amount
+    // 2. Source Account
+    // 3. Target Account
+    // 4. Reference ID
+    // 5. Status
+    // 6. Ledger ID
+    //
+    // Before:
+    // updateTransactionStatus(...)
+    //
+    // Now:
+    // updateTransaction(...)
+    // =========================================================
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TREASURER')")
     public ResponseEntity<TransactionDTO> updateTransaction(
-        @PathVariable Long id,
-        @RequestBody TransactionDTO transactionDTO) {
+            @PathVariable Long id,
+            @RequestBody TransactionDTO transactionDTO) {
 
         TransactionDTO updated =
-                transactionService.updateTransactionStatus(
+                transactionService.updateTransaction(
                         id,
-                        transactionDTO.getStatus()
+                        transactionDTO
                 );
 
         return ResponseEntity.ok(updated);
     }
 
+
+    // =========================================================
+    // DELETE / REVERSE TRANSACTION
+    // =========================================================
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> reverseTransaction(
-        @PathVariable Long id) {
+            @PathVariable Long id) {
 
         transactionService.reverseTransaction(id);
 
