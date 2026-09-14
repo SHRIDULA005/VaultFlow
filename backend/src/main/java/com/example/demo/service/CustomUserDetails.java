@@ -41,48 +41,29 @@ public class CustomUserDetails implements UserDetails {
     // =========================================================
     // AUTHORITIES
     // =========================================================
-    //
-    // IMPORTANT:
-    //
-    // Database values may be:
-    //
-    // TREASURER
-    // treasurer
-    // Treasurer
-    // ROLE_TREASURER
-    // " TREASURER "
-    //
-    // Spring Security expects:
-    //
-    // ROLE_TREASURER
-    //
-    // So we normalize the role before creating the authority.
-    // =========================================================
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         String role = user.getRole();
 
+        // No role -> no authorities
         if (role == null || role.isBlank()) {
-
-            /*
-             * No valid role.
-             */
             return List.of();
         }
 
-
         /*
-         * Normalize role.
+         * Normalize database role.
          *
-         * " treasurer "
-         *       ↓
-         * "TREASURER"
+         * AUDITOR
+         * auditor
+         * Auditor
+         * ROLE_AUDITOR
+         * " AUDITOR "
          *
-         * "ROLE_TREASURER"
-         *       ↓
-         * "TREASURER"
+         * All become:
+         *
+         * ROLE_AUDITOR
          */
 
         role = role
@@ -92,21 +73,21 @@ public class CustomUserDetails implements UserDetails {
 
 
         /*
-         * Build Spring Security authority.
+         * Prevent malformed authority such as:
          *
-         * TREASURER
-         *      ↓
-         * ROLE_TREASURER
+         * ROLE_
          */
 
-        String authority =
-                "ROLE_" + role;
+        if (role.isBlank()) {
+            return List.of();
+        }
+
+
+        String authority = "ROLE_" + role;
 
 
         return List.of(
-                new SimpleGrantedAuthority(
-                        authority
-                )
+                new SimpleGrantedAuthority(authority)
         );
     }
 
