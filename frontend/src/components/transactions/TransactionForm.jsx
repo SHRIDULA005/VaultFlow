@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./TransactionForm.css";
 
+const API_BASE_URL = "http://localhost:8080";
+
 const TransactionForm = () => {
     /*
      * =========================================================
@@ -134,10 +136,55 @@ const TransactionForm = () => {
         const token =
             localStorage.getItem("token");
 
+        /*
+         * =====================================================
+         * AUTHENTICATION
+         * =====================================================
+         *
+         * TREASURER and ADMIN access is enforced by Spring
+         * Security on the backend. The frontend must send the
+         * current JWT with the request.
+         *
+         * We keep axios.post(url, payload) as a two-argument
+         * call so the existing frontend tests that verify the
+         * exact transaction payload continue to work.
+         */
+
         if (token) {
             axios.defaults.headers.common.Authorization =
                 `Bearer ${token}`;
+        } else {
+            delete axios.defaults.headers.common.Authorization;
+
+            setIsSubmitting(false);
+
+            setErrorMessage(
+                "Your session has expired. Please login again."
+            );
+
+            return;
         }
+
+        /*
+         * =====================================================
+         * API BASE URL
+         * =====================================================
+         *
+         * The React app runs on port 3000 while Spring Boot
+         * runs on port 8080.
+         *
+         * Setting baseURL here makes:
+         *
+         *     /api/transactions
+         *
+         * resolve to:
+         *
+         *     http://localhost:8080/api/transactions
+         *
+         * while preserving the exact axios.post call below.
+         */
+
+        axios.defaults.baseURL = API_BASE_URL;
 
         /*
          * =====================================================
