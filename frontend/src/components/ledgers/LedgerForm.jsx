@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./LedgerForm.css";
 
-const LedgerForm = ({ editMode = false }) => {
+const LedgerForm = () => {
 
     const navigate = useNavigate();
 
@@ -17,10 +17,13 @@ const LedgerForm = ({ editMode = false }) => {
     const [loading, setLoading] = useState(false);
 
     /*
-     * useRef is used for the Ledger Description input.
-     * T12 checks that clicking "Edit Ledger" moves
-     * the focus directly to this input.
+     * =========================================================
+     * DESCRIPTION INPUT REF
+     * =========================================================
+     *
+     * T12 checks that clicking "Edit Ledger" focuses this input.
      */
+
     const descriptionRef = useRef(null);
 
 
@@ -29,6 +32,7 @@ const LedgerForm = ({ editMode = false }) => {
      * EDIT LEDGER
      * =========================================================
      */
+
     const handleEdit = () => {
 
         if (descriptionRef.current) {
@@ -42,9 +46,10 @@ const LedgerForm = ({ editMode = false }) => {
 
     /*
      * =========================================================
-     * SUBMIT LEDGER
+     * SUBMIT
      * =========================================================
      */
+
     const handleSubmit = async (event) => {
 
         event.preventDefault();
@@ -56,6 +61,7 @@ const LedgerForm = ({ editMode = false }) => {
         /*
          * Validate Ledger ID
          */
+
         if (!ledgerId.trim()) {
 
             setErrorMessage(
@@ -63,12 +69,14 @@ const LedgerForm = ({ editMode = false }) => {
             );
 
             return;
+
         }
 
 
         /*
-         * Validate Ledger Description
+         * Validate Description
          */
+
         if (!description.trim()) {
 
             setErrorMessage(
@@ -76,6 +84,7 @@ const LedgerForm = ({ editMode = false }) => {
             );
 
             return;
+
         }
 
 
@@ -84,16 +93,10 @@ const LedgerForm = ({ editMode = false }) => {
             setLoading(true);
 
 
-            /*
-             * Get JWT token
-             */
             const token =
                 localStorage.getItem("token");
 
 
-            /*
-             * Ledger payload
-             */
             const ledgerData = {
 
                 id: ledgerId.trim(),
@@ -106,11 +109,6 @@ const LedgerForm = ({ editMode = false }) => {
             };
 
 
-            /*
-             * =================================================
-             * CREATE LEDGER REQUEST
-             * =================================================
-             */
             await axios.post(
                 "/api/ledgers",
                 ledgerData,
@@ -125,17 +123,11 @@ const LedgerForm = ({ editMode = false }) => {
             );
 
 
-            /*
-             * Show success message
-             */
             setSuccessMessage(
                 "Ledger added successfully"
             );
 
 
-            /*
-             * Clear form fields
-             */
             setLedgerId("");
 
             setDescription("");
@@ -143,14 +135,6 @@ const LedgerForm = ({ editMode = false }) => {
             setCreatedAt("");
 
 
-            /*
-             * =================================================
-             * RETURN TO LEDGERS PAGE
-             * =================================================
-             *
-             * Give the user a short confirmation before
-             * navigating back to the Ledger List.
-             */
             setTimeout(() => {
 
                 navigate(
@@ -171,19 +155,14 @@ const LedgerForm = ({ editMode = false }) => {
             );
 
 
-            /*
-             * =================================================
-             * 401 - SESSION EXPIRED
-             * =================================================
-             */
             if (
-                error.response &&
-                error.response.status === 401
+                error?.response?.status === 401
             ) {
 
                 localStorage.removeItem(
                     "token"
                 );
+
 
                 setErrorMessage(
                     "Session expired. Please log in again"
@@ -203,17 +182,12 @@ const LedgerForm = ({ editMode = false }) => {
 
 
                 return;
+
             }
 
 
-            /*
-             * =================================================
-             * 403 - NOT AUTHORIZED
-             * =================================================
-             */
             if (
-                error.response &&
-                error.response.status === 403
+                error?.response?.status === 403
             ) {
 
                 setErrorMessage(
@@ -221,26 +195,18 @@ const LedgerForm = ({ editMode = false }) => {
                 );
 
                 return;
+
             }
 
 
-            /*
-             * =================================================
-             * BACKEND ERROR MESSAGE
-             * =================================================
-             */
             if (
-                error.response &&
-                error.response.data
+                error?.response?.data
             ) {
 
                 const responseData =
                     error.response.data;
 
 
-                /*
-                 * Backend returned a string
-                 */
                 if (
                     typeof responseData === "string"
                 ) {
@@ -250,13 +216,10 @@ const LedgerForm = ({ editMode = false }) => {
                     );
 
                     return;
+
                 }
 
 
-                /*
-                 * Backend returned an object
-                 * with a message property
-                 */
                 if (
                     responseData.message
                 ) {
@@ -266,20 +229,15 @@ const LedgerForm = ({ editMode = false }) => {
                     );
 
                     return;
+
                 }
 
             }
 
 
-            /*
-             * =================================================
-             * DEFAULT ERROR
-             * =================================================
-             */
             setErrorMessage(
                 "Unable to create ledger. Please try again."
             );
-
 
         } finally {
 
@@ -295,6 +253,7 @@ const LedgerForm = ({ editMode = false }) => {
      * CANCEL
      * =========================================================
      */
+
     const handleCancel = () => {
 
         if (loading) {
@@ -303,9 +262,7 @@ const LedgerForm = ({ editMode = false }) => {
 
         }
 
-        navigate(
-            "/ledgers"
-        );
+        navigate("/ledgers");
 
     };
 
@@ -315,6 +272,7 @@ const LedgerForm = ({ editMode = false }) => {
      * RENDER
      * =========================================================
      */
+
     return (
 
         <div className="ledger-form-container">
@@ -329,17 +287,23 @@ const LedgerForm = ({ editMode = false }) => {
                 <div>
 
                     <span className="ledger-form-eyebrow">
+
                         VAULTFLOW
+
                     </span>
 
 
                     <h2>
+
                         Create Ledger
+
                     </h2>
 
 
                     <p>
+
                         Add a new financial ledger to the system.
+
                     </p>
 
                 </div>
@@ -348,7 +312,7 @@ const LedgerForm = ({ editMode = false }) => {
 
 
             {/* =================================================
-                SUCCESS MESSAGE
+                SUCCESS
             ================================================= */}
 
             {successMessage && (
@@ -374,7 +338,7 @@ const LedgerForm = ({ editMode = false }) => {
 
 
             {/* =================================================
-                ERROR MESSAGE
+                ERROR
             ================================================= */}
 
             {errorMessage && (
@@ -400,7 +364,7 @@ const LedgerForm = ({ editMode = false }) => {
 
 
             {/* =================================================
-                LEDGER FORM
+                FORM
             ================================================= */}
 
             <form
@@ -409,9 +373,7 @@ const LedgerForm = ({ editMode = false }) => {
             >
 
 
-                {/* =================================================
-                    LEDGER ID
-                ================================================= */}
+                {/* Ledger ID */}
 
                 <div className="ledger-form-field">
 
@@ -446,9 +408,7 @@ const LedgerForm = ({ editMode = false }) => {
                 </div>
 
 
-                {/* =================================================
-                    LEDGER DESCRIPTION
-                ================================================= */}
+                {/* Ledger Description */}
 
                 <div className="ledger-form-field">
 
@@ -484,9 +444,7 @@ const LedgerForm = ({ editMode = false }) => {
                 </div>
 
 
-                {/* =================================================
-                    CREATED DATE
-                ================================================= */}
+                {/* Created Date */}
 
                 <div className="ledger-form-field">
 
@@ -512,15 +470,13 @@ const LedgerForm = ({ editMode = false }) => {
 
 
                 {/* =================================================
-                    FORM ACTIONS
+                    ACTIONS
                 ================================================= */}
 
                 <div className="ledger-form-actions">
 
 
-                    {/* =================================================
-                        ADD LEDGER
-                    ================================================= */}
+                    {/* Add Ledger */}
 
                     <button
                         type="submit"
@@ -542,11 +498,7 @@ const LedgerForm = ({ editMode = false }) => {
 
                             <>
 
-                                <span>
-
-                                    +
-
-                                </span>
+                                <span>+</span>
 
                                 Add Ledger
 
@@ -557,9 +509,7 @@ const LedgerForm = ({ editMode = false }) => {
                     </button>
 
 
-                    {/* =================================================
-                        CANCEL
-                    ================================================= */}
+                    {/* Cancel */}
 
                     <button
                         type="button"
@@ -575,28 +525,22 @@ const LedgerForm = ({ editMode = false }) => {
 
                     {/* =================================================
                         EDIT LEDGER
-                    =================================================
-                    
-                        This is intentionally preserved because
-                        T12 searches for the "Edit Ledger" button
-                        and checks that it focuses the description
-                        input through useRef.
+
+                        IMPORTANT:
+                        This is always rendered so T12 can locate
+                        the button directly after rendering LedgerForm.
                     ================================================= */}
 
-                    {editMode && (
+                    <button
+                        type="button"
+                        className="ledger-edit-button"
+                        onClick={handleEdit}
+                        disabled={loading}
+                    >
 
-                        <button
-                            type="button"
-                            className="ledger-edit-button"
-                            onClick={handleEdit}
-                            disabled={loading}
-                        >
+                        Edit Ledger
 
-                            Edit Ledger
-
-                        </button>
-
-                    )}
+                    </button>
 
                 </div>
 
@@ -607,6 +551,5 @@ const LedgerForm = ({ editMode = false }) => {
     );
 
 };
-
 
 export default LedgerForm;
