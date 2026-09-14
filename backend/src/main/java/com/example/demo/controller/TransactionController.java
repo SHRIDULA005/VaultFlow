@@ -1,62 +1,3 @@
-// package com.example.demo.controller;
-
-// import java.util.List;
-// import java.util.Optional;
-
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
-// import org.springframework.web.bind.annotation.*;
-
-// import com.example.demo.dto.TransactionDTO;
-// import com.example.demo.model.Transaction;
-// import com.example.demo.service.TransactionService;
-
-// import jakarta.validation.Valid;
-
-// @RestController
-// @RequestMapping("/api/transactions")
-// public class TransactionController {
-
-//     @Autowired
-//     private TransactionService transactionService;
-
-//     // @PostMapping
-//     // public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
-//     //     TransactionDTO saved = transactionService.createTransaction(transactionDTO);
-//     //     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-//     // }
-//     @PostMapping
-//     @PreAuthorize("hasRole('TREASURER')")
-//     public ResponseEntity<TransactionDTO> createTransaction(
-//         @Valid @RequestBody TransactionDTO transactionDTO) {
-
-//         TransactionDTO saved = transactionService.createTransaction(transactionDTO);
-//         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-//     }
-
-//     @GetMapping
-//     public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
-//         return ResponseEntity.ok(transactionService.getAllTransactions());
-//     }
-
-//     @GetMapping("/{id}")
-//     public Optional<Transaction> getTransactionById(@PathVariable Long id) {
-//         return transactionService.getTransactionById(id);
-//     }
-
-//     // @DeleteMapping("/{id}")
-//     // public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
-//     //     transactionService.reverseTransaction(id);
-//     //     return ResponseEntity.status(HttpStatus.OK).body("Transaction reverved successfully");
-//     // }
-//     @DeleteMapping("/{id}")
-//     public ResponseEntity<String> reverseTransaction(@PathVariable Long id) {
-//         transactionService.reverseTransaction(id);
-//         return ResponseEntity.ok("Transaction reversed successfully.");
-//     }
-// }
 package com.example.demo.controller;
 
 import java.util.List;
@@ -84,6 +25,7 @@ public class TransactionController {
 
     // =========================================================
     // CREATE TRANSACTION
+    // TREASURER + ADMIN
     // =========================================================
 
     @PostMapping
@@ -92,9 +34,7 @@ public class TransactionController {
             @Valid @RequestBody TransactionDTO transactionDTO) {
 
         TransactionDTO saved =
-                transactionService.createTransaction(
-                        transactionDTO
-                );
+                transactionService.createTransaction(transactionDTO);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -104,6 +44,7 @@ public class TransactionController {
 
     // =========================================================
     // GET ALL TRANSACTIONS
+    // AUTHENTICATED USERS
     // =========================================================
 
     @GetMapping
@@ -117,6 +58,7 @@ public class TransactionController {
 
     // =========================================================
     // GET TRANSACTIONS BY LEDGER
+    // AUTHENTICATED USERS
     // =========================================================
 
     @GetMapping("/ledger/{ledgerId}")
@@ -124,15 +66,14 @@ public class TransactionController {
             @PathVariable String ledgerId) {
 
         return ResponseEntity.ok(
-                transactionService.getTransactionsByLedger(
-                        ledgerId
-                )
+                transactionService.getTransactionsByLedger(ledgerId)
         );
     }
 
 
     // =========================================================
     // GET TRANSACTION BY ID
+    // AUTHENTICATED USERS
     // =========================================================
 
     @GetMapping("/{id}")
@@ -144,31 +85,55 @@ public class TransactionController {
 
 
     // =========================================================
-    // UPDATE COMPLETE TRANSACTION
+    // UPDATE / APPROVE TRANSACTION
+    // TREASURER + ADMIN
     // =========================================================
     //
-    // IMPORTANT:
-    // This updates:
-    // 1. Amount
-    // 2. Source Account
-    // 3. Target Account
-    // 4. Reference ID
-    // 5. Status
-    // 6. Ledger ID
+    // If the request contains ONLY "status", this is treated
+    // as an approval/status update.
     //
-    // Before:
-    // updateTransactionStatus(...)
-    //
-    // Now:
-    // updateTransaction(...)
+    // Otherwise, it performs a complete transaction update.
     // =========================================================
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('TREASURER')")
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
     public ResponseEntity<TransactionDTO> updateTransaction(
             @PathVariable Long id,
             @RequestBody TransactionDTO transactionDTO) {
 
+        /*
+         * APPROVAL / STATUS-ONLY UPDATE
+         *
+         * TransactionApproval.jsx sends:
+         *
+         * {
+         *     "status": "APPROVED"
+         * }
+         *
+         * Therefore handle status-only requests separately.
+         */
+        if (transactionDTO.getAmount() == null
+                && transactionDTO.getSourceAccountId() == null
+                && transactionDTO.getTargetAccountId() == null
+                && transactionDTO.getReferenceId() == null
+                && transactionDTO.getLedgerId() == null
+                && transactionDTO.getStatus() != null) {
+
+            TransactionDTO updated =
+                    transactionService.updateTransactionStatus(
+                            id,
+                            transactionDTO.getStatus()
+                    );
+
+            return ResponseEntity.ok(updated);
+        }
+
+
+        /*
+         * COMPLETE TRANSACTION UPDATE
+         *
+         * Used by the Edit Transaction screen.
+         */
         TransactionDTO updated =
                 transactionService.updateTransaction(
                         id,
@@ -181,9 +146,11 @@ public class TransactionController {
 
     // =========================================================
     // DELETE / REVERSE TRANSACTION
+    // TREASURER + ADMIN
     // =========================================================
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
     public ResponseEntity<String> reverseTransaction(
             @PathVariable Long id) {
 
