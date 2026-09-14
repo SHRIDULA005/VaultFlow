@@ -3,7 +3,6 @@ import axios from "axios";
 import "./Register.css";
 
 const Register = () => {
-
     const [userId, setUserId] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -14,137 +13,124 @@ const Register = () => {
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
-
-    const handleRegister = () => {
-
+    const handleRegister = async () => {
         setError("");
         setSuccess("");
 
+        // -----------------------------
+        // VALIDATION
+        // -----------------------------
 
         if (!userId.trim()) {
-
             setError("User ID is required.");
-
             return;
         }
-
 
         if (!email.trim()) {
-
             setError("Email is required.");
-
             return;
         }
-
 
         if (!password.trim()) {
-
             setError("Password is required.");
-
             return;
         }
-
 
         if (password.length < 6) {
-
-            setError(
-                "Password must contain at least 6 characters."
-            );
-
+            setError("Password must contain at least 6 characters.");
             return;
         }
-
 
         if (!organizationId.trim()) {
-
             setError("Organization ID is required.");
-
             return;
         }
-
 
         setLoading(true);
 
+        // -----------------------------
+        // REGISTRATION REQUEST
+        // -----------------------------
 
-        axios
-            .post("/users/register", {
-
-                userId: userId,
-
-                email: email,
-
+        try {
+            const payload = {
+                userId: userId.trim(),
+                email: email.trim(),
                 password: password,
-
                 role: role,
+                organizationId: organizationId.trim(),
+            };
 
-                organizationId: organizationId
+            console.log("Registration payload:", payload);
 
-            })
-            .then((response) => {
-
-                console.log(
-                    "Registration successful:",
-                    response.data
-                );
-
-                setSuccess(
-                    "Registration successful. You can now login."
-                );
-
-                setUserId("");
-                setEmail("");
-                setPassword("");
-                setOrganizationId("");
-                setRole("AUDITOR");
-
-            })
-            .catch((err) => {
-
-                console.error(
-                    "Registration error:",
-                    err
-                );
-
-
-                if (err?.response?.status === 409) {
-
-                    setError(
-                        "An account with this email already exists."
-                    );
-
-                } else if (
-                    err?.response?.data?.message
-                ) {
-
-                    setError(
-                        err.response.data.message
-                    );
-
-                } else {
-
-                    setError(
-                        "Unable to register user. Please try again."
-                    );
+            const response = await axios.post(
+                "http://localhost:8080/auth/register",
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 }
+            );
 
-            })
-            .finally(() => {
+            console.log("Registration successful:", response.data);
 
-                setLoading(false);
+            setSuccess(
+                "Registration successful. You can now login."
+            );
 
-            });
+            // Clear form
+            setUserId("");
+            setEmail("");
+            setPassword("");
+            setOrganizationId("");
+            setRole("AUDITOR");
+        } catch (err) {
+            console.error("Registration error:", err);
+
+            console.error(
+                "Registration status:",
+                err?.response?.status
+            );
+
+            console.error(
+                "Registration response:",
+                err?.response?.data
+            );
+
+            if (err?.response?.status === 409) {
+                setError(
+                    "An account with this email already exists."
+                );
+            } else if (err?.response?.data?.message) {
+                setError(err.response.data.message);
+            } else if (err?.response?.status === 403) {
+                setError(
+                    "Registration is forbidden. Please check the backend security configuration."
+                );
+            } else if (err?.response?.status === 400) {
+                setError(
+                    "Invalid registration details. Please check your information."
+                );
+            } else {
+                setError(
+                    "Unable to register user. Please try again."
+                );
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
+    // -----------------------------
+    // GO TO LOGIN
+    // -----------------------------
 
     const handleLogin = () => {
-
         window.location.href = "/login";
-
     };
 
-
     return (
-
         <div className="register-page">
 
             <div className="register-card">
@@ -160,7 +146,6 @@ const Register = () => {
                     </div>
 
                     <div>
-
                         <h1>
                             VaultFlow
                         </h1>
@@ -168,11 +153,9 @@ const Register = () => {
                         <span>
                             FINANCIAL OPERATIONS
                         </span>
-
                     </div>
 
                 </div>
-
 
                 {/* =================================================
                     HEADER
@@ -195,13 +178,11 @@ const Register = () => {
 
                 </div>
 
-
                 {/* =================================================
                     FORM
                 ================================================= */}
 
                 <div className="register-form">
-
 
                     {/* USER ID */}
 
@@ -217,14 +198,11 @@ const Register = () => {
                             placeholder="Enter user ID"
                             value={userId}
                             onChange={(e) =>
-                                setUserId(
-                                    e.target.value
-                                )
+                                setUserId(e.target.value)
                             }
                         />
 
                     </div>
-
 
                     {/* EMAIL */}
 
@@ -240,14 +218,11 @@ const Register = () => {
                             placeholder="e.g. auditor@vaultflow.io"
                             value={email}
                             onChange={(e) =>
-                                setEmail(
-                                    e.target.value
-                                )
+                                setEmail(e.target.value)
                             }
                         />
 
                     </div>
-
 
                     {/* PASSWORD */}
 
@@ -263,9 +238,7 @@ const Register = () => {
                             placeholder="Create a secure password"
                             value={password}
                             onChange={(e) =>
-                                setPassword(
-                                    e.target.value
-                                )
+                                setPassword(e.target.value)
                             }
                         />
 
@@ -274,7 +247,6 @@ const Register = () => {
                         </span>
 
                     </div>
-
 
                     {/* ORGANIZATION */}
 
@@ -290,14 +262,11 @@ const Register = () => {
                             placeholder="Enter organization ID"
                             value={organizationId}
                             onChange={(e) =>
-                                setOrganizationId(
-                                    e.target.value
-                                )
+                                setOrganizationId(e.target.value)
                             }
                         />
 
                     </div>
-
 
                     {/* ROLE */}
 
@@ -311,9 +280,7 @@ const Register = () => {
                             id="role"
                             value={role}
                             onChange={(e) =>
-                                setRole(
-                                    e.target.value
-                                )
+                                setRole(e.target.value)
                             }
                         >
 
@@ -337,38 +304,31 @@ const Register = () => {
 
                     </div>
 
-
                     {/* =================================================
                         ERROR
                     ================================================= */}
 
                     {error && (
-
                         <div
                             className="register-error"
                             role="alert"
                         >
                             {error}
                         </div>
-
                     )}
-
 
                     {/* =================================================
                         SUCCESS
                     ================================================= */}
 
                     {success && (
-
                         <div
                             className="register-success"
                             role="status"
                         >
                             {success}
                         </div>
-
                     )}
-
 
                     {/* =================================================
                         REGISTER BUTTON
@@ -382,20 +342,15 @@ const Register = () => {
                     >
 
                         {loading ? (
-
                             <>
                                 <span className="register-spinner"></span>
                                 Creating Account...
                             </>
-
                         ) : (
-
                             "Create Account"
-
                         )}
 
                     </button>
-
 
                     {/* =================================================
                         LOGIN BUTTON
@@ -416,9 +371,7 @@ const Register = () => {
 
                     </div>
 
-
                 </div>
-
 
                 {/* =================================================
                     SECURITY
@@ -445,8 +398,9 @@ const Register = () => {
 
                 </div>
 
-
-                {/* FOOTER */}
+                {/* =================================================
+                    FOOTER
+                ================================================= */}
 
                 <div className="register-footer">
 
@@ -467,7 +421,6 @@ const Register = () => {
             </div>
 
         </div>
-
     );
 };
 
