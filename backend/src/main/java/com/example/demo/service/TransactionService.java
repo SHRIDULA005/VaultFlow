@@ -1,151 +1,3 @@
-// package com.example.demo.service;
-
-// import java.util.List;
-// import java.util.Optional;
-
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.security.access.prepost.PreAuthorize;
-// import org.springframework.stereotype.Service;
-
-// import com.example.demo.dto.TransactionDTO;
-// import com.example.demo.model.Account;
-// import com.example.demo.model.Transaction;
-// import com.example.demo.repository.AccountRepository;
-// import com.example.demo.repository.TransactionRepository;
-
-// @Service
-// public class TransactionService {
-
-//     @Autowired
-//     private TransactionRepository repo;
-
-//     @Autowired
-//     private AccountRepository accountRepo;
-
-//     /*
-//      * AUDITOR and TREASURER are allowed to create transactions.
-//      */
-//     @PreAuthorize("hasAnyRole('AUDITOR', 'TREASURER')")
-//     public TransactionDTO createTransaction(TransactionDTO dto) {
-
-//         Transaction transaction = new Transaction();
-
-//         transaction.setAmount(dto.getAmount());
-//         transaction.setReferenceId(dto.getReferenceId());
-//         transaction.setStatus(dto.getStatus());
-//         transaction.setLedgerId(dto.getLedgerId());
-
-//         Account source =
-//                 accountRepo
-//                         .findById(dto.getSourceAccountId())
-//                         .orElseThrow();
-
-//         Account target =
-//                 accountRepo
-//                         .findById(dto.getTargetAccountId())
-//                         .orElseThrow();
-
-//         transaction.setSourceAccount(source);
-//         transaction.setTargetAccount(target);
-
-//         Transaction saved = repo.save(transaction);
-
-//         return convertToDTO(saved);
-//     }
-
-//     private TransactionDTO convertToDTO(
-//             Transaction transaction) {
-
-//         TransactionDTO dto = new TransactionDTO();
-
-//         dto.setId(transaction.getId());
-//         dto.setAmount(transaction.getAmount());
-//         dto.setReferenceId(
-//                 transaction.getReferenceId()
-//         );
-
-//         dto.setLedgerId(
-//                 transaction.getLedgerId()
-//         );
-
-//         if (transaction.getSourceAccount() != null) {
-//             dto.setSourceAccountId(
-//                     transaction
-//                             .getSourceAccount()
-//                             .getId()
-//             );
-//         }
-
-//         if (transaction.getTargetAccount() != null) {
-//             dto.setTargetAccountId(
-//                     transaction
-//                             .getTargetAccount()
-//                             .getId()
-//             );
-//         }
-
-//         dto.setStatus(transaction.getStatus());
-
-//         return dto;
-//     }
-
-//     public List<TransactionDTO> getAllTransactions() {
-
-//         return repo.findAll()
-//                 .stream()
-//                 .map(this::convertToDTO)
-//                 .toList();
-//     }
-
-//     public List<TransactionDTO> getTransactionsByLedger(
-//             String ledgerId) {
-
-//         return repo.findByLedgerId(ledgerId)
-//                 .stream()
-//                 .map(this::convertToDTO)
-//                 .toList();
-//     }
-
-//     public Optional<Transaction> getTransactionById(
-//             Long id) {
-
-//         return repo.findById(id);
-//     }
-
-//     @PreAuthorize("hasRole('TREASURER')")
-//     public TransactionDTO updateTransactionStatus(
-//             Long id,
-//             String status) {
-
-//         Transaction transaction =
-//                 repo.findById(id)
-//                         .orElseThrow(
-//                                 () -> new RuntimeException(
-//                                         "Transaction not found"
-//                                 )
-//                         );
-
-//         if (status == null || status.isBlank()) {
-//             throw new IllegalArgumentException(
-//                     "Transaction status is required"
-//             );
-//         }
-
-//         transaction.setStatus(
-//                 status.toUpperCase()
-//         );
-
-//         Transaction updated =
-//                 repo.save(transaction);
-
-//         return convertToDTO(updated);
-//     }
-
-//     public void reverseTransaction(Long id) {
-
-//         repo.deleteById(id);
-//     }
-// }
 package com.example.demo.service;
 
 import java.util.List;
@@ -154,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.TransactionDTO;
 import com.example.demo.model.Account;
@@ -174,181 +27,50 @@ public class TransactionService {
     // =========================================================
     // CREATE TRANSACTION
     // =========================================================
+    // TREASURER and ADMIN can create transactions.
+    // =========================================================
 
+    @Transactional
     @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
-    public TransactionDTO createTransaction(
-            TransactionDTO dto) {
+    public TransactionDTO createTransaction(TransactionDTO dto) {
 
-        if (dto == null) {
-            throw new IllegalArgumentException(
-                    "Transaction data is required"
-            );
-        }
+        validateTransactionRequest(dto);
 
-
-        // -----------------------------------------------------
-        // AMOUNT VALIDATION
-        // -----------------------------------------------------
-
-        if (dto.getAmount() == null ||
-                dto.getAmount() <= 0) {
-
-            throw new IllegalArgumentException(
-                    "Transaction amount must be greater than zero"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // REFERENCE VALIDATION
-        // -----------------------------------------------------
-
-        if (dto.getReferenceId() == null ||
-                dto.getReferenceId().isBlank()) {
-
-            throw new IllegalArgumentException(
-                    "Transaction reference ID is required"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // SOURCE ACCOUNT VALIDATION
-        // -----------------------------------------------------
-
-        if (dto.getSourceAccountId() == null) {
-
-            throw new IllegalArgumentException(
-                    "Source account is required"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // TARGET ACCOUNT VALIDATION
-        // -----------------------------------------------------
-
-        if (dto.getTargetAccountId() == null) {
-
-            throw new IllegalArgumentException(
-                    "Target account is required"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // SAME ACCOUNT VALIDATION
-        // -----------------------------------------------------
-
-        if (dto.getSourceAccountId()
-                .equals(dto.getTargetAccountId())) {
-
-            throw new IllegalArgumentException(
-                    "Source and destination accounts cannot be the same"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // CREATE ENTITY
-        // -----------------------------------------------------
-
-        Transaction transaction =
-                new Transaction();
-
-
-        transaction.setAmount(
-                dto.getAmount()
+        Account source = findAccount(
+                dto.getSourceAccountId(),
+                "Source account"
         );
 
+        Account target = findAccount(
+                dto.getTargetAccountId(),
+                "Destination account"
+        );
+
+        validateDifferentAccounts(
+                dto.getSourceAccountId(),
+                dto.getTargetAccountId()
+        );
+
+        Transaction transaction = new Transaction();
+
+        transaction.setAmount(dto.getAmount());
 
         transaction.setReferenceId(
-                dto.getReferenceId()
+                dto.getReferenceId().trim()
         );
 
-
-        // -----------------------------------------------------
-        // STATUS
-        // -----------------------------------------------------
-
-        if (dto.getStatus() == null ||
-                dto.getStatus().isBlank()) {
-
-            transaction.setStatus(
-                    "PENDING"
-            );
-
-        } else {
-
-            transaction.setStatus(
-                    dto.getStatus()
-                            .trim()
-                            .toUpperCase()
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // LEDGER
-        // -----------------------------------------------------
+        transaction.setStatus(
+                normalizeStatus(dto.getStatus())
+        );
 
         transaction.setLedgerId(
-                normalizeLedgerId(
-                        dto.getLedgerId()
-                )
+                normalizeLedgerId(dto.getLedgerId())
         );
 
+        transaction.setSourceAccount(source);
+        transaction.setTargetAccount(target);
 
-        // -----------------------------------------------------
-        // SOURCE ACCOUNT
-        // -----------------------------------------------------
-
-        Account source =
-                accountRepo
-                        .findById(
-                                dto.getSourceAccountId()
-                        )
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Source account not found: "
-                                                + dto.getSourceAccountId()
-                                )
-                        );
-
-
-        // -----------------------------------------------------
-        // TARGET ACCOUNT
-        // -----------------------------------------------------
-
-        Account target =
-                accountRepo
-                        .findById(
-                                dto.getTargetAccountId()
-                        )
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Destination account not found: "
-                                                + dto.getTargetAccountId()
-                                )
-                        );
-
-
-        transaction.setSourceAccount(
-                source
-        );
-
-        transaction.setTargetAccount(
-                target
-        );
-
-
-        // -----------------------------------------------------
-        // SAVE
-        // -----------------------------------------------------
-
-        Transaction saved =
-                repo.save(transaction);
-
+        Transaction saved = repo.save(transaction);
 
         return convertToDTO(saved);
     }
@@ -357,153 +79,56 @@ public class TransactionService {
     // =========================================================
     // UPDATE COMPLETE TRANSACTION
     // =========================================================
-    //
-    // THIS IS THE MAIN FIX.
-    //
-    // The old method only changed status.
-    //
-    // This method updates ALL editable fields.
+    // TREASURER and ADMIN can edit every editable field.
     // =========================================================
 
-    @PreAuthorize("hasRole('TREASURER')")
+    @Transactional
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
     public TransactionDTO updateTransaction(
             Long id,
             TransactionDTO dto) {
 
-
-        // -----------------------------------------------------
-        // VALIDATE REQUEST
-        // -----------------------------------------------------
-
-        if (dto == null) {
-
+        if (id == null) {
             throw new IllegalArgumentException(
-                    "Transaction data is required"
+                    "Transaction ID is required"
             );
         }
 
+        validateTransactionRequest(dto);
+
+        Transaction transaction = repo.findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Transaction not found: " + id
+                        )
+                );
+
+        validateDifferentAccounts(
+                dto.getSourceAccountId(),
+                dto.getTargetAccountId()
+        );
+
+        Account source = findAccount(
+                dto.getSourceAccountId(),
+                "Source account"
+        );
+
+        Account target = findAccount(
+                dto.getTargetAccountId(),
+                "Destination account"
+        );
 
         // -----------------------------------------------------
-        // FIND EXISTING TRANSACTION
+        // UPDATE ALL EDITABLE FIELDS
         // -----------------------------------------------------
-
-        Transaction transaction =
-                repo.findById(id)
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Transaction not found"
-                                )
-                        );
-
-
-        // -----------------------------------------------------
-        // AMOUNT
-        // -----------------------------------------------------
-
-        if (dto.getAmount() == null ||
-                dto.getAmount() <= 0) {
-
-            throw new IllegalArgumentException(
-                    "Transaction amount must be greater than zero"
-            );
-        }
 
         transaction.setAmount(
                 dto.getAmount()
         );
 
-
-        // -----------------------------------------------------
-        // REFERENCE ID
-        // -----------------------------------------------------
-
-        if (dto.getReferenceId() == null ||
-                dto.getReferenceId().isBlank()) {
-
-            throw new IllegalArgumentException(
-                    "Transaction reference ID is required"
-            );
-        }
-
         transaction.setReferenceId(
                 dto.getReferenceId().trim()
         );
-
-
-        // -----------------------------------------------------
-        // SOURCE ACCOUNT
-        // -----------------------------------------------------
-
-        if (dto.getSourceAccountId() == null) {
-
-            throw new IllegalArgumentException(
-                    "Source account is required"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // TARGET ACCOUNT
-        // -----------------------------------------------------
-
-        if (dto.getTargetAccountId() == null) {
-
-            throw new IllegalArgumentException(
-                    "Destination account is required"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // SAME SOURCE/TARGET CHECK
-        // -----------------------------------------------------
-
-        if (dto.getSourceAccountId()
-                .equals(dto.getTargetAccountId())) {
-
-            throw new IllegalArgumentException(
-                    "Source and destination accounts cannot be the same"
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // FIND SOURCE ACCOUNT
-        // -----------------------------------------------------
-
-        Account source =
-                accountRepo
-                        .findById(
-                                dto.getSourceAccountId()
-                        )
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Source account not found: "
-                                                + dto.getSourceAccountId()
-                                )
-                        );
-
-
-        // -----------------------------------------------------
-        // FIND TARGET ACCOUNT
-        // -----------------------------------------------------
-
-        Account target =
-                accountRepo
-                        .findById(
-                                dto.getTargetAccountId()
-                        )
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Destination account not found: "
-                                                + dto.getTargetAccountId()
-                                )
-                        );
-
-
-        // -----------------------------------------------------
-        // UPDATE ACCOUNT RELATIONSHIPS
-        // -----------------------------------------------------
 
         transaction.setSourceAccount(
                 source
@@ -513,99 +138,277 @@ public class TransactionService {
                 target
         );
 
-
-        // -----------------------------------------------------
-        // STATUS
-        // -----------------------------------------------------
-
-        if (dto.getStatus() == null ||
-                dto.getStatus().isBlank()) {
-
-            throw new IllegalArgumentException(
-                    "Transaction status is required"
-            );
-        }
-
         transaction.setStatus(
-                dto.getStatus()
-                        .trim()
-                        .toUpperCase()
+                normalizeStatus(dto.getStatus())
         );
-
-
-        // -----------------------------------------------------
-        // LEDGER ID
-        // -----------------------------------------------------
 
         transaction.setLedgerId(
-                normalizeLedgerId(
-                        dto.getLedgerId()
-                )
+                normalizeLedgerId(dto.getLedgerId())
         );
 
-
-        // -----------------------------------------------------
-        // SAVE UPDATED TRANSACTION
-        // -----------------------------------------------------
-
-        Transaction updated =
-                repo.save(transaction);
-
-
-        // -----------------------------------------------------
-        // RETURN COMPLETE DTO
-        // -----------------------------------------------------
+        Transaction updated = repo.save(transaction);
 
         return convertToDTO(updated);
     }
 
 
     // =========================================================
-    // OLD STATUS-ONLY METHOD
+    // UPDATE TRANSACTION STATUS
     // =========================================================
-    //
-    // Kept here so any existing code that already uses this
-    // method does not suddenly break.
+    // Kept for existing code that only updates status.
     // =========================================================
 
-    @PreAuthorize("hasRole('TREASURER')")
+    @Transactional
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
     public TransactionDTO updateTransactionStatus(
             Long id,
             String status) {
 
-        Transaction transaction =
-                repo.findById(id)
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Transaction not found"
-                                )
-                        );
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "Transaction ID is required"
+            );
+        }
 
-
-        if (status == null ||
-                status.isBlank()) {
-
+        if (status == null || status.isBlank()) {
             throw new IllegalArgumentException(
                     "Transaction status is required"
             );
         }
 
+        Transaction transaction = repo.findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Transaction not found: " + id
+                        )
+                );
 
         transaction.setStatus(
-                status.trim().toUpperCase()
+                normalizeStatus(status)
         );
 
-
-        Transaction updated =
-                repo.save(transaction);
-
+        Transaction updated = repo.save(transaction);
 
         return convertToDTO(updated);
     }
 
 
     // =========================================================
-    // CONVERT ENTITY TO DTO
+    // GET ALL TRANSACTIONS
+    // =========================================================
+    // Any authenticated user can view all transactions.
+    // Role restriction is intentionally NOT applied here.
+    // =========================================================
+
+    public List<TransactionDTO> getAllTransactions() {
+
+        return repo.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+
+    // =========================================================
+    // GET TRANSACTIONS BY LEDGER
+    // =========================================================
+    // Any authenticated user can view transactions by ledger.
+    // =========================================================
+
+    public List<TransactionDTO> getTransactionsByLedger(
+            String ledgerId) {
+
+        if (ledgerId == null || ledgerId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Ledger ID is required"
+            );
+        }
+
+        return repo.findByLedgerId(ledgerId.trim())
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+
+    // =========================================================
+    // GET TRANSACTION BY ID
+    // =========================================================
+    // Any authenticated user can view a transaction.
+    // =========================================================
+
+    public Optional<Transaction> getTransactionById(
+            Long id) {
+
+        if (id == null) {
+            return Optional.empty();
+        }
+
+        return repo.findById(id);
+    }
+
+
+    // =========================================================
+    // REVERSE / DELETE TRANSACTION
+    // =========================================================
+    // TREASURER and ADMIN can reverse/delete transactions.
+    // =========================================================
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('TREASURER', 'ADMIN')")
+    public void reverseTransaction(Long id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "Transaction ID is required"
+            );
+        }
+
+        if (!repo.existsById(id)) {
+            throw new RuntimeException(
+                    "Transaction not found: " + id
+            );
+        }
+
+        repo.deleteById(id);
+    }
+
+
+    // =========================================================
+    // VALIDATE TRANSACTION REQUEST
+    // =========================================================
+
+    private void validateTransactionRequest(
+            TransactionDTO dto) {
+
+        if (dto == null) {
+            throw new IllegalArgumentException(
+                    "Transaction data is required"
+            );
+        }
+
+        if (dto.getAmount() == null ||
+                dto.getAmount() <= 0) {
+
+            throw new IllegalArgumentException(
+                    "Transaction amount must be greater than zero"
+            );
+        }
+
+        if (dto.getReferenceId() == null ||
+                dto.getReferenceId().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Transaction reference ID is required"
+            );
+        }
+
+        if (dto.getSourceAccountId() == null) {
+            throw new IllegalArgumentException(
+                    "Source account is required"
+            );
+        }
+
+        if (dto.getTargetAccountId() == null) {
+            throw new IllegalArgumentException(
+                    "Destination account is required"
+            );
+        }
+    }
+
+
+    // =========================================================
+    // VALIDATE SOURCE / DESTINATION
+    // =========================================================
+
+    private void validateDifferentAccounts(
+            Long sourceAccountId,
+            Long targetAccountId) {
+
+        if (sourceAccountId == null ||
+                targetAccountId == null) {
+
+            return;
+        }
+
+        if (sourceAccountId.equals(targetAccountId)) {
+
+            throw new IllegalArgumentException(
+                    "Source and destination accounts cannot be the same"
+            );
+        }
+    }
+
+
+    // =========================================================
+    // FIND ACCOUNT
+    // =========================================================
+
+    private Account findAccount(
+            Long accountId,
+            String accountLabel) {
+
+        return accountRepo.findById(accountId)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                accountLabel
+                                        + " not found: "
+                                        + accountId
+                        )
+                );
+    }
+
+
+    // =========================================================
+    // NORMALIZE STATUS
+    // =========================================================
+
+    private String normalizeStatus(String status) {
+
+        if (status == null || status.isBlank()) {
+            return "PENDING";
+        }
+
+        String normalized =
+                status.trim().toUpperCase();
+
+        // Keep the statuses used by the existing UI/API.
+        if (!normalized.equals("PENDING") &&
+                !normalized.equals("APPROVED") &&
+                !normalized.equals("REJECTED")) {
+
+            throw new IllegalArgumentException(
+                    "Invalid transaction status: "
+                            + status
+            );
+        }
+
+        return normalized;
+    }
+
+
+    // =========================================================
+    // NORMALIZE LEDGER ID
+    // =========================================================
+
+    private String normalizeLedgerId(
+            String ledgerId) {
+
+        if (ledgerId == null) {
+            return null;
+        }
+
+        String value =
+                ledgerId.trim();
+
+        return value.isEmpty()
+                ? null
+                : value;
+    }
+
+
+    // =========================================================
+    // ENTITY -> DTO
     // =========================================================
 
     private TransactionDTO convertToDTO(
@@ -614,26 +417,21 @@ public class TransactionService {
         TransactionDTO dto =
                 new TransactionDTO();
 
-
         dto.setId(
                 transaction.getId()
         );
-
 
         dto.setAmount(
                 transaction.getAmount()
         );
 
-
         dto.setReferenceId(
                 transaction.getReferenceId()
         );
 
-
         dto.setLedgerId(
                 transaction.getLedgerId()
         );
-
 
         // -----------------------------------------------------
         // SOURCE ACCOUNT
@@ -648,7 +446,6 @@ public class TransactionService {
             );
         }
 
-
         // -----------------------------------------------------
         // TARGET ACCOUNT
         // -----------------------------------------------------
@@ -662,7 +459,6 @@ public class TransactionService {
             );
         }
 
-
         // -----------------------------------------------------
         // STATUS
         // -----------------------------------------------------
@@ -671,85 +467,6 @@ public class TransactionService {
                 transaction.getStatus()
         );
 
-
         return dto;
-    }
-
-
-    // =========================================================
-    // GET ALL
-    // =========================================================
-
-    public List<TransactionDTO> getAllTransactions() {
-
-        return repo.findAll()
-                .stream()
-                .map(this::convertToDTO)
-                .toList();
-    }
-
-
-    // =========================================================
-    // GET BY LEDGER
-    // =========================================================
-
-    public List<TransactionDTO> getTransactionsByLedger(
-            String ledgerId) {
-
-        return repo.findByLedgerId(ledgerId)
-                .stream()
-                .map(this::convertToDTO)
-                .toList();
-    }
-
-
-    // =========================================================
-    // GET BY ID
-    // =========================================================
-
-    public Optional<Transaction> getTransactionById(
-            Long id) {
-
-        return repo.findById(id);
-    }
-
-
-    // =========================================================
-    // REVERSE / DELETE
-    // =========================================================
-
-    public void reverseTransaction(
-            Long id) {
-
-        if (!repo.existsById(id)) {
-
-            throw new RuntimeException(
-                    "Transaction not found"
-            );
-        }
-
-        repo.deleteById(id);
-    }
-
-
-    // =========================================================
-    // LEDGER NORMALIZATION
-    // =========================================================
-
-    private String normalizeLedgerId(
-            String ledgerId) {
-
-        if (ledgerId == null) {
-            return null;
-        }
-
-        String value =
-                ledgerId.trim();
-
-        if (value.isEmpty()) {
-            return null;
-        }
-
-        return value;
     }
 }
