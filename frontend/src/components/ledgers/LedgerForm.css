@@ -1,18 +1,21 @@
 /* =========================================================
-   VAULTFLOW - LEDGER CREATE PAGE
-   ========================================================= */
+   VAULTFLOW — CREATE LEDGER
+   PREMIUM FINANCIAL UI
+========================================================= */
 
 .ledger-create-page {
     min-height: 100vh;
     width: 100%;
+    padding: 0;
     background:
         radial-gradient(
-            circle at 85% 5%,
-            rgba(37, 99, 235, 0.08),
-            transparent 28%
+            circle at 90% 0%,
+            rgba(37, 99, 235, 0.10),
+            transparent 30%
         ),
-        #f5f7fb;
+        linear-gradient(135deg, #f8fafc 0%, #eef3f9 100%);
     color: #0f172a;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     box-sizing: border-box;
 }
 
@@ -22,37 +25,38 @@
     box-sizing: border-box;
 }
 
+
 /* =========================================================
-   SHELL
-   ========================================================= */
+   MAIN SHELL
+========================================================= */
 
 .ledger-create-shell {
     width: 100%;
-    max-width: 1500px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 0 42px 35px;
+    padding: 0 42px 50px;
 }
+
 
 /* =========================================================
    TOP BAR
-   ========================================================= */
+========================================================= */
 
 .ledger-create-topbar {
-    min-height: 76px;
+    min-height: 74px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 25px;
-    border-bottom: 1px solid #e5eaf2;
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(12px);
-    margin: 0 -42px;
-    padding: 0 42px;
-}
 
-/* =========================================================
-   BRAND
-   ========================================================= */
+    padding: 0 42px;
+    margin: 0 -42px;
+
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid #e5eaf2;
+
+    backdrop-filter: blur(14px);
+}
 
 .ledger-brand {
     display: flex;
@@ -61,21 +65,25 @@
 }
 
 .ledger-brand-logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 42px;
+    height: 42px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    border-radius: 12px;
+
     background: linear-gradient(
         135deg,
         #2563eb,
-        #1d4ed8
+        #4f46e5
     );
+
     color: white;
     font-size: 15px;
-    font-weight: 800;
-    letter-spacing: -0.4px;
+    font-weight: 900;
+
     box-shadow:
         0 8px 20px rgba(37, 99, 235, 0.22);
 }
@@ -87,21 +95,22 @@
 }
 
 .ledger-brand-copy strong {
+    color: #111827;
     font-size: 16px;
-    font-weight: 750;
-    letter-spacing: -0.3px;
+    font-weight: 800;
 }
 
 .ledger-brand-copy span {
+    color: #94a3b8;
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 1.3px;
-    color: #94a3b8;
 }
+
 
 /* =========================================================
    TOP RIGHT
-   ========================================================= */
+========================================================= */
 
 .ledger-topbar-right {
     display: flex;
@@ -112,41 +121,50 @@
 .ledger-role-pill {
     height: 34px;
     padding: 0 13px;
+
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
+
     border: 1px solid #dbe4f0;
     border-radius: 999px;
+
     background: #f8fafc;
-    color: #64748b;
+    color: #475569;
+
     font-size: 10px;
-    font-weight: 750;
-    letter-spacing: 0.7px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
 }
 
 .ledger-role-pill span {
     width: 7px;
     height: 7px;
+
     border-radius: 50%;
     background: #22c55e;
+
     box-shadow:
-        0 0 0 3px rgba(34, 197, 94, 0.12);
+        0 0 0 4px rgba(34, 197, 94, 0.10);
 }
 
 .ledger-back-button {
     min-height: 36px;
+
+    padding: 0 15px;
+
     border: 1px solid #dbe3ef;
     border-radius: 9px;
-    padding: 0 14px;
+
     background: white;
     color: #475569;
+
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 700;
+
     cursor: pointer;
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
+
+    transition: all 0.2s ease;
 }
 
 .ledger-back-button:hover:not(:disabled) {
@@ -155,100 +173,759 @@
     transform: translateY(-1px);
 }
 
-.ledger-back-button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
 
 /* =========================================================
    PAGE INTRO
-   ========================================================= */
+========================================================= */
 
 .ledger-create-intro {
+    padding: 52px 0 34px;
+
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
+
     gap: 30px;
-    padding: 48px 0 32px;
 }
 
 .ledger-page-eyebrow {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 11px;
+
+    margin-bottom: 12px;
+
     color: #2563eb;
+
     font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.7px;
+    font-weight: 900;
+
+    letter-spacing: 1.8px;
 }
 
 .ledger-page-eyebrow span {
-    width: 22px;
+    width: 25px;
     height: 2px;
+
     border-radius: 99px;
     background: #2563eb;
 }
 
 .ledger-create-intro h1 {
     margin: 0;
+
+    color: #0b1220;
+
     font-size: 38px;
     line-height: 1.1;
-    font-weight: 800;
+    font-weight: 850;
+
     letter-spacing: -1.4px;
-    color: #0b1220;
 }
 
 .ledger-create-intro p {
-    margin: 10px 0 0;
+    margin: 11px 0 0;
+
     color: #64748b;
+
     font-size: 14px;
     line-height: 1.6;
 }
+
+
+/* =========================================================
+   SECURITY BADGE
+========================================================= */
 
 .ledger-security-badge {
     display: flex;
     align-items: center;
     gap: 9px;
+
     padding: 10px 14px;
+
     border: 1px solid #dbeafe;
-    border-radius: 10px;
+    border-radius: 11px;
+
     background: #eff6ff;
     color: #2563eb;
-    white-space: nowrap;
+
+    box-shadow:
+        0 4px 12px rgba(37, 99, 235, 0.05);
 }
 
 .ledger-security-badge div {
-    width: 22px;
-    height: 22px;
+    width: 23px;
+    height: 23px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 50%;
+
     background: #2563eb;
     color: white;
-    font-size: 12px;
-    font-weight: 800;
+
+    font-size: 11px;
+    font-weight: 900;
 }
 
 .ledger-security-badge span {
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 750;
 }
+
+
+/* =========================================================
+   MAIN GRID
+========================================================= */
+
+.ledger-create-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.55fr)
+        minmax(350px, 0.85fr);
+
+    gap: 24px;
+
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   FORM CARD
+========================================================= */
+
+.ledger-form-card {
+    background: #ffffff;
+
+    border: 1px solid #e1e7ef;
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.07),
+        0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.ledger-form-card-header {
+    padding: 27px 30px;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f8fbff
+        );
+}
+
+.ledger-section-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #edf4ff;
+    border: 1px solid #d9e7ff;
+
+    color: #2563eb;
+
+    font-size: 20px;
+}
+
+.ledger-form-card-header h2 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.ledger-form-card-header p {
+    margin: 5px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.ledger-form-divider {
+    height: 1px;
+    background: #edf1f6;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.ledger-form {
+    padding: 31px;
+}
+
+
+/* =========================================================
+   FIELDS
+========================================================= */
+
+.ledger-field {
+    margin-bottom: 25px;
+}
+
+.ledger-field:last-of-type {
+    margin-bottom: 8px;
+}
+
+.ledger-field-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 9px;
+}
+
+.ledger-field-label label {
+    color: #334155;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ledger-field-label label span {
+    margin-left: 4px;
+    color: #2563eb;
+}
+
+.ledger-field-number {
+    color: #cbd5e1;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.ledger-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.ledger-input-icon {
+    position: absolute;
+
+    left: 15px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    z-index: 2;
+
+    color: #94a3b8;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    pointer-events: none;
+}
+
+.ledger-input-wrapper input {
+    width: 100%;
+    height: 52px;
+
+    padding: 0 16px 0 43px;
+
+    border: 1px solid #d9e1eb;
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #fbfcfe;
+    color: #0f172a;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.ledger-input-wrapper input::placeholder {
+    color: #b0bac8;
+}
+
+.ledger-input-wrapper input:hover {
+    border-color: #cbd5e1;
+    background: #ffffff;
+}
+
+.ledger-input-wrapper input:focus {
+    border-color: #2563eb;
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.09);
+}
+
+.ledger-input-wrapper input:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   HELP TEXT
+========================================================= */
+
+.ledger-field-help {
+    margin: 7px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.ledger-form-actions {
+    margin-top: 25px;
+    padding-top: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    border-top: 1px solid #edf1f6;
+}
+
+.ledger-secondary-button,
+.ledger-edit-button,
+.ledger-submit-button {
+    min-height: 43px;
+
+    padding: 0 17px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+
+/* =========================================================
+   CANCEL
+========================================================= */
+
+.ledger-secondary-button {
+    border: 1px solid #dbe2ec;
+
+    background: white;
+    color: #64748b;
+}
+
+.ledger-secondary-button:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   EDIT
+========================================================= */
+
+.ledger-edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border: 1px solid #bfdbfe;
+
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.ledger-edit-button:hover:not(:disabled) {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   ADD LEDGER
+========================================================= */
+
+.ledger-submit-button {
+    min-width: 140px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 1px solid #2563eb;
+
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #4f46e5
+    );
+
+    color: white;
+
+    box-shadow:
+        0 7px 18px rgba(37, 99, 235, 0.22);
+}
+
+.ledger-submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 11px 24px rgba(37, 99, 235, 0.28);
+}
+
+.ledger-submit-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.ledger-submit-icon {
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   DISABLED
+========================================================= */
+
+.ledger-secondary-button:disabled,
+.ledger-edit-button:disabled,
+.ledger-submit-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.ledger-spinner {
+    width: 14px;
+    height: 14px;
+
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: white;
+
+    border-radius: 50%;
+
+    animation: ledgerSpin 0.7s linear infinite;
+}
+
+@keyframes ledgerSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   INFORMATION PANEL
+========================================================= */
+
+.ledger-info-panel {
+    position: relative;
+
+    min-height: 100%;
+
+    padding: 32px;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(59, 130, 246, 0.22),
+            transparent 36%
+        ),
+        linear-gradient(
+            145deg,
+            #0f172a,
+            #172554
+        );
+
+    color: white;
+
+    box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.15);
+}
+
+.ledger-info-panel::before {
+    content: "";
+
+    position: absolute;
+
+    right: -100px;
+    bottom: -110px;
+
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    pointer-events: none;
+}
+
+.ledger-info-panel::after {
+    content: "";
+
+    position: absolute;
+
+    right: -40px;
+    bottom: -55px;
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(96, 165, 250, 0.10);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   INFO TOP
+========================================================= */
+
+.ledger-info-panel-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ledger-info-panel-top > span {
+    color: #93c5fd;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 1.6px;
+}
+
+.ledger-info-symbol {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(147, 197, 253, 0.18);
+
+    color: #93c5fd;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   INFO CONTENT
+========================================================= */
+
+.ledger-info-panel h2 {
+    position: relative;
+    z-index: 2;
+
+    max-width: 330px;
+
+    margin: 28px 0 12px;
+
+    color: #ffffff;
+
+    font-size: 26px;
+    line-height: 1.25;
+
+    font-weight: 800;
+
+    letter-spacing: -0.8px;
+}
+
+.ledger-info-panel > p {
+    position: relative;
+    z-index: 2;
+
+    max-width: 390px;
+
+    margin: 0;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+
+/* =========================================================
+   BENEFITS
+========================================================= */
+
+.ledger-benefits {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+
+    margin-top: 32px;
+}
+
+.ledger-benefit {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+}
+
+.ledger-benefit-icon {
+    width: 26px;
+    height: 26px;
+
+    flex: 0 0 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: rgba(59, 130, 246, 0.16);
+    color: #60a5fa;
+
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.ledger-benefit section {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.ledger-benefit strong {
+    color: #e2e8f0;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.ledger-benefit span {
+    color: #7f8da3;
+
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   CURRENT ROLE
+========================================================= */
+
+.ledger-current-role {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 34px;
+    padding-top: 20px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.ledger-current-role span {
+    color: #64748b;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+}
+
+.ledger-current-role strong {
+    padding: 7px 11px;
+
+    border-radius: 7px;
+
+    background: rgba(59, 130, 246, 0.14);
+
+    color: #93c5fd;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 0.7px;
+}
+
 
 /* =========================================================
    NOTIFICATIONS
-   ========================================================= */
+========================================================= */
 
 .ledger-notification {
     display: flex;
     align-items: center;
+
     gap: 13px;
-    min-height: 66px;
-    padding: 12px 15px;
+
+    min-height: 64px;
+
+    padding: 13px 16px;
     margin-bottom: 20px;
+
     border-radius: 12px;
     border: 1px solid;
+
     animation: ledgerNotificationIn 0.25s ease;
 }
 
@@ -277,22 +954,24 @@
 .ledger-notification-icon {
     width: 34px;
     height: 34px;
+
     flex: 0 0 34px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 9px;
-    font-weight: 800;
+
+    font-weight: 900;
 }
 
-.ledger-notification-success
-.ledger-notification-icon {
+.ledger-notification-success .ledger-notification-icon {
     background: #dcfce7;
     color: #16a34a;
 }
 
-.ledger-notification-error
-.ledger-notification-icon {
+.ledger-notification-error .ledger-notification-icon {
     background: #fee2e2;
     color: #dc2626;
 }
@@ -300,531 +979,45 @@
 .ledger-notification-content {
     min-width: 0;
     flex: 1;
+
     display: flex;
     flex-direction: column;
+
     gap: 2px;
 }
 
 .ledger-notification-content strong {
     font-size: 12px;
-    font-weight: 750;
-}
-
-.ledger-notification-success
-.ledger-notification-content strong {
-    color: #166534;
-}
-
-.ledger-notification-error
-.ledger-notification-content strong {
-    color: #991b1b;
+    font-weight: 800;
 }
 
 .ledger-notification-content span {
-    font-size: 12px;
     color: #64748b;
-}
-
-.ledger-notification > button {
-    width: 30px;
-    height: 30px;
-    border: 0;
-    background: transparent;
-    color: #94a3b8;
-    font-size: 20px;
-    cursor: pointer;
-    border-radius: 7px;
-}
-
-.ledger-notification > button:hover {
-    background: rgba(15, 23, 42, 0.05);
-}
-
-/* =========================================================
-   MAIN GRID
-   ========================================================= */
-
-.ledger-create-grid {
-    display: grid;
-    grid-template-columns:
-        minmax(0, 1.55fr)
-        minmax(310px, 0.8fr);
-    gap: 22px;
-    align-items: stretch;
-}
-
-/* =========================================================
-   FORM CARD
-   ========================================================= */
-
-.ledger-form-card {
-    background: #ffffff;
-    border: 1px solid #e3e8f0;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow:
-        0 10px 30px rgba(15, 23, 42, 0.04);
-}
-
-.ledger-form-card-header {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    padding: 25px 27px;
-}
-
-.ledger-section-icon {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 11px;
-    background: #eff6ff;
-    color: #2563eb;
-    font-size: 21px;
-    font-weight: 500;
-}
-
-.ledger-form-card-header h2 {
-    margin: 0;
-    color: #111827;
-    font-size: 17px;
-    font-weight: 750;
-    letter-spacing: -0.3px;
-}
-
-.ledger-form-card-header p {
-    margin: 5px 0 0;
-    color: #94a3b8;
     font-size: 11px;
-    line-height: 1.5;
 }
 
-.ledger-form-divider {
-    height: 1px;
-    background: #edf1f6;
-}
-
-/* =========================================================
-   FORM
-   ========================================================= */
-
-.ledger-form {
-    padding: 28px;
-}
-
-/* =========================================================
-   FIELD
-   ========================================================= */
-
-.ledger-field {
-    margin-bottom: 25px;
-}
-
-.ledger-field:last-of-type {
-    margin-bottom: 8px;
-}
-
-.ledger-field-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 9px;
-}
-
-.ledger-field-label label {
-    color: #334155;
-    font-size: 12px;
-    font-weight: 750;
-}
-
-.ledger-field-label label span {
-    margin-left: 4px;
-    color: #2563eb;
-}
-
-.ledger-field-number {
-    color: #cbd5e1;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.8px;
-}
-
-/* =========================================================
-   INPUT
-   ========================================================= */
-
-.ledger-input-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.ledger-input-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2;
-    color: #94a3b8;
-    font-size: 15px;
-    font-weight: 700;
-    pointer-events: none;
-}
-
-.ledger-input-wrapper input {
-    width: 100%;
-    height: 49px;
-    padding: 0 15px 0 42px;
-    border: 1px solid #dbe2ec;
-    border-radius: 9px;
-    outline: none;
-    background: #fbfcfe;
-    color: #0f172a;
-    font-family: inherit;
-    font-size: 13px;
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-.ledger-input-wrapper input::placeholder {
-    color: #b1bac8;
-}
-
-.ledger-input-wrapper input:hover {
-    border-color: #cbd5e1;
-    background: #ffffff;
-}
-
-.ledger-input-wrapper input:focus {
-    border-color: #2563eb;
-    background: #ffffff;
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.ledger-input-wrapper input:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-}
-
-/* =========================================================
-   HELP TEXT
-   ========================================================= */
-
-.ledger-field-help {
-    margin: 7px 0 0;
-    color: #94a3b8;
-    font-size: 10px;
-    line-height: 1.5;
-}
-
-/* =========================================================
-   ACTIONS
-   ========================================================= */
-
-.ledger-form-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 9px;
-    padding-top: 20px;
-    margin-top: 22px;
-    border-top: 1px solid #edf1f6;
-}
-
-.ledger-secondary-button,
-.ledger-edit-button,
-.ledger-submit-button {
-    min-height: 42px;
-    border-radius: 8px;
-    padding: 0 17px;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 750;
-    cursor: pointer;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease,
-        border-color 0.2s ease;
-}
-
-/* =========================================================
-   CANCEL
-   ========================================================= */
-
-.ledger-secondary-button {
-    border: 1px solid #dbe2ec;
-    background: white;
-    color: #64748b;
-}
-
-.ledger-secondary-button:hover:not(:disabled) {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    transform: translateY(-1px);
-}
-
-/* =========================================================
-   EDIT
-   ========================================================= */
-
-.ledger-edit-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border: 1px solid #bfdbfe;
-    background: #eff6ff;
-    color: #2563eb;
-}
-
-.ledger-edit-button:hover:not(:disabled) {
-    background: #dbeafe;
-    border-color: #93c5fd;
-    transform: translateY(-1px);
-}
-
-/* =========================================================
-   SUBMIT
-   ========================================================= */
-
-.ledger-submit-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 135px;
-    border: 1px solid #2563eb;
-    background: #2563eb;
-    color: white;
-    box-shadow:
-        0 7px 18px rgba(37, 99, 235, 0.2);
-}
-
-.ledger-submit-button:hover:not(:disabled) {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow:
-        0 9px 22px rgba(37, 99, 235, 0.26);
-}
-
-.ledger-submit-icon {
-    font-size: 16px;
-    line-height: 1;
-}
-
-.ledger-secondary-button:disabled,
-.ledger-edit-button:disabled,
-.ledger-submit-button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* =========================================================
-   SPINNER
-   ========================================================= */
-
-.ledger-spinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-top-color: white;
-    border-radius: 50%;
-    animation:
-        ledgerSpin 0.75s linear infinite;
-}
-
-@keyframes ledgerSpin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* =========================================================
-   INFORMATION PANEL
-   ========================================================= */
-
-.ledger-info-panel {
-    position: relative;
-    min-height: 100%;
-    padding: 28px;
-    overflow: hidden;
-    border-radius: 16px;
-    background:
-        radial-gradient(
-            circle at 100% 0%,
-            rgba(59, 130, 246, 0.18),
-            transparent 34%
-        ),
-        linear-gradient(
-            145deg,
-            #111827,
-            #172033
-        );
-    color: white;
-    box-shadow:
-        0 15px 35px rgba(15, 23, 42, 0.12);
-}
-
-.ledger-info-panel::after {
-    content: "";
-    position: absolute;
-    right: -90px;
-    bottom: -110px;
-    width: 230px;
-    height: 230px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    pointer-events: none;
-}
-
-.ledger-info-panel-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.ledger-info-panel-top > span {
-    color: #93c5fd;
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-}
-
-.ledger-info-symbol {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    border: 1px solid rgba(147, 197, 253, 0.2);
-    background: rgba(59, 130, 246, 0.1);
-    color: #93c5fd;
-    font-size: 17px;
-    font-weight: 800;
-}
-
-.ledger-info-panel h2 {
-    max-width: 330px;
-    margin: 25px 0 11px;
-    font-size: 24px;
-    line-height: 1.25;
-    letter-spacing: -0.8px;
-}
-
-.ledger-info-panel > p {
-    max-width: 390px;
-    margin: 0;
-    color: #94a3b8;
-    font-size: 12px;
-    line-height: 1.75;
-}
-
-/* =========================================================
-   BENEFITS
-   ========================================================= */
-
-.ledger-benefits {
-    display: flex;
-    flex-direction: column;
-    gap: 17px;
-    margin-top: 30px;
-}
-
-.ledger-benefit {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-}
-
-.ledger-benefit-icon {
-    width: 24px;
-    height: 24px;
-    flex: 0 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1px;
-    border-radius: 7px;
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.ledger-benefit section {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.ledger-benefit strong {
-    color: #e2e8f0;
-    font-size: 11px;
-    font-weight: 750;
-}
-
-.ledger-benefit span {
-    color: #7f8da3;
-    font-size: 10px;
-    line-height: 1.5;
-}
-
-/* =========================================================
-   CURRENT ROLE
-   ========================================================= */
-
-.ledger-current-role {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 32px;
-    padding-top: 19px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.ledger-current-role span {
-    color: #64748b;
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-}
-
-.ledger-current-role strong {
-    padding: 6px 10px;
-    border-radius: 6px;
-    background: rgba(59, 130, 246, 0.12);
-    color: #93c5fd;
-    font-size: 9px;
-    letter-spacing: 0.7px;
-}
 
 /* =========================================================
    FOOTER
-   ========================================================= */
+========================================================= */
 
 .ledger-create-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: 20px;
-    padding: 24px 2px 5px;
+
+    padding: 25px 2px 5px;
+
     color: #94a3b8;
     font-size: 10px;
 }
 
+
 /* =========================================================
    RESPONSIVE
-   ========================================================= */
+========================================================= */
 
 @media (max-width: 1050px) {
 
@@ -836,6 +1029,7 @@
     .ledger-create-topbar {
         margin-left: -25px;
         margin-right: -25px;
+
         padding-left: 25px;
         padding-right: 25px;
     }
@@ -849,34 +1043,25 @@
     }
 }
 
+
 @media (max-width: 720px) {
 
     .ledger-create-shell {
-        padding: 0 16px 25px;
+        padding: 0 16px 30px;
     }
 
     .ledger-create-topbar {
-        margin: 0 -16px;
-        padding: 0 16px;
-    }
+        margin-left: -16px;
+        margin-right: -16px;
 
-    .ledger-brand-copy span {
-        display: none;
-    }
-
-    .ledger-back-button {
-        width: 38px;
-        padding: 0;
-        font-size: 0;
-    }
-
-    .ledger-back-button span {
-        font-size: 16px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .ledger-create-intro {
         align-items: flex-start;
         flex-direction: column;
+
         padding: 35px 0 25px;
     }
 
@@ -888,12 +1073,9 @@
         align-self: flex-start;
     }
 
-    .ledger-form-card-header {
-        padding: 21px;
-    }
-
+    .ledger-form-card-header,
     .ledger-form {
-        padding: 21px;
+        padding: 22px;
     }
 
     .ledger-form-actions {
@@ -908,11 +1090,12 @@
     }
 
     .ledger-create-footer {
-        flex-direction: column;
         align-items: flex-start;
-        gap: 5px;
+        flex-direction: column;
+        gap: 6px;
     }
 }
+
 
 @media (max-width: 450px) {
 
@@ -921,10 +1104,10 @@
     }
 
     .ledger-info-panel {
-        padding: 22px;
+        padding: 24px;
     }
 
     .ledger-info-panel h2 {
-        font-size: 21px;
+        font-size: 22px;
     }
 }
