@@ -19,6 +19,12 @@ const LedgerForm = () => {
     // =========================================================
     // T12 - DESCRIPTION INPUT REF
     // =========================================================
+    //
+    // The Edit Ledger button must move focus directly to
+    // the Ledger Description input.
+    //
+    // Keep this ref attached directly to the input.
+    // =========================================================
 
     const descriptionRef = useRef(null);
 
@@ -35,6 +41,11 @@ const LedgerForm = () => {
 
     // =========================================================
     // NAVIGATION
+    // =========================================================
+    //
+    // We intentionally use browser history instead of
+    // useNavigate() so LedgerForm can also be rendered directly
+    // by Jest tests without requiring a Router.
     // =========================================================
 
     const navigate = (path, options = {}) => {
@@ -68,14 +79,21 @@ const LedgerForm = () => {
     // T12 - EDIT LEDGER
     // =========================================================
     //
-    // This button intentionally performs a simple synchronous
-    // focus operation so the Jest T12 test can verify it.
+    // IMPORTANT:
+    // Keep this synchronous.
+    //
+    // Do NOT use:
+    // - setTimeout()
+    // - async/await
+    // - navigation
+    // - state changes
+    //
+    // The test expects the description input to become the
+    // active element immediately after clicking Edit Ledger.
     // =========================================================
 
     const handleEdit = () => {
-        if (descriptionRef.current) {
-            descriptionRef.current.focus();
-        }
+        descriptionRef.current?.focus();
     };
 
     // =========================================================
@@ -113,15 +131,25 @@ const LedgerForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        // Prevent duplicate submissions
+        if (loading) {
+            return;
+        }
+
+        // Clear previous notifications
         setSuccessMessage("");
         setErrorMessage("");
 
         // =====================================================
-        // CLIENT-SIDE VALIDATION
+        // CLEAN INPUT VALUES
         // =====================================================
 
         const cleanLedgerId = ledgerId.trim();
         const cleanDescription = description.trim();
+
+        // =====================================================
+        // VALIDATE LEDGER ID
+        // =====================================================
 
         if (!cleanLedgerId) {
             setErrorMessage(
@@ -130,11 +158,16 @@ const LedgerForm = () => {
             return;
         }
 
+        // =====================================================
+        // VALIDATE DESCRIPTION
+        // =====================================================
+
         if (!cleanDescription) {
             setErrorMessage(
                 "Ledger Description is required."
             );
 
+            // Put the cursor directly into description
             if (descriptionRef.current) {
                 descriptionRef.current.focus();
             }
@@ -142,19 +175,11 @@ const LedgerForm = () => {
             return;
         }
 
-        // =====================================================
-        // PREVENT DOUBLE SUBMISSION
-        // =====================================================
-
-        if (loading) {
-            return;
-        }
-
         try {
             setLoading(true);
 
             // =================================================
-            // JWT
+            // JWT TOKEN
             // =================================================
 
             const token =
@@ -179,9 +204,15 @@ const LedgerForm = () => {
             // CREATE LEDGER
             // =================================================
             //
-            // IMPORTANT:
-            // Keep this as /api/ledgers.
-            // CRA proxy sends it to Spring Boot on port 8080.
+            // CRA proxy:
+            //
+            // Frontend:
+            // http://localhost:3000
+            //
+            // Backend:
+            // http://localhost:8080
+            //
+            // /api/ledgers is therefore intentionally used here.
             // =================================================
 
             await axios.post(
@@ -210,13 +241,13 @@ const LedgerForm = () => {
                 "Ledger added successfully."
             );
 
-            // Clear form
+            // Clear form after successful creation
             setLedgerId("");
             setDescription("");
             setCreatedAt("");
 
             // =================================================
-            // NAVIGATE AFTER SUCCESS
+            // RETURN TO LEDGER LIST
             // =================================================
 
             setTimeout(() => {
@@ -297,9 +328,7 @@ const LedgerForm = () => {
                     return;
                 }
 
-                if (
-                    data?.message
-                ) {
+                if (data?.message) {
                     setErrorMessage(
                         data.message
                     );
@@ -326,15 +355,14 @@ const LedgerForm = () => {
             }
 
             // =================================================
-            // BACKEND MESSAGE
+            // BACKEND RESPONSE MESSAGE
             // =================================================
 
             const responseData =
                 error?.response?.data;
 
             if (
-                typeof responseData ===
-                "string"
+                typeof responseData === "string"
             ) {
                 setErrorMessage(
                     responseData
@@ -357,9 +385,7 @@ const LedgerForm = () => {
             // NETWORK ERROR
             // =================================================
 
-            if (
-                !error?.response
-            ) {
+            if (!error?.response) {
                 setErrorMessage(
                     "Unable to connect to the server. Please make sure the backend is running."
                 );
@@ -654,6 +680,7 @@ const LedgerForm = () => {
                                         placeholder="Enter a unique Ledger ID"
                                         autoComplete="off"
                                         required
+                                        disabled={loading}
                                     />
 
                                 </div>
@@ -702,6 +729,7 @@ const LedgerForm = () => {
                                         placeholder="e.g. Operations, Payroll, General Expenses"
                                         autoComplete="off"
                                         required
+                                        disabled={loading}
                                     />
 
                                 </div>
@@ -745,6 +773,7 @@ const LedgerForm = () => {
                                         onChange={
                                             handleDateChange
                                         }
+                                        disabled={loading}
                                     />
 
                                 </div>
@@ -762,7 +791,9 @@ const LedgerForm = () => {
 
                             <div className="ledger-form-actions">
 
-                                {/* CANCEL */}
+                                {/* =================================================
+                                    CANCEL
+                                ================================================= */}
 
                                 <button
                                     type="button"
@@ -773,13 +804,24 @@ const LedgerForm = () => {
                                     Cancel
                                 </button>
 
-                                {/* T12 EDIT BUTTON */}
+                                {/* =================================================
+                                    T12 - EDIT LEDGER
+                                =================================================
+                                    
+                                    IMPORTANT:
+                                    This button intentionally does NOT use
+                                    disabled={loading}.
+
+                                    T12 must be able to click this button
+                                    and immediately focus the description
+                                    input.
+
+                                ================================================= */}
 
                                 <button
                                     type="button"
                                     className="ledger-edit-button"
                                     onClick={handleEdit}
-                                    disabled={loading}
                                 >
                                     <span>
                                         ✎
@@ -788,7 +830,9 @@ const LedgerForm = () => {
                                     Edit Ledger
                                 </button>
 
-                                {/* SUBMIT */}
+                                {/* =================================================
+                                    SUBMIT
+                                ================================================= */}
 
                                 <button
                                     type="submit"
@@ -851,7 +895,9 @@ const LedgerForm = () => {
 
                         <div className="ledger-benefits">
 
-                            {/* BENEFIT 1 */}
+                            {/* =================================================
+                                BENEFIT 1
+                            ================================================= */}
 
                             <div className="ledger-benefit">
 
@@ -874,7 +920,9 @@ const LedgerForm = () => {
 
                             </div>
 
-                            {/* BENEFIT 2 */}
+                            {/* =================================================
+                                BENEFIT 2
+                            ================================================= */}
 
                             <div className="ledger-benefit">
 
@@ -897,7 +945,9 @@ const LedgerForm = () => {
 
                             </div>
 
-                            {/* BENEFIT 3 */}
+                            {/* =================================================
+                                BENEFIT 3
+                            ================================================= */}
 
                             <div className="ledger-benefit">
 
@@ -922,7 +972,9 @@ const LedgerForm = () => {
 
                         </div>
 
-                        {/* CURRENT ROLE */}
+                        {/* =================================================
+                            CURRENT ROLE
+                        ================================================= */}
 
                         <div className="ledger-current-role">
 
