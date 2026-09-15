@@ -1,426 +1,753 @@
-.transaction-approval {
-    width: 100%;
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 30px;
-    box-sizing: border-box;
+/* =========================================================
+   VAULTFLOW — TRANSACTION APPROVAL
+   Professional Financial Control UI
+========================================================= */
 
-    border: 1px solid rgba(148, 163, 184, 0.14);
-    border-radius: 18px;
-
+.approval-page {
+    min-height: 100%;
+    padding: 34px 48px 40px;
     background:
-        linear-gradient(
-            145deg,
-            rgba(15, 23, 42, 0.96),
-            rgba(10, 15, 28, 0.96)
-        );
-
-    box-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.22);
-
-    color: #f8fafc;
+        radial-gradient(
+            circle at 85% 0%,
+            rgba(37, 99, 235, 0.055),
+            transparent 32%
+        ),
+        #f5f7fb;
+    color: #10203b;
+    box-sizing: border-box;
 }
 
-/* Header */
+/* =========================================================
+   PAGE HEADER
+========================================================= */
 
-.transaction-approval-header {
+.approval-page-header {
+    max-width: 1280px;
+    margin: 0 auto 28px;
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 24px;
-
-    margin-bottom: 28px;
 }
 
-.transaction-approval-eyebrow {
+.approval-eyebrow {
     margin-bottom: 8px;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+}
 
-    color: #60a5fa;
+.approval-heading h1 {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1.15;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+}
+
+.approval-heading p {
+    margin: 10px 0 0;
+    color: #70809a;
+    font-size: 14px;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.approval-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 15px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.approval-status-pending {
+    color: #9a6700;
+    background: #fff7df;
+    border: 1px solid #f4df9c;
+}
+
+.approval-status-approved {
+    color: #087443;
+    background: #eaf9f1;
+    border: 1px solid #bce9d0;
+}
+
+.approval-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 4px rgba(154, 103, 0, 0.08);
+}
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.approval-main-card {
+    max-width: 1280px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e5eaf2;
+    border-radius: 18px;
+    box-shadow:
+        0 12px 40px rgba(16, 32, 59, 0.07),
+        0 2px 8px rgba(16, 32, 59, 0.035);
+    overflow: hidden;
+}
+
+/* =========================================================
+   CARD TOP
+========================================================= */
+
+.approval-card-top {
+    padding: 27px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.approval-card-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.approval-shield {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #edf4ff;
+    border: 1px solid #d8e6ff;
+    color: #2563eb;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.approval-card-title span {
+    display: block;
+    margin-bottom: 5px;
+    color: #8a98ad;
     font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.approval-card-title h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+}
+
+.approval-transaction-id {
+    text-align: right;
+}
+
+.approval-transaction-id span {
+    display: block;
+    margin-bottom: 5px;
+    color: #99a5b7;
+    font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.15em;
 }
 
-.transaction-approval-header h2 {
-    margin: 0;
-
-    color: #f8fafc;
-
-    font-size: 26px;
-    line-height: 1.2;
-    font-weight: 750;
-    letter-spacing: -0.025em;
-}
-
-.transaction-approval-header p {
-    max-width: 520px;
-
-    margin: 9px 0 0;
-
-    color: #94a3b8;
-
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-/* Status */
-
-.transaction-approval-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-
-    flex-shrink: 0;
-
-    padding: 8px 11px;
-
-    border-radius: 999px;
-
-    font-size: 11px;
-    font-weight: 750;
-}
-
-.status-pending {
-    color: #fbbf24;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.16);
-}
-
-.status-approved {
-    color: #4ade80;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.16);
-}
-
-.transaction-status-dot {
-    width: 6px;
-    height: 6px;
-
-    border-radius: 50%;
-
-    background: currentColor;
-}
-
-/* Transaction information */
-
-.transaction-approval-card {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-
-    padding: 18px;
-
-    border: 1px solid rgba(148, 163, 184, 0.12);
-    border-radius: 13px;
-
-    background: rgba(2, 6, 23, 0.38);
-}
-
-.transaction-approval-icon {
-    width: 42px;
-    height: 42px;
-
-    display: grid;
-    place-items: center;
-
-    flex-shrink: 0;
-
-    border-radius: 11px;
-
-    color: #60a5fa;
-    background: rgba(59, 130, 246, 0.1);
-
-    font-size: 17px;
-    font-weight: 800;
-}
-
-.transaction-approval-details {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-
-    min-width: 0;
-}
-
-.transaction-detail-label {
-    color: #64748b;
-
-    font-size: 10px;
-    font-weight: 750;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.transaction-detail-value {
-    color: #e2e8f0;
-
+.approval-transaction-id strong {
+    color: #263750;
+    font-family: "SFMono-Regular", Consolas, monospace;
     font-size: 14px;
-    font-weight: 650;
-
-    overflow-wrap: anywhere;
 }
 
-/* Notice */
-
-.transaction-approval-notice {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-
-    margin-top: 16px;
-    padding: 14px;
-
-    border: 1px solid rgba(245, 158, 11, 0.14);
-    border-radius: 11px;
-
-    background: rgba(245, 158, 11, 0.055);
+.approval-divider {
+    height: 1px;
+    margin: 0 32px;
+    background: #edf0f5;
 }
 
-.transaction-notice-icon {
-    width: 25px;
-    height: 25px;
+/* =========================================================
+   AMOUNT
+========================================================= */
 
-    display: grid;
-    place-items: center;
+.approval-amount-section {
+    padding: 38px 32px 32px;
+    text-align: center;
+}
 
-    flex-shrink: 0;
-
-    border-radius: 7px;
-
-    color: #fbbf24;
-    background: rgba(245, 158, 11, 0.1);
-
-    font-size: 11px;
+.approval-amount-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #8b99ad;
+    font-size: 10px;
     font-weight: 800;
+    letter-spacing: 0.17em;
 }
 
-.transaction-approval-notice div {
+.approval-amount {
+    color: #10203b;
+    font-size: 46px;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+}
+
+.approval-amount-subtitle {
+    margin-top: 8px;
+    color: #8390a4;
+    font-size: 13px;
+}
+
+/* =========================================================
+   TRANSFER FLOW
+========================================================= */
+
+.approval-transfer {
+    margin: 0 32px;
+    padding: 22px;
+    display: grid;
+    grid-template-columns: 1fr 130px 1fr;
+    align-items: center;
+    gap: 20px;
+    background: #f8faff;
+    border: 1px solid #e6edf8;
+    border-radius: 15px;
+}
+
+.approval-account {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    align-items: center;
+    gap: 14px;
 }
 
-.transaction-approval-notice strong {
-    color: #e2e8f0;
-
-    font-size: 11px;
-}
-
-.transaction-approval-notice span {
-    color: #94a3b8;
-
-    font-size: 11px;
-    line-height: 1.5;
-}
-
-/* Approve button */
-
-.transaction-approve-button {
-    width: 100%;
-    min-height: 48px;
-
+.account-icon {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    border-radius: 12px;
+    background: #e9f1ff;
+    color: #2563eb;
+    font-size: 15px;
+    font-weight: 800;
+}
 
-    margin-top: 20px;
-    padding: 0 18px;
+.account-icon.destination {
+    background: #ecf9f3;
+    color: #138a5b;
+}
 
-    border: 1px solid rgba(96, 165, 250, 0.3);
-    border-radius: 10px;
+.account-content span {
+    display: block;
+    margin-bottom: 5px;
+    color: #8c99ad;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
 
-    background:
-        linear-gradient(
-            135deg,
-            #2563eb,
-            #4f46e5
-        );
+.account-content strong {
+    display: block;
+    color: #172944;
+    font-size: 15px;
+}
 
-    color: #ffffff;
+.account-content small {
+    display: block;
+    margin-top: 4px;
+    color: #8a97aa;
+    font-size: 11px;
+}
 
-    font-family: inherit;
+.transfer-arrow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.transfer-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #cbd6e6;
+}
+
+.transfer-icon {
+    position: relative;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #dce4ef;
+    color: #2563eb;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(16, 32, 59, 0.06);
+}
+
+/* =========================================================
+   DETAILS GRID
+========================================================= */
+
+.approval-details-grid {
+    margin: 25px 32px 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid #e8edf4;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.approval-detail {
+    min-height: 78px;
+    padding: 16px 18px;
+    border-right: 1px solid #e8edf4;
+    box-sizing: border-box;
+}
+
+.approval-detail:last-child {
+    border-right: 0;
+}
+
+.approval-detail span {
+    display: block;
+    margin-bottom: 9px;
+    color: #99a5b7;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.approval-detail strong {
+    color: #23344f;
     font-size: 13px;
-    font-weight: 750;
+    font-weight: 700;
+}
 
+.approval-detail strong.detail-pending {
+    color: #a66a00;
+}
+
+.approval-detail strong.detail-approved {
+    color: #087443;
+}
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+.approval-security {
+    margin: 25px 32px 0;
+    padding: 17px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #f3f8ff;
+    border: 1px solid #dceaff;
+    border-radius: 13px;
+}
+
+.security-check {
+    width: 35px;
+    height: 35px;
+    flex: 0 0 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #dceaff;
+    color: #2563eb;
+    font-weight: 800;
+}
+
+.security-content {
+    flex: 1;
+}
+
+.security-content strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #18345c;
+    font-size: 12px;
+}
+
+.security-content p {
+    margin: 0;
+    color: #6e819e;
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.security-badge {
+    padding: 6px 9px;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid #d7e3f5;
+    color: #5b7191;
+    font-family: monospace;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.approval-error {
+    margin: 20px 32px 0;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 11px;
+    background: #fff2f2;
+    border: 1px solid #ffd4d4;
+    color: #b42318;
+}
+
+.approval-error-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffe0e0;
+    font-weight: 800;
+}
+
+.approval-error strong,
+.approval-error span {
+    display: block;
+}
+
+.approval-error strong {
+    margin-bottom: 3px;
+    font-size: 12px;
+}
+
+.approval-error span {
+    font-size: 11px;
+}
+
+/* =========================================================
+   SUCCESS
+========================================================= */
+
+.approval-success {
+    margin: 20px 32px 0;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border-radius: 12px;
+    background: #edf9f3;
+    border: 1px solid #c9ecd9;
+}
+
+.approval-success-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #d4f2e1;
+    color: #087443;
+    font-weight: 800;
+}
+
+.approval-success strong,
+.approval-success span {
+    display: block;
+}
+
+.approval-success strong {
+    color: #086b3f;
+    margin-bottom: 3px;
+    font-size: 12px;
+}
+
+.approval-success span {
+    color: #51826a;
+    font-size: 11px;
+}
+
+.approved-badge {
+    margin-left: auto;
+    padding: 6px 9px;
+    border-radius: 6px;
+    background: #d8f3e3;
+    color: #087443;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   ACTION AREA
+========================================================= */
+
+.approval-action-area {
+    margin-top: 28px;
+    padding: 22px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    background: #fbfcfe;
+    border-top: 1px solid #e9edf3;
+}
+
+.approval-action-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.action-lock {
+    font-size: 18px;
+}
+
+.approval-action-info strong,
+.approval-action-info span {
+    display: block;
+}
+
+.approval-action-info strong {
+    margin-bottom: 3px;
+    color: #263750;
+    font-size: 11px;
+}
+
+.approval-action-info span {
+    color: #8b98aa;
+    font-size: 10px;
+}
+
+/* =========================================================
+   APPROVE BUTTON
+========================================================= */
+
+.approval-button {
+    min-width: 230px;
+    height: 48px;
+    padding: 0 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 0;
+    border-radius: 10px;
+    background: #173b75;
+    color: #ffffff;
     cursor: pointer;
-
+    font-size: 12px;
+    font-weight: 750;
     box-shadow:
-        0 10px 24px rgba(37, 99, 235, 0.2);
-
+        0 8px 18px rgba(23, 59, 117, 0.18);
     transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        filter 0.2s ease;
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease;
 }
 
-.transaction-approve-button:hover:not(:disabled) {
+.approval-button:hover:not(:disabled) {
+    background: #123365;
     transform: translateY(-1px);
-
-    filter: brightness(1.06);
-
     box-shadow:
-        0 14px 30px rgba(37, 99, 235, 0.28);
+        0 11px 22px rgba(23, 59, 117, 0.23);
 }
 
-.transaction-approve-button:active:not(:disabled) {
+.approval-button:active:not(:disabled) {
     transform: translateY(0);
 }
 
-.transaction-approve-button:disabled {
-    opacity: 0.7;
+.approval-button:disabled {
+    opacity: 0.55;
     cursor: not-allowed;
 }
 
-.transaction-approve-button:focus-visible {
-    outline: 3px solid rgba(96, 165, 250, 0.25);
-    outline-offset: 2px;
+.approve-button-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.13);
 }
 
-.transaction-approve-check {
-    font-size: 14px;
+.approve-arrow {
+    margin-left: 4px;
+    font-size: 16px;
 }
 
-/* Loading */
+/* =========================================================
+   SPINNER
+========================================================= */
 
-.transaction-approval-spinner {
-    width: 14px;
-    height: 14px;
-
+.approval-spinner {
+    width: 16px;
+    height: 16px;
     border: 2px solid rgba(255, 255, 255, 0.35);
     border-top-color: #ffffff;
-
     border-radius: 50%;
-
-    animation: transaction-approval-spin 0.7s linear infinite;
+    animation: approval-spin 0.7s linear infinite;
 }
 
-@keyframes transaction-approval-spin {
+@keyframes approval-spin {
     to {
         transform: rotate(360deg);
     }
 }
 
-/* Success */
+/* =========================================================
+   APPROVED ACTION
+========================================================= */
 
-.transaction-approval-success {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-
-    margin-top: 16px;
-    padding: 14px;
-
-    border: 1px solid rgba(34, 197, 94, 0.16);
-    border-radius: 11px;
-
-    background: rgba(34, 197, 94, 0.055);
-}
-
-.transaction-success-icon {
-    width: 25px;
-    height: 25px;
-
-    display: grid;
-    place-items: center;
-
-    flex-shrink: 0;
-
-    border-radius: 7px;
-
-    color: #4ade80;
-    background: rgba(34, 197, 94, 0.1);
-
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.transaction-approval-success div {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.transaction-approval-success strong {
-    color: #86efac;
-
-    font-size: 11px;
-}
-
-.transaction-approval-success span {
-    color: #94a3b8;
-
-    font-size: 11px;
-    line-height: 1.5;
-}
-
-/* Error */
-
-.transaction-approval-error {
+.approved-action {
+    min-width: 230px;
+    height: 48px;
     display: flex;
     align-items: center;
-    gap: 9px;
-
-    margin-top: 16px;
-    padding: 12px 13px;
-
-    border: 1px solid rgba(239, 68, 68, 0.16);
+    justify-content: center;
+    gap: 8px;
     border-radius: 10px;
-
-    background: rgba(127, 29, 29, 0.12);
-
-    color: #fca5a5;
-
-    font-size: 11px;
+    background: #eaf8f0;
+    border: 1px solid #c9ecd9;
+    color: #087443;
+    font-size: 12px;
+    font-weight: 750;
 }
 
-.transaction-error-icon {
-    width: 20px;
-    height: 20px;
+.approved-action span {
+    font-size: 16px;
+}
 
-    display: grid;
-    place-items: center;
+/* =========================================================
+   FOOTER
+========================================================= */
 
-    flex-shrink: 0;
-
-    border-radius: 50%;
-
-    background: rgba(239, 68, 68, 0.1);
-
-    color: #f87171;
-
+.approval-footer {
+    max-width: 1280px;
+    margin: 18px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #9aa5b5;
     font-size: 10px;
-    font-weight: 800;
 }
 
-/* Responsive */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-@media (max-width: 650px) {
-    .transaction-approval {
-        padding: 22px;
+@media (max-width: 1000px) {
+
+    .approval-page {
+        padding: 25px;
     }
 
-    .transaction-approval-header {
-        flex-direction: column;
-        gap: 14px;
+    .approval-details-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .transaction-approval-status {
-        align-self: flex-start;
+    .approval-detail:nth-child(2) {
+        border-right: 0;
     }
 
-    .transaction-approval-header h2 {
-        font-size: 23px;
+    .approval-detail:nth-child(-n + 2) {
+        border-bottom: 1px solid #e8edf4;
+    }
+
+    .approval-transfer {
+        grid-template-columns: 1fr;
+    }
+
+    .transfer-arrow {
+        height: 45px;
+    }
+
+    .transfer-line {
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        height: auto;
     }
 }
 
-@media (max-width: 420px) {
-    .transaction-approval {
+@media (max-width: 700px) {
+
+    .approval-page {
         padding: 18px;
-        border-radius: 14px;
     }
 
-    .transaction-approval-header h2 {
-        font-size: 21px;
+    .approval-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .approval-heading h1 {
+        font-size: 26px;
+    }
+
+    .approval-card-top {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .approval-transaction-id {
+        text-align: left;
+    }
+
+    .approval-amount {
+        font-size: 38px;
+    }
+
+    .approval-transfer,
+    .approval-details-grid,
+    .approval-security,
+    .approval-error,
+    .approval-success {
+        margin-left: 18px;
+        margin-right: 18px;
+    }
+
+    .approval-action-area {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 20px 18px;
+    }
+
+    .approval-button,
+    .approved-action {
+        width: 100%;
+    }
+
+    .approval-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
     }
 }
