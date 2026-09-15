@@ -7,69 +7,111 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.LedgerDTO;
 import com.example.demo.model.Ledger;
 import com.example.demo.repository.LedgerRepository;
 
 @Service
+@Transactional
 public class LedgerService {
 
     @Autowired
-    private LedgerRepository repo;
+    private LedgerRepository ledgerRepository;
 
 
     // =========================================================
     // CREATE LEDGER
+    // AUDITOR / ADMIN ONLY
     // =========================================================
 
     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
     public Ledger createLedger(Ledger ledger) {
 
-        return repo.save(ledger);
+        if (ledger == null) {
+            throw new IllegalArgumentException("Ledger data cannot be null");
+        }
+
+        if (ledger.getDescription() == null ||
+                ledger.getDescription().trim().isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "Ledger description cannot be empty"
+            );
+        }
+
+        ledger.setDescription(
+                ledger.getDescription().trim()
+        );
+
+        return ledgerRepository.save(ledger);
     }
 
 
     // =========================================================
     // GET LEDGER BY ID
+    // AUTHENTICATED USERS
     // =========================================================
 
+    @Transactional(readOnly = true)
     public Ledger getLedgerById(Long id) {
 
-        return repo.findById(id)
+        validateId(id);
+
+        return ledgerRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Ledger not found")
+                        new RuntimeException(
+                                "Ledger not found with ID: " + id
+                        )
                 );
     }
 
 
     // =========================================================
     // GET ALL LEDGERS
+    // NON-PAGINATED
     // =========================================================
 
+    @Transactional(readOnly = true)
     public List<Ledger> getAllLedgers() {
 
-        return repo.findAll();
+        return ledgerRepository.findAll();
     }
 
 
     // =========================================================
-    // GET ALL LEDGERS - PAGINATED
+    // GET ALL LEDGERS
+    // PAGINATED
+    //
+    // REQUIRED FOR LEDGER LIST / BACKEND TESTS
     // =========================================================
 
+    @Transactional(readOnly = true)
     public Page<LedgerDTO> getAllLedgers(Pageable pageable) {
 
-        Page<Ledger> ledgers = repo.findAll(pageable);
+        if (pageable == null) {
+            throw new IllegalArgumentException(
+                    "Pageable cannot be null"
+            );
+        }
+
+        Page<Ledger> ledgers =
+                ledgerRepository.findAll(pageable);
 
         return ledgers.map(this::convertToDTO);
     }
 
 
     // =========================================================
-    // CONVERT LEDGER TO DTO
+    // CONVERT LEDGER ENTITY TO DTO
     // =========================================================
 
     private LedgerDTO convertToDTO(Ledger ledger) {
+
+        if (ledger == null) {
+            return null;
+        }
 
         LedgerDTO dto = new LedgerDTO();
 
@@ -89,6 +131,7 @@ public class LedgerService {
 
     // =========================================================
     // UPDATE LEDGER
+    // AUDITOR / ADMIN ONLY
     // =========================================================
 
     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
@@ -96,39 +139,91 @@ public class LedgerService {
             Long id,
             Ledger ledger) {
 
-        Ledger existingLedger = repo.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Ledger not found"
-                        )
-                );
+        validateId(id);
 
+        if (ledger == null) {
+            throw new IllegalArgumentException(
+                    "Ledger data cannot be null"
+            );
+        }
+
+        if (ledger.getDescription() == null ||
+                ledger.getDescription().trim().isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "Ledger description cannot be empty"
+            );
+        }
+
+        Ledger existingLedger =
+                ledgerRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Ledger not found with ID: " + id
+                                )
+                        );
+
+        // Update description
         existingLedger.setDescription(
-                ledger.getDescription()
+                ledger.getDescription().trim()
         );
 
-        existingLedger.setCreatedAt(
-                ledger.getCreatedAt()
-        );
+        // Update createdAt only when supplied
+        if (ledger.getCreatedAt() != null) {
+            existingLedger.setCreatedAt(
+                    ledger.getCreatedAt()
+            );
+        }
 
-        return repo.save(existingLedger);
+        return ledgerRepository.save(existingLedger);
     }
 
 
     // =========================================================
     // DELETE LEDGER
+    // AUDITOR / ADMIN ONLY
     // =========================================================
 
     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
     public void deleteLedger(Long id) {
 
-        if (!repo.existsById(id)) {
+        validateId(id);
+
+        if (!ledgerRepository.existsById(id)) {
 
             throw new RuntimeException(
-                    "Ledger not found"
+                    "Ledger not found with ID: " + id
             );
         }
 
-        repo.deleteById(id);
+        ledgerRepository.deleteById(id);
+    }
+
+
+    // =========================================================
+    // CHECK WHETHER LEDGER EXISTS
+    // =========================================================
+
+    @Transactional(readOnly = true)
+    public boolean ledgerExists(Long id) {
+
+        validateId(id);
+
+        return ledgerRepository.existsById(id);
+    }
+
+
+    // =========================================================
+    // VALIDATE LEDGER ID
+    // =========================================================
+
+    private void validateId(Long id) {
+
+        if (id == null || id <= 0) {
+
+            throw new IllegalArgumentException(
+                    "Ledger ID must be a positive number"
+            );
+        }
     }
 }
