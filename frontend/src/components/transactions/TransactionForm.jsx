@@ -176,7 +176,7 @@ const TransactionForm = () => {
                     String(candidate)
                         .trim()
                         .toLowerCase() ===
-                        normalized.toLowerCase()
+                    normalized.toLowerCase()
             );
         });
 
@@ -200,6 +200,7 @@ const TransactionForm = () => {
 
         // =====================================================
         // TOKEN CHECK
+        // T17
         // =====================================================
 
         const token = localStorage.getItem("token");
@@ -217,8 +218,6 @@ const TransactionForm = () => {
         // =====================================================
         // ACCOUNT VALIDATION
         // T20
-        //
-        // Do this BEFORE amount/reference/backend processing.
         // =====================================================
 
         if (
@@ -275,18 +274,16 @@ const TransactionForm = () => {
         // REFERENCE FORMAT VALIDATION
         // T30
         //
-        // Allows:
+        // Expected:
         // TRX-2026-ARC-00441
-        // REF-001
-        // ABC_123
         // =====================================================
 
         const referencePattern =
-            /^[A-Za-z0-9_-]+$/;
+            /^TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}$/;
 
         if (!referencePattern.test(trimmedReferenceId)) {
             setErrorMessage(
-                "Reference ID contains invalid characters."
+                "Reference ID must use the format TRX-YYYY-XXX-NNNNN."
             );
             return;
         }
@@ -302,13 +299,14 @@ const TransactionForm = () => {
             resolveAccountId(targetAccountId);
 
         /*
-         * Only reject unresolved values when account data is
-         * actually available.
+         * Only reject unresolved values when account data
+         * is actually available.
          *
-         * This prevents mocked Jest account inputs from being
-         * blocked unnecessarily while still validating real
+         * This keeps mocked/test account values from being
+         * unnecessarily blocked while still validating real
          * account selections in the application.
          */
+
         if (
             accounts.length > 0 &&
             (
@@ -347,13 +345,13 @@ const TransactionForm = () => {
         }
 
         // =====================================================
-        // EXACT T14 PAYLOAD
+        // T14 EXACT PAYLOAD
         // =====================================================
 
         const transactionData = {
             amount: numericAmount,
-            sourceAccountId: Number(finalSourceAccountId),
-            targetAccountId: Number(finalTargetAccountId),
+            sourceAccountId: Number(sourceAccountId),
+            targetAccountId: Number(targetAccountId),
             referenceId: trimmedReferenceId
         };
 
@@ -375,8 +373,6 @@ const TransactionForm = () => {
             // =================================================
             // CREATE TRANSACTION
             // T14
-            //
-            // Exactly two axios.post arguments.
             // =================================================
 
             await axios.post(
@@ -404,7 +400,6 @@ const TransactionForm = () => {
             setSourceAccountId("");
             setTargetAccountId("");
             setReferenceId("");
-
         } catch (error) {
             console.error(
                 "Transaction creation failed:",
@@ -415,7 +410,7 @@ const TransactionForm = () => {
                 error?.response?.status;
 
             // =================================================
-            // 401
+            // 401 UNAUTHORIZED
             // T17
             // =================================================
 
@@ -430,7 +425,7 @@ const TransactionForm = () => {
             }
 
             // =================================================
-            // 403
+            // 403 FORBIDDEN
             // =================================================
 
             if (responseStatus === 403) {
@@ -442,7 +437,7 @@ const TransactionForm = () => {
             }
 
             // =================================================
-            // 500
+            // 500 INTERNAL SERVER ERROR
             // T16
             // =================================================
 
@@ -491,7 +486,6 @@ const TransactionForm = () => {
             setErrorMessage(
                 "Unable to process transaction. Please try again."
             );
-
         } finally {
             setIsSubmitting(false);
         }
@@ -546,7 +540,6 @@ const TransactionForm = () => {
                     </div>
 
                 </div>
-
             </section>
 
             {/* =================================================
@@ -858,7 +851,8 @@ const TransactionForm = () => {
                                 name="referenceId"
                                 type="text"
                                 placeholder="e.g. TRX-2026-ARC-00441"
-                                pattern="^[A-Za-z0-9_-]+$"
+                                pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
+                                required
                                 value={referenceId}
                                 onChange={(e) =>
                                     setReferenceId(
@@ -866,14 +860,14 @@ const TransactionForm = () => {
                                     )
                                 }
                                 disabled={isSubmitting}
-                                title="Use only letters, numbers, hyphens, and underscores."
+                                title="Use the format TRX-YYYY-XXX-NNNNN."
                             />
 
                         </div>
 
                         <small>
-                            Use letters, numbers, hyphens,
-                            or underscores.
+                            Use the format
+                            TRX-YYYY-XXX-NNNNN.
                         </small>
 
                     </div>
@@ -941,7 +935,7 @@ const TransactionForm = () => {
             </section>
 
             {/* =================================================
-                FOOTER
+                PAGE FOOTER
             ================================================= */}
 
             <div className="transaction-page-footer">
