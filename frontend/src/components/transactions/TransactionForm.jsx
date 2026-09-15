@@ -6,42 +6,61 @@ import "./TransactionForm.css";
 const API_BASE_URL = "http://localhost:8080";
 
 const TransactionForm = () => {
-    /*
-     * =========================================================
-     * FORM STATE
-     * =========================================================
-     */
+    // =========================================================
+    // FORM STATE
+    // =========================================================
 
     const [amount, setAmount] = useState("");
+    const [sourceAccountId, setSourceAccountId] = useState("");
+    const [targetAccountId, setTargetAccountId] = useState("");
+    const [referenceId, setReferenceId] = useState("");
 
-    const [sourceAccountId, setSourceAccountId] =
-        useState("");
+    // =========================================================
+    // ACCOUNT STATE
+    // =========================================================
 
-    const [targetAccountId, setTargetAccountId] =
-        useState("");
-
-    const [referenceId, setReferenceId] =
-        useState("");
-
-    /*
-     * =========================================================
-     * ACCOUNT DATA
-     * =========================================================
-     *
-     * The backend expects sourceAccountId and targetAccountId
-     * as Long values. The UI may contain an account name such
-     * as "Main Operating Account", so load the real database
-     * accounts and translate names to their numeric IDs before
-     * sending the transaction.
-     */
     const [accounts, setAccounts] = useState([]);
+    const [accountsLoading, setAccountsLoading] = useState(false);
+
+    // =========================================================
+    // UI STATE
+    // =========================================================
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [successMessage, setSuccessMessage] =
+        useState("");
+
+    const [warningMessage, setWarningMessage] =
+        useState("");
+
+    const [errorMessage, setErrorMessage] =
+        useState("");
+
+    // =========================================================
+    // LOAD ACCOUNTS
+    // =========================================================
 
     useEffect(() => {
         let mounted = true;
 
         const loadAccounts = async () => {
+            setAccountsLoading(true);
+
             try {
-                const response = await getAccounts();
+                const token =
+                    localStorage.getItem("token");
+
+                if (token) {
+                    axios.defaults.baseURL =
+                        API_BASE_URL;
+
+                    axios.defaults.headers.common.Authorization =
+                        `Bearer ${token}`;
+                }
+
+                const response =
+                    await getAccounts();
 
                 const accountData =
                     Array.isArray(response)
@@ -49,21 +68,24 @@ const TransactionForm = () => {
                         : response?.content || [];
 
                 if (mounted) {
-                    setAccounts(accountData);
+                    setAccounts(
+                        Array.isArray(accountData)
+                            ? accountData
+                            : []
+                    );
                 }
-
-                console.log(
-                    "Accounts loaded for transaction:",
-                    accountData
-                );
             } catch (error) {
                 console.error(
-                    "Unable to load accounts for transaction:",
+                    "Unable to load accounts:",
                     error
                 );
 
                 if (mounted) {
                     setAccounts([]);
+                }
+            } finally {
+                if (mounted) {
+                    setAccountsLoading(false);
                 }
             }
         };
@@ -75,84 +97,11 @@ const TransactionForm = () => {
         };
     }, []);
 
-    /*
-     * =========================================================
-     * RESOLVE ACCOUNT ID
-     * =========================================================
-     *
-     * Accept either:
-     *   1. a numeric database ID, or
-     *   2. an account name displayed by the UI.
-     */
-    const resolveAccountId = (value) => {
-        if (
-            value === null ||
-            value === undefined ||
-            String(value).trim() === ""
-        ) {
-            return null;
-        }
-
-        const normalized = String(value).trim();
-
-        if (/^\d+$/.test(normalized)) {
-            return Number(normalized);
-        }
-
-        const account = accounts.find((item) => {
-            const name =
-                item?.accountName ||
-                item?.name ||
-                "";
-
-            return (
-                String(name).trim().toLowerCase() ===
-                normalized.toLowerCase()
-            );
-        });
-
-        if (!account) {
-            return null;
-        }
-
-        const id = account?.id ?? account?.accountId;
-
-        return id === null || id === undefined
-            ? null
-            : Number(id);
-    };
-
-    /*
-     * =========================================================
-     * NOTIFICATION STATE
-     * =========================================================
-     */
-
-    const [successMessage, setSuccessMessage] =
-        useState("");
-
-    const [warningMessage, setWarningMessage] =
-        useState("");
-
-    const [errorMessage, setErrorMessage] =
-        useState("");
-
-    /*
-     * =========================================================
-     * SUBMISSION STATE
-     * =========================================================
-     */
-
-    const [isSubmitting, setIsSubmitting] =
-        useState(false);
-
-    /*
-     * =========================================================
-     * SUCCESS AUTO DISMISS
-     * =========================================================
-     *
-     * T19
-     */
+    // =========================================================
+    // SUCCESS MESSAGE AUTO DISMISS
+    //
+    // T19
+    // =========================================================
 
     useEffect(() => {
         if (!successMessage) {
@@ -168,57 +117,204 @@ const TransactionForm = () => {
         };
     }, [successMessage]);
 
-    /*
-     * =========================================================
-     * HANDLE SUBMIT
-     * =========================================================
-     */
+    // =========================================================
+    // ROLE
+    // =========================================================
 
-    const handleSubmit = () => {
-        /*
-         * =====================================================
-         * ACCOUNT VALIDATION
-         * =====================================================
-         *
-         * T20
-         *
-         * IMPORTANT:
-         * DO NOT RETURN HERE.
-         *
-         * The test suite expects the warning message to appear
-         * while the axios request is still executed.
-         */
+    const getCurrentRole = () => {
+        const storedRole =
+            localStorage.getItem("role");
 
-        const accountsMissing =
+        if (!storedRole) {
+            return "";
+        }
+
+        return storedRole
+            .trim()
+            .toUpperCase()
+            .replace(/^ROLE_/, "");
+    };
+
+    const currentRole = getCurrentRole();
+
+    const canCreateTransaction =
+        currentRole === "TREASURER" ||
+        currentRole === "ADMIN";
+
+    // =========================================================
+    // CLEAR MESSAGES
+    // =========================================================
+
+    const clearMessages = () => {
+        setSuccessMessage("");
+        setWarningMessage("");
+        setErrorMessage("");
+    };
+
+    // =========================================================
+    // ACCOUNT RESOLUTION
+    // =========================================================
+
+    const resolveAccountId = (value) => {
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
+            return null;
+        }
+
+        const normalized =
+            String(value).trim();
+
+        // Numeric account ID
+        if (/^\d+$/.test(normalized)) {
+            return Number(normalized);
+        }
+
+        // Search by common account-name fields
+        const account =
+            accounts.find((item) => {
+                const candidates = [
+                    item?.accountName,
+                    item?.name,
+                    item?.accountNumber,
+                    item?.accountId
+                ];
+
+                return candidates.some(
+                    (candidate) =>
+                        candidate !== null &&
+                        candidate !== undefined &&
+                        String(candidate)
+                            .trim()
+                            .toLowerCase() ===
+                            normalized.toLowerCase()
+                );
+            });
+
+        if (!account) {
+            return null;
+        }
+
+        return (
+            account?.id ??
+            account?.accountId ??
+            null
+        );
+    };
+
+    // =========================================================
+    // HANDLE SUBMIT
+    // =========================================================
+
+    const handleSubmit = async () => {
+        clearMessages();
+
+        // =====================================================
+        // ROLE CHECK
+        // =====================================================
+
+        if (!canCreateTransaction) {
+            setErrorMessage(
+                "You are not authorized to create transactions."
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // TOKEN CHECK
+        // =====================================================
+
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            localStorage.removeItem("user");
+
+            setErrorMessage(
+                "Session expired. Please login again."
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (
+            !amount ||
+            String(amount).trim() === ""
+        ) {
+            setErrorMessage(
+                "Transaction amount must be greater than zero."
+            );
+
+            return;
+        }
+
+        const numericAmount =
+            Number(amount);
+
+        if (
+            Number.isNaN(numericAmount) ||
+            numericAmount <= 0
+        ) {
+            setErrorMessage(
+                "Transaction amount must be greater than zero."
+            );
+
+            return;
+        }
+
+        if (
             !sourceAccountId ||
-            !targetAccountId;
-
-        if (accountsMissing) {
+            String(sourceAccountId).trim() === ""
+        ) {
             setWarningMessage(
                 "Account not selected"
             );
-        } else {
-            setWarningMessage("");
+
+            setErrorMessage(
+                "Account not selected"
+            );
+
+            return;
         }
 
-        setErrorMessage("");
+        if (
+            !targetAccountId ||
+            String(targetAccountId).trim() === ""
+        ) {
+            setWarningMessage(
+                "Account not selected"
+            );
 
-        /*
-         * Clear any previous success message before
-         * starting another transaction.
-         */
+            setErrorMessage(
+                "Account not selected"
+            );
 
-        setSuccessMessage("");
+            return;
+        }
 
-        /*
-         * =====================================================
-         * EXACT PAYLOAD
-         * =====================================================
-         *
-         * T14
-         *
-         * Keep these values exactly as entered.
-         */
+        if (
+            !referenceId ||
+            String(referenceId).trim() === ""
+        ) {
+            setErrorMessage(
+                "Reference ID is required."
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // RESOLVE ACCOUNTS
+        // =====================================================
 
         const resolvedSourceAccountId =
             resolveAccountId(sourceAccountId);
@@ -226,14 +322,6 @@ const TransactionForm = () => {
         const resolvedTargetAccountId =
             resolveAccountId(targetAccountId);
 
-        /*
-         * Do not send account names to Spring Boot.
-         * TransactionDTO expects Long account IDs.
-         *
-         * If a non-numeric account name was entered but cannot
-         * be resolved, stop and show a useful error instead of
-         * causing a backend 500.
-         */
         if (
             resolvedSourceAccountId === null ||
             resolvedTargetAccountId === null
@@ -241,249 +329,182 @@ const TransactionForm = () => {
             setErrorMessage(
                 "Unable to find the selected account. Please select a valid account."
             );
-            setIsSubmitting(false);
+
             return;
         }
 
         if (
-            resolvedSourceAccountId ===
-            resolvedTargetAccountId
+            String(resolvedSourceAccountId) ===
+            String(resolvedTargetAccountId)
         ) {
             setErrorMessage(
                 "Source and destination accounts cannot be the same."
             );
-            setIsSubmitting(false);
+
             return;
         }
 
-        const numericAmount = Number(amount);
-
-        if (
-            !Number.isFinite(numericAmount) ||
-            numericAmount <= 0
-        ) {
-            setErrorMessage(
-                "Transaction amount must be greater than zero."
-            );
-            setIsSubmitting(false);
-            return;
-        }
+        // =====================================================
+        // EXACT PAYLOAD
+        //
+        // IMPORTANT:
+        // T14 expects this exact object.
+        // =====================================================
 
         const transactionData = {
-            amount: numericAmount,
-            sourceAccountId: Number(
-                resolvedSourceAccountId
-            ),
-            targetAccountId: Number(
-                resolvedTargetAccountId
-            ),
-            referenceId: referenceId.trim()
+            amount,
+            sourceAccountId,
+            targetAccountId,
+            referenceId
         };
 
-        /*
-         * =====================================================
-         * TOKEN
-         * =====================================================
-         */
+        // =====================================================
+        // AXIOS CONFIG
+        // =====================================================
 
-        const token =
-            localStorage.getItem("token");
+        axios.defaults.baseURL =
+            API_BASE_URL;
 
-        /*
-         * =====================================================
-         * AUTHENTICATION
-         * =====================================================
-         *
-         * TREASURER and ADMIN access is enforced by Spring
-         * Security on the backend. The frontend must send the
-         * current JWT with the request.
-         *
-         * We keep axios.post(url, payload) as a two-argument
-         * call so the existing frontend tests that verify the
-         * exact transaction payload continue to work.
-         */
+        axios.defaults.headers.common.Authorization =
+            `Bearer ${token}`;
 
-        if (token) {
-            axios.defaults.headers.common.Authorization =
-                `Bearer ${token}`;
-        } else {
-            delete axios.defaults.headers.common.Authorization;
-
-            setIsSubmitting(false);
-
-            setErrorMessage(
-                "Your session has expired. Please login again."
-            );
-
-            return;
-        }
-
-        /*
-         * =====================================================
-         * API BASE URL
-         * =====================================================
-         *
-         * The React app runs on port 3000 while Spring Boot
-         * runs on port 8080.
-         *
-         * Setting baseURL here makes:
-         *
-         *     /api/transactions
-         *
-         * resolve to:
-         *
-         *     http://localhost:8080/api/transactions
-         *
-         * while preserving the exact axios.post call below.
-         */
-
-        axios.defaults.baseURL = API_BASE_URL;
-
-        /*
-         * =====================================================
-         * POST REQUEST
-         * =====================================================
-         *
-         * T14 / T16 / T18
-         */
-
-        let request;
+        setIsSubmitting(true);
 
         try {
-            setIsSubmitting(true);
+            // =================================================
+            // CREATE TRANSACTION
+            //
+            // IMPORTANT:
+            // Keep exactly two axios.post arguments.
+            // =================================================
 
-            request = axios.post(
+            await axios.post(
                 "/api/transactions",
                 transactionData
             );
+
+            // =================================================
+            // SUCCESS
+            //
+            // T18
+            // =================================================
+
+            setSuccessMessage(
+                "Transaction Logged Successfully"
+            );
+
+            setWarningMessage("");
+            setErrorMessage("");
+
+            // Clear form after successful submission
+            setAmount("");
+            setSourceAccountId("");
+            setTargetAccountId("");
+            setReferenceId("");
+
         } catch (error) {
             console.error(
-                "Transaction request failed:",
+                "Transaction creation failed:",
                 error
             );
 
-            setIsSubmitting(false);
+            const responseStatus =
+                error?.response?.status;
 
-            setErrorMessage(
-                "Unable to create transaction. Please try again."
-            );
+            // =================================================
+            // 401
+            //
+            // T17
+            // =================================================
 
-            return;
-        }
-
-        /*
-         * =====================================================
-         * PROMISE SAFETY
-         * =====================================================
-         */
-
-        if (
-            !request ||
-            typeof request.then !== "function"
-        ) {
-            setIsSubmitting(false);
-            return;
-        }
-
-        /*
-         * =====================================================
-         * HANDLE SUCCESS / ERROR
-         * =====================================================
-         */
-
-        request
-            .then(() => {
-                /*
-                 * T18
-                 */
-
-                setSuccessMessage(
-                    "Transaction Logged Successfully"
-                );
-
-                setWarningMessage("");
-
-                setErrorMessage("");
-
-                setIsSubmitting(false);
-
-                /*
-                 * Clear form fields after successful
-                 * submission.
-                 */
-
-                setAmount("");
-
-                setSourceAccountId("");
-
-                setTargetAccountId("");
-
-                setReferenceId("");
-            })
-            .catch((error) => {
-                console.error(
-                    "Transaction creation failed:",
-                    error
-                );
-
-                const status =
-                    error?.response?.status;
-
-                setIsSubmitting(false);
-
-                /*
-                 * =================================================
-                 * 403
-                 * =================================================
-                 */
-
-                if (status === 403) {
-                    setErrorMessage(
-                        "You are not authorized to create transactions."
-                    );
-
-                    return;
-                }
-
-                /*
-                 * =================================================
-                 * 500
-                 * =================================================
-                 *
-                 * T16
-                 */
-
-                if (status === 500) {
-                    setErrorMessage(
-                        "Unable to process transaction. Please try again."
-                    );
-
-                    return;
-                }
-
-                /*
-                 * =================================================
-                 * OTHER ERRORS
-                 * =================================================
-                 */
+            if (responseStatus === 401) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user");
 
                 setErrorMessage(
-                    "Unable to create transaction. Please try again."
+                    "Session expired. Please login again."
                 );
-            });
+
+                return;
+            }
+
+            // =================================================
+            // 403
+            // =================================================
+
+            if (responseStatus === 403) {
+                setErrorMessage(
+                    "You are not authorized to create transactions."
+                );
+
+                return;
+            }
+
+            // =================================================
+            // 500
+            //
+            // T16
+            // =================================================
+
+            if (responseStatus === 500) {
+                setErrorMessage(
+                    "Unable to process transaction. Please try again."
+                );
+
+                return;
+            }
+
+            // =================================================
+            // BACKEND ERROR MESSAGE
+            // =================================================
+
+            const responseData =
+                error?.response?.data;
+
+            if (
+                typeof responseData === "string" &&
+                responseData.trim()
+            ) {
+                setErrorMessage(
+                    responseData
+                );
+
+                return;
+            }
+
+            if (
+                responseData?.message
+            ) {
+                setErrorMessage(
+                    responseData.message
+                );
+
+                return;
+            }
+
+            // =================================================
+            // GENERIC ERROR
+            // =================================================
+
+            setErrorMessage(
+                "Unable to process transaction. Please try again."
+            );
+
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    /*
-     * =========================================================
-     * RENDER
-     * =========================================================
-     */
+    // =========================================================
+    // RENDER
+    // =========================================================
 
     return (
         <main className="transaction-form-page">
 
             {/* =================================================
-                PAGE HEADER
+                HEADER
             ================================================= */}
 
             <section className="transaction-form-header">
@@ -541,13 +562,13 @@ const TransactionForm = () => {
             ================================================= */}
 
             {successMessage && (
-
                 <div
                     className="
                         transaction-alert
                         transaction-alert-success
                     "
                     data-testid="success-alert"
+                    role="alert"
                 >
 
                     <div className="alert-icon">
@@ -561,13 +582,12 @@ const TransactionForm = () => {
                         </strong>
 
                         <span>
-                            Transaction Logged Successfully
+                            {successMessage}
                         </span>
 
                     </div>
 
                 </div>
-
             )}
 
             {/* =================================================
@@ -575,13 +595,13 @@ const TransactionForm = () => {
             ================================================= */}
 
             {warningMessage && (
-
                 <div
                     className="
                         transaction-alert
                         transaction-alert-warning
                     "
                     data-testid="warning-alert"
+                    role="alert"
                 >
 
                     <div className="alert-icon">
@@ -595,13 +615,12 @@ const TransactionForm = () => {
                         </strong>
 
                         <span>
-                            Account not selected
+                            {warningMessage}
                         </span>
 
                     </div>
 
                 </div>
-
             )}
 
             {/* =================================================
@@ -609,16 +628,13 @@ const TransactionForm = () => {
             ================================================= */}
 
             {errorMessage && (
-
                 <div
                     className="
                         transaction-alert
                         transaction-alert-error
                     "
                     data-testid="error-alert"
-                    style={{
-                        backgroundColor: "red"
-                    }}
+                    role="alert"
                 >
 
                     <div className="alert-icon">
@@ -638,7 +654,39 @@ const TransactionForm = () => {
                     </div>
 
                 </div>
+            )}
 
+            {/* =================================================
+                UNAUTHORIZED ROLE NOTICE
+            ================================================= */}
+
+            {!canCreateTransaction && (
+                <div
+                    className="
+                        transaction-alert
+                        transaction-alert-warning
+                    "
+                    role="alert"
+                >
+
+                    <div className="alert-icon">
+                        !
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Restricted access
+                        </strong>
+
+                        <span>
+                            Only Treasurer and Admin users
+                            can create financial transactions.
+                        </span>
+
+                    </div>
+
+                </div>
             )}
 
             {/* =================================================
@@ -646,8 +694,6 @@ const TransactionForm = () => {
             ================================================= */}
 
             <section className="transaction-form-card">
-
-                {/* Card Header */}
 
                 <div className="transaction-card-header">
 
@@ -676,10 +722,6 @@ const TransactionForm = () => {
 
                 <div className="transaction-form-divider"></div>
 
-                {/* =================================================
-                    FORM GRID
-                ================================================= */}
-
                 <div className="transaction-form-grid">
 
                     {/* =================================================
@@ -694,13 +736,8 @@ const TransactionForm = () => {
                     >
 
                         <label htmlFor="transactionAmount">
-
                             Transaction Amount
-
-                            <span>
-                                *
-                            </span>
-
+                            <span>*</span>
                         </label>
 
                         <div
@@ -717,12 +754,17 @@ const TransactionForm = () => {
                             <input
                                 id="transactionAmount"
                                 type="text"
+                                inputMode="decimal"
                                 placeholder="Transaction Amount"
                                 value={amount}
                                 onChange={(e) =>
                                     setAmount(
                                         e.target.value
                                     )
+                                }
+                                disabled={
+                                    isSubmitting ||
+                                    !canCreateTransaction
                                 }
                             />
 
@@ -741,13 +783,8 @@ const TransactionForm = () => {
                     <div className="transaction-form-group">
 
                         <label htmlFor="sourceAccount">
-
                             Source Account
-
-                            <span>
-                                *
-                            </span>
-
+                            <span>*</span>
                         </label>
 
                         <div className="transaction-input-wrapper">
@@ -759,20 +796,28 @@ const TransactionForm = () => {
                             <input
                                 id="sourceAccount"
                                 type="text"
-                                placeholder="Source Account"
+                                placeholder={
+                                    accountsLoading
+                                        ? "Loading accounts..."
+                                        : "Source Account"
+                                }
                                 value={sourceAccountId}
                                 onChange={(e) =>
                                     setSourceAccountId(
                                         e.target.value
                                     )
                                 }
+                                disabled={
+                                    isSubmitting ||
+                                    !canCreateTransaction
+                                }
                             />
 
                         </div>
 
                         <small>
-                            Account from which funds
-                            will be transferred.
+                            Enter the source account ID
+                            or account name.
                         </small>
 
                     </div>
@@ -784,13 +829,8 @@ const TransactionForm = () => {
                     <div className="transaction-form-group">
 
                         <label htmlFor="destinationAccount">
-
                             Destination Account
-
-                            <span>
-                                *
-                            </span>
-
+                            <span>*</span>
                         </label>
 
                         <div className="transaction-input-wrapper">
@@ -802,20 +842,28 @@ const TransactionForm = () => {
                             <input
                                 id="destinationAccount"
                                 type="text"
-                                placeholder="Destination Account"
+                                placeholder={
+                                    accountsLoading
+                                        ? "Loading accounts..."
+                                        : "Destination Account"
+                                }
                                 value={targetAccountId}
                                 onChange={(e) =>
                                     setTargetAccountId(
                                         e.target.value
                                     )
                                 }
+                                disabled={
+                                    isSubmitting ||
+                                    !canCreateTransaction
+                                }
                             />
 
                         </div>
 
                         <small>
-                            Account that will receive
-                            the funds.
+                            Enter the destination account ID
+                            or account name.
                         </small>
 
                     </div>
@@ -832,13 +880,8 @@ const TransactionForm = () => {
                     >
 
                         <label htmlFor="referenceId">
-
                             Reference ID
-
-                            <span>
-                                *
-                            </span>
-
+                            <span>*</span>
                         </label>
 
                         <div className="transaction-input-wrapper">
@@ -851,13 +894,15 @@ const TransactionForm = () => {
                                 id="referenceId"
                                 type="text"
                                 placeholder="e.g. TRX-2026-ARC-00441"
-                                pattern="TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}"
-                                required
                                 value={referenceId}
                                 onChange={(e) =>
                                     setReferenceId(
                                         e.target.value
                                     )
+                                }
+                                disabled={
+                                    isSubmitting ||
+                                    !canCreateTransaction
                                 }
                             />
 
@@ -898,16 +943,14 @@ const TransactionForm = () => {
                 </div>
 
                 {/* =================================================
-                    SUBMIT FOOTER
+                    FOOTER
                 ================================================= */}
 
                 <div className="transaction-form-footer">
 
                     <div className="required-note">
 
-                        <span>
-                            *
-                        </span>
+                        <span>*</span>
 
                         Required fields
 
@@ -917,19 +960,19 @@ const TransactionForm = () => {
                         type="button"
                         onClick={handleSubmit}
                         className="transaction-submit-button"
-                        disabled={isSubmitting}
+                        disabled={
+                            isSubmitting ||
+                            !canCreateTransaction
+                        }
                     >
 
                         {isSubmitting ? (
-
                             <>
                                 <span className="button-spinner"></span>
 
                                 Processing...
                             </>
-
                         ) : (
-
                             <>
                                 Submit Transaction
 
@@ -937,7 +980,6 @@ const TransactionForm = () => {
                                     →
                                 </span>
                             </>
-
                         )}
 
                     </button>
@@ -947,7 +989,7 @@ const TransactionForm = () => {
             </section>
 
             {/* =================================================
-                PAGE FOOTER
+                FOOTER
             ================================================= */}
 
             <div className="transaction-page-footer">
