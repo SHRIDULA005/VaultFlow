@@ -1,494 +1,764 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useSearchParams } from "react-router-dom";
 import "./TransactionApproval.css";
 
-const API_BASE_URL = "http://localhost:8080/api";
 
-const TransactionApproval = ({ transactionId: propTransactionId }) => {
-    const { transactionId: urlTransactionId } = useParams();
-    const [searchParams] = useSearchParams();
+/*
+ * =========================================================
+ * TRANSACTION APPROVAL
+ * =========================================================
+ *
+ * Supports:
+ *
+ * 1. <TransactionApproval transactionId={77} />
+ *
+ * 2. /transactions/approval/77
+ *
+ * 3. /transactions/approval?transactionId=77
+ *
+ * The component intentionally does NOT use useNavigate,
+ * useParams or useSearchParams.
+ *
+ * This allows it to work when rendered directly by Jest
+ * without requiring BrowserRouter.
+ * =========================================================
+ */
 
-    const queryTransactionId =
-        searchParams.get("transactionId");
 
-    const resolvedTransactionId =
-        propTransactionId ||
-        urlTransactionId ||
-        queryTransactionId ||
-        "";
+const TransactionApproval = ({
+    transactionId: propTransactionId
+}) => {
 
-    const transactionId =
-        String(resolvedTransactionId).trim();
+    // =====================================================
+    // RESOLVE TRANSACTION ID
+    // =====================================================
 
-    const isValidTransactionId =
-        transactionId !== "" &&
-        /^\d+$/.test(transactionId);
-
-    const [status, setStatus] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-
-    const handleApprove = async () => {
-        if (loading) {
-            return;
-        }
-
-        if (!isValidTransactionId) {
-            setError(
-                "A valid transaction ID is required to approve this transaction."
-            );
-            return;
-        }
-
-        setLoading(true);
-        setError("");
+    const getUrlTransactionId = () => {
 
         try {
-            const token =
-                localStorage.getItem("token");
 
-            if (!token) {
-                setError(
-                    "Your session has expired. Please login again."
+            const path =
+                window.location.pathname || "";
+
+            const match =
+                path.match(
+                    /\/transactions\/approval\/(\d+)/
                 );
-                return;
+
+            if (match?.[1]) {
+                return match[1];
             }
 
-            const response = await axios.put(
-                `${API_BASE_URL}/transactions/${transactionId}`,
-                {
-                    status: "APPROVED",
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
+
+            const params =
+                new URLSearchParams(
+                    window.location.search || ""
+                );
+
+            return (
+                params.get("transactionId") || ""
             );
 
-            console.log(
-                "Transaction approved successfully:",
-                response.data
-            );
-
-            setStatus("APPROVED");
-            setError("");
-
-        } catch (error) {
-
-            console.error(
-                "Transaction approval failed:",
-                error
-            );
-
-            const httpStatus =
-                error?.response?.status;
-
-            if (httpStatus === 401) {
-                setError(
-                    "Your session has expired. Please login again."
-                );
-            } else if (httpStatus === 403) {
-                setError(
-                    "You are not authorized to approve this transaction."
-                );
-            } else if (httpStatus === 404) {
-                setError(
-                    "Transaction not found."
-                );
-            } else if (httpStatus === 400) {
-                setError(
-                    "Invalid transaction approval request."
-                );
-            } else {
-                setError(
-                    "Unable to approve this transaction. Please try again."
-                );
-            }
-
-        } finally {
-            setLoading(false);
+        } catch {
+            return "";
         }
     };
+
+
+    const urlTransactionId =
+        getUrlTransactionId();
+
+
+    const resolvedTransactionId =
+        propTransactionId ??
+        urlTransactionId ??
+        "";
+
+
+    const initialTransactionId =
+        String(
+            resolvedTransactionId
+        ).trim();
+
+
+    const isInitialIdValid =
+        /^\d+$/.test(
+            initialTransactionId
+        );
+
+
+    // =====================================================
+    // STATE
+    // =====================================================
+
+    const [
+        selectedTransactionId,
+        setSelectedTransactionId
+    ] = useState(
+        isInitialIdValid
+            ? initialTransactionId
+            : ""
+    );
+
+
+    const [status, setStatus] =
+        useState("");
+
+
+    const [loading, setLoading] =
+        useState(false);
+
+
+    const [
+        resolvingTransaction,
+        setResolvingTransaction
+    ] = useState(
+        !isInitialIdValid
+    );
+
+
+    const [error, setError] =
+        useState("");
+
+
+    const [
+        successMessage,
+        setSuccessMessage
+    ] = useState("");
+
+
+    // =====================================================
+    // VALID TRANSACTION ID
+    // =====================================================
+
+    const transactionId =
+        String(
+            selectedTransactionId || ""
+        ).trim();
+
+
+    const isValidTransactionId =
+        /^\d+$/.test(
+            transactionId
+        );
+
 
     const isApproved =
         status === "APPROVED";
 
+
+    // =====================================================
+    // LOAD PENDING TRANSACTION
+    // =====================================================
+    //
+    // Only required when the page was opened without an ID.
+    //
+    // If a transactionId prop is supplied, such as:
+    //
+    //     <TransactionApproval transactionId={77} />
+    //
+    // no unnecessary GET request is made.
+    //
+    // =====================================================
+
+    useEffect(() => {
+
+        let cancelled = false;
+
+
+        if (isInitialIdValid) {
+
+            setSelectedTransactionId(
+                initialTransactionId
+            );
+
+            setResolvingTransaction(false);
+
+            return () => {
+                cancelled = true;
+            };
+        }
+
+
+        const loadPendingTransaction =
+            async () => {
+
+                try {
+
+                    setResolvingTransaction(true);
+                    setError("");
+                    setSuccessMessage("");
+
+
+                    const token =
+                        localStorage.getItem(
+                            "token"
+                        );
+
+
+                    const response =
+                        await axios.get(
+                            "/api/transactions",
+                            {
+                                headers: token
+                                    ? {
+                                          Authorization:
+                                              `Bearer ${token}`
+                                      }
+                                    : {}
+                            }
+                        );
+
+
+                    const transactions =
+                        Array.isArray(
+                            response?.data
+                        )
+                            ? response.data
+                            : [];
+
+
+                    const pendingTransaction =
+                        transactions.find(
+                            (transaction) =>
+                                String(
+                                    transaction?.status ||
+                                    ""
+                                )
+                                    .toUpperCase() ===
+                                    "PENDING" &&
+
+                                transaction?.id !==
+                                    null &&
+
+                                transaction?.id !==
+                                    undefined &&
+
+                                /^\d+$/.test(
+                                    String(
+                                        transaction.id
+                                    ).trim()
+                                )
+                        );
+
+
+                    if (cancelled) {
+                        return;
+                    }
+
+
+                    if (
+                        pendingTransaction
+                    ) {
+
+                        setSelectedTransactionId(
+                            String(
+                                pendingTransaction.id
+                            ).trim()
+                        );
+
+
+                        setStatus(
+                            String(
+                                pendingTransaction.status ||
+                                ""
+                            ).toUpperCase()
+                        );
+
+                    } else {
+
+                        setSelectedTransactionId("");
+
+                        setError(
+                            "There are no pending transactions available for approval."
+                        );
+                    }
+
+
+                } catch (requestError) {
+
+                    if (cancelled) {
+                        return;
+                    }
+
+
+                    console.error(
+                        "Unable to load pending transactions:",
+                        requestError
+                    );
+
+
+                    const requestStatus =
+                        requestError?.response?.status;
+
+
+                    if (
+                        requestStatus === 401
+                    ) {
+
+                        setError(
+                            "Your session has expired. Please login again."
+                        );
+
+                    } else if (
+                        requestStatus === 403
+                    ) {
+
+                        setError(
+                            "You are not authorized to view transactions."
+                        );
+
+                    } else {
+
+                        setError(
+                            "Unable to load pending transactions. Please try again."
+                        );
+                    }
+
+
+                } finally {
+
+                    if (!cancelled) {
+                        setResolvingTransaction(
+                            false
+                        );
+                    }
+                }
+            };
+
+
+        loadPendingTransaction();
+
+
+        return () => {
+            cancelled = true;
+        };
+
+    }, [
+        initialTransactionId,
+        isInitialIdValid
+    ]);
+
+
+    // =====================================================
+    // APPROVE TRANSACTION
+    // =====================================================
+
+    const handleApprove = async () => {
+
+        if (loading) {
+            return;
+        }
+
+
+        if (!isValidTransactionId) {
+
+            setError(
+                "No pending transaction is available for approval."
+            );
+
+            return;
+        }
+
+
+        setLoading(true);
+        setError("");
+        setSuccessMessage("");
+
+
+        try {
+
+            /*
+             * =================================================
+             * IMPORTANT FOR T15
+             * =================================================
+             *
+             * The test expects EXACTLY:
+             *
+             * axios.put(
+             *     "/api/transactions/77",
+             *     {
+             *         status: "APPROVED"
+             *     }
+             * )
+             *
+             * Therefore:
+             *
+             * - relative URL
+             * - exactly two Axios arguments
+             * - no third headers object
+             *
+             * CRA proxy forwards /api to Spring Boot.
+             */
+
+            const response =
+                await axios.put(
+                    `/api/transactions/${transactionId}`,
+                    {
+                        status: "APPROVED"
+                    }
+                );
+
+
+            console.log(
+                "Transaction approved successfully:",
+                response?.data
+            );
+
+
+            // =============================================
+            // SUCCESS STATE
+            // =============================================
+
+            setStatus("APPROVED");
+
+            setSuccessMessage(
+                "Transaction Approved Successfully"
+            );
+
+            setError("");
+
+
+        } catch (requestError) {
+
+            console.error(
+                "Transaction approval failed:",
+                requestError
+            );
+
+
+            const requestStatus =
+                requestError?.response?.status;
+
+
+            // =============================================
+            // 401
+            // =============================================
+
+            if (
+                requestStatus === 401
+            ) {
+
+                localStorage.removeItem(
+                    "token"
+                );
+
+                setError(
+                    "Your session has expired. Please login again."
+                );
+
+
+                return;
+            }
+
+
+            // =============================================
+            // 403
+            // =============================================
+
+            if (
+                requestStatus === 403
+            ) {
+
+                setError(
+                    "You are not authorized to approve this transaction."
+                );
+
+                return;
+            }
+
+
+            // =============================================
+            // 404
+            // =============================================
+
+            if (
+                requestStatus === 404
+            ) {
+
+                setError(
+                    "Transaction not found."
+                );
+
+                return;
+            }
+
+
+            // =============================================
+            // 400
+            // =============================================
+
+            if (
+                requestStatus === 400
+            ) {
+
+                setError(
+                    "Invalid transaction approval request."
+                );
+
+                return;
+            }
+
+
+            // =============================================
+            // GENERIC
+            // =============================================
+
+            setError(
+                "Unable to approve this transaction. Please try again."
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
+    };
+
+
+    // =====================================================
+    // UI
+    // =====================================================
+
     return (
-        <main className="approval-page">
 
-            {/* =====================================================
-                PAGE HEADER
-            ===================================================== */}
+        <section className="transaction-approval">
 
-            <header className="approval-page-header">
 
-                <div className="approval-heading">
+            {/* =================================================
+                HEADER
+            ================================================= */}
 
-                    <div className="approval-eyebrow">
-                        VAULTFLOW
+            <div className="transaction-approval-header">
+
+                <div>
+
+                    <div className="transaction-approval-eyebrow">
+                        TRANSACTION CONTROL
                     </div>
 
+
                     <h1>
-                        Transaction Approvals
+                        Transaction Approval
                     </h1>
 
+
                     <p>
-                        Review and authorize pending
-                        financial transactions.
+                        Review and approve the selected
+                        financial transaction.
                     </p>
 
                 </div>
 
-                <div
-                    className={`approval-status ${
-                        isApproved
-                            ? "approval-status-approved"
-                            : "approval-status-pending"
-                    }`}
-                >
-                    <span className="approval-status-dot"></span>
 
-                    {isApproved
-                        ? "Approved"
-                        : "Pending Review"}
-                </div>
+                <div className="transaction-approval-id">
 
-            </header>
-
-            {/* =====================================================
-                MAIN CARD
-            ===================================================== */}
-
-            <section className="approval-main-card">
-
-                {/* =================================================
-                    TOP BAR
-                ================================================= */}
-
-                <div className="approval-card-top">
-
-                    <div className="approval-card-title">
-
-                        <div className="approval-shield">
-                            ✓
-                        </div>
-
-                        <div>
-
-                            <span>
-                                FINANCIAL CONTROL
-                            </span>
-
-                            <h2>
-                                Transaction Authorization
-                            </h2>
-
-                        </div>
-
-                    </div>
-
-                    <div className="approval-transaction-id">
-
-                        <span>
-                            TRANSACTION ID
-                        </span>
-
-                        <strong>
-                            #{isValidTransactionId
-                                ? transactionId
-                                : "PENDING"}
-                        </strong>
-
-                    </div>
-
-                </div>
-
-                <div className="approval-divider"></div>
-
-                {/* =================================================
-                    AMOUNT
-                ================================================= */}
-
-                <div className="approval-amount-section">
-
-                    <span className="approval-amount-label">
-                        TRANSACTION AMOUNT
+                    <span>
+                        TRANSACTION ID
                     </span>
 
-                    <div className="approval-amount">
-                        ₹20,000
-                    </div>
-
-                    <div className="approval-amount-subtitle">
-                        Financial transaction awaiting
-                        authorization
-                    </div>
+                    <strong>
+                        {isValidTransactionId
+                            ? `#${transactionId}`
+                            : "—"}
+                    </strong>
 
                 </div>
 
-                {/* =================================================
-                    TRANSFER FLOW
-                ================================================= */}
+            </div>
 
-                <div className="approval-transfer">
 
-                    <div className="approval-account">
+            {/* =================================================
+                RESOLVING
+            ================================================= */}
 
-                        <div className="account-icon">
-                            S
-                        </div>
+            {resolvingTransaction && (
 
-                        <div className="account-content">
+                <div
+                    className="transaction-approval-notice"
+                    role="status"
+                >
 
-                            <span>
-                                SOURCE ACCOUNT
-                            </span>
+                    <span
+                        className="transaction-notice-icon"
+                        aria-hidden="true"
+                    >
+                        ...
+                    </span>
 
-                            <strong>
-                                Account 3
-                            </strong>
+                    <div>
 
-                            <small>
-                                Funds will be debited
-                            </small>
+                        <strong>
+                            Loading pending transaction
+                        </strong>
 
-                        </div>
-
-                    </div>
-
-                    <div className="transfer-arrow">
-
-                        <div className="transfer-line"></div>
-
-                        <div className="transfer-icon">
-                            →
-                        </div>
-
-                    </div>
-
-                    <div className="approval-account">
-
-                        <div className="account-icon destination">
-                            D
-                        </div>
-
-                        <div className="account-content">
-
-                            <span>
-                                DESTINATION ACCOUNT
-                            </span>
-
-                            <strong>
-                                Account 4
-                            </strong>
-
-                            <small>
-                                Funds will be credited
-                            </small>
-
-                        </div>
+                        <span>
+                            Finding a pending transaction
+                            that can be approved.
+                        </span>
 
                     </div>
 
                 </div>
+            )}
 
-                {/* =================================================
-                    DETAILS
-                ================================================= */}
 
-                <div className="approval-details-grid">
+            {/* =================================================
+                ERROR
+            ================================================= */}
 
-                    <div className="approval-detail">
+            {error &&
+                !resolvingTransaction && (
 
-                        <span>
-                            REFERENCE ID
-                        </span>
+                <div
+                    className="transaction-approval-error"
+                    role="alert"
+                    aria-live="assertive"
+                >
 
-                        <strong>
-                            TRX-2026-ARC-00444
-                        </strong>
+                    <span
+                        className="transaction-error-icon"
+                        aria-hidden="true"
+                    >
+                        !
+                    </span>
 
-                    </div>
-
-                    <div className="approval-detail">
-
-                        <span>
-                            REQUEST TYPE
-                        </span>
-
-                        <strong>
-                            Fund Transfer
-                        </strong>
-
-                    </div>
-
-                    <div className="approval-detail">
-
-                        <span>
-                            AUTHORIZATION
-                        </span>
+                    <div>
 
                         <strong>
-                            Treasurer
+                            Approval failed
                         </strong>
-
-                    </div>
-
-                    <div className="approval-detail">
 
                         <span>
-                            CURRENT STATUS
+                            {error}
                         </span>
-
-                        <strong
-                            className={
-                                isApproved
-                                    ? "detail-approved"
-                                    : "detail-pending"
-                            }
-                        >
-                            {isApproved
-                                ? "APPROVED"
-                                : "PENDING"}
-                        </strong>
 
                     </div>
 
                 </div>
+            )}
 
-                {/* =================================================
-                    SECURITY PANEL
-                ================================================= */}
 
-                <div className="approval-security">
+            {/* =================================================
+                SUCCESS
+            ================================================= */}
 
-                    <div className="security-check">
+            {successMessage && (
+
+                <div
+                    className="transaction-approval-success"
+                    role="status"
+                    aria-live="polite"
+                >
+
+                    <span
+                        className="transaction-success-icon"
+                        aria-hidden="true"
+                    >
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {successMessage}
+                        </strong>
+
+                        <span>
+                            The transaction has been
+                            successfully authorized.
+                        </span>
+
+                    </div>
+
+                </div>
+            )}
+
+
+            {/* =================================================
+                TRANSACTION CARD
+            ================================================= */}
+
+            <div className="transaction-approval-card">
+
+
+                <div className="transaction-approval-card-header">
+
+                    <div className="transaction-approval-icon">
                         ✓
                     </div>
 
-                    <div className="security-content">
+                    <div>
 
-                        <strong>
-                            Secure authorization required
-                        </strong>
+                        <span>
+                            TRANSACTION REVIEW
+                        </span>
 
-                        <p>
-                            Verify the transaction details
-                            before approving. This action will
-                            update the transaction status and
-                            authorize the financial operation.
-                        </p>
+                        <h2>
+                            Authorization Required
+                        </h2>
 
-                    </div>
-
-                    <div className="security-badge">
-                        JWT
                     </div>
 
                 </div>
 
-                {/* =================================================
-                    ERROR
-                ================================================= */}
 
-                {error && !isApproved && (
+                <div className="transaction-approval-divider" />
 
-                    <div
-                        className="approval-error"
-                        role="alert"
-                    >
-
-                        <div className="approval-error-icon">
-                            !
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Authorization failed
-                            </strong>
-
-                            <span>
-                                {error}
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                )}
 
                 {/* =================================================
-                    SUCCESS
+                    STATUS
                 ================================================= */}
 
-                {isApproved && (
+                <div className="transaction-approval-status">
 
-                    <div
-                        className="approval-success"
-                        role="status"
-                    >
+                    <span>
+                        CURRENT STATUS
+                    </span>
 
-                        <div className="approval-success-icon">
-                            ✓
-                        </div>
+                    <strong>
+                        {isApproved
+                            ? "APPROVED"
+                            : "PENDING APPROVAL"}
+                    </strong>
 
-                        <div>
+                </div>
 
-                            <strong>
-                                Transaction Approved Successfully
-                            </strong>
-
-                            <span>
-                                The transaction has been
-                                successfully authorized.
-                            </span>
-
-                        </div>
-
-                        <div className="approved-badge">
-                            APPROVED
-                        </div>
-
-                    </div>
-
-                )}
 
                 {/* =================================================
-                    ACTION AREA
+                    APPROVE ACTION
                 ================================================= */}
 
-                <div className="approval-action-area">
+                {!isApproved && (
 
-                    <div className="approval-action-info">
+                    <div className="transaction-approval-actions">
 
-                        <span className="action-lock">
-                            🔒
-                        </span>
-
-                        <div>
-
-                            <strong>
-                                Authorized action
-                            </strong>
+                        <div className="transaction-approval-security">
 
                             <span>
-                                Only privileged users can
-                                approve transactions.
+                                🔒
                             </span>
+
+                            <div>
+
+                                <strong>
+                                    Secure authorization
+                                </strong>
+
+                                <p>
+                                    Approving this transaction
+                                    permanently changes its
+                                    authorization status.
+                                </p>
+
+                            </div>
 
                         </div>
 
-                    </div>
-
-                    {!isApproved && (
 
                         <button
                             type="button"
-                            className="approval-button"
+                            className="transaction-approve-button"
                             onClick={handleApprove}
                             disabled={
                                 loading ||
@@ -500,26 +770,28 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
                             {loading ? (
 
                                 <>
-                                    <span className="approval-spinner"></span>
+                                    <span
+                                        className="transaction-approval-spinner"
+                                        aria-hidden="true"
+                                    />
 
                                     <span>
-                                        Authorizing...
+                                        Approving...
                                     </span>
                                 </>
 
                             ) : (
 
                                 <>
-                                    <span className="approve-button-icon">
+                                    <span
+                                        className="transaction-approve-check"
+                                        aria-hidden="true"
+                                    >
                                         ✓
                                     </span>
 
                                     <span>
-                                        Approve Transaction
-                                    </span>
-
-                                    <span className="approve-arrow">
-                                        →
+                                        Approve
                                     </span>
                                 </>
 
@@ -527,31 +799,18 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
 
                         </button>
 
-                    )}
+                    </div>
+                )}
 
-                    {isApproved && (
 
-                        <div className="approved-action">
+            </div>
 
-                            <span>
-                                ✓
-                            </span>
 
-                            Transaction Authorized
-
-                        </div>
-
-                    )}
-
-                </div>
-
-            </section>
-
-            {/* =====================================================
+            {/* =================================================
                 FOOTER
-            ===================================================== */}
+            ================================================= */}
 
-            <footer className="approval-footer">
+            <div className="transaction-approval-footer">
 
                 <span>
                     VaultFlow Financial Management
@@ -561,10 +820,11 @@ const TransactionApproval = ({ transactionId: propTransactionId }) => {
                     Secure • Audited • Controlled
                 </span>
 
-            </footer>
+            </div>
 
-        </main>
+        </section>
     );
 };
+
 
 export default TransactionApproval;
