@@ -12,7 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LedgerDTO {
+
     private Long id;
+
     private String description;
+
     private Date createdAt;
 }

@@ -30,7 +30,9 @@ public class LedgerService {
     public Ledger createLedger(Ledger ledger) {
 
         if (ledger == null) {
-            throw new IllegalArgumentException("Ledger data cannot be null");
+            throw new IllegalArgumentException(
+                    "Ledger data cannot be null"
+            );
         }
 
         if (ledger.getDescription() == null ||
@@ -51,7 +53,6 @@ public class LedgerService {
 
     // =========================================================
     // GET LEDGER BY ID
-    // AUTHENTICATED USERS
     // =========================================================
 
     @Transactional(readOnly = true)
@@ -83,11 +84,8 @@ public class LedgerService {
     // =========================================================
     // GET ALL LEDGERS
     // PAGINATED
-    //
-    // REQUIRED FOR LEDGER LIST / BACKEND TESTS
     // =========================================================
 
-    @Transactional(readOnly = true)
     public Page<LedgerDTO> getAllLedgers(Pageable pageable) {
 
         if (pageable == null) {
@@ -108,10 +106,6 @@ public class LedgerService {
     // =========================================================
 
     private LedgerDTO convertToDTO(Ledger ledger) {
-
-        if (ledger == null) {
-            return null;
-        }
 
         LedgerDTO dto = new LedgerDTO();
 
@@ -163,12 +157,15 @@ public class LedgerService {
                                 )
                         );
 
-        // Update description
         existingLedger.setDescription(
                 ledger.getDescription().trim()
         );
 
-        // Update createdAt only when supplied
+        /*
+         * Only update createdAt when a value is supplied.
+         * This prevents accidentally replacing the existing
+         * date with null.
+         */
         if (ledger.getCreatedAt() != null) {
             existingLedger.setCreatedAt(
                     ledger.getCreatedAt()
@@ -201,7 +198,7 @@ public class LedgerService {
 
 
     // =========================================================
-    // CHECK WHETHER LEDGER EXISTS
+    // CHECK LEDGER EXISTS
     // =========================================================
 
     @Transactional(readOnly = true)
@@ -214,7 +211,7 @@ public class LedgerService {
 
 
     // =========================================================
-    // VALIDATE LEDGER ID
+    // VALIDATE ID
     // =========================================================
 
     private void validateId(Long id) {
