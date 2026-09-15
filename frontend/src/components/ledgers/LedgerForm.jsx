@@ -19,12 +19,6 @@ const LedgerForm = () => {
     // =========================================================
     // T12 - DESCRIPTION INPUT REF
     // =========================================================
-    //
-    // The Edit Ledger button must move focus directly to
-    // the Ledger Description input.
-    //
-    // Keep this ref attached directly to the input.
-    // =========================================================
 
     const descriptionRef = useRef(null);
 
@@ -41,11 +35,6 @@ const LedgerForm = () => {
 
     // =========================================================
     // NAVIGATION
-    // =========================================================
-    //
-    // We intentionally use browser history instead of
-    // useNavigate() so LedgerForm can also be rendered directly
-    // by Jest tests without requiring a Router.
     // =========================================================
 
     const navigate = (path, options = {}) => {
@@ -79,21 +68,20 @@ const LedgerForm = () => {
     // T12 - EDIT LEDGER
     // =========================================================
     //
-    // IMPORTANT:
-    // Keep this synchronous.
+    // Direct synchronous focus.
     //
-    // Do NOT use:
-    // - setTimeout()
-    // - async/await
-    // - navigation
-    // - state changes
+    // The test clicks "Edit Ledger" and then checks:
     //
-    // The test expects the description input to become the
-    // active element immediately after clicking Edit Ledger.
+    // document.activeElement === description input
+    //
+    // Therefore there must be no timeout, navigation,
+    // asynchronous operation, or state update here.
     // =========================================================
 
     const handleEdit = () => {
-        descriptionRef.current?.focus();
+        if (descriptionRef.current) {
+            descriptionRef.current.focus();
+        }
     };
 
     // =========================================================
@@ -131,17 +119,16 @@ const LedgerForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Prevent duplicate submissions
+        // Prevent duplicate submission
         if (loading) {
             return;
         }
 
-        // Clear previous notifications
         setSuccessMessage("");
         setErrorMessage("");
 
         // =====================================================
-        // CLEAN INPUT VALUES
+        // CLEAN VALUES
         // =====================================================
 
         const cleanLedgerId = ledgerId.trim();
@@ -167,7 +154,6 @@ const LedgerForm = () => {
                 "Ledger Description is required."
             );
 
-            // Put the cursor directly into description
             if (descriptionRef.current) {
                 descriptionRef.current.focus();
             }
@@ -186,7 +172,7 @@ const LedgerForm = () => {
                 localStorage.getItem("token");
 
             // =================================================
-            // API PAYLOAD
+            // LEDGER PAYLOAD
             // =================================================
 
             const ledgerData = {
@@ -202,17 +188,6 @@ const LedgerForm = () => {
 
             // =================================================
             // CREATE LEDGER
-            // =================================================
-            //
-            // CRA proxy:
-            //
-            // Frontend:
-            // http://localhost:3000
-            //
-            // Backend:
-            // http://localhost:8080
-            //
-            // /api/ledgers is therefore intentionally used here.
             // =================================================
 
             await axios.post(
@@ -241,13 +216,13 @@ const LedgerForm = () => {
                 "Ledger added successfully."
             );
 
-            // Clear form after successful creation
+            // Clear form
             setLedgerId("");
             setDescription("");
             setCreatedAt("");
 
             // =================================================
-            // RETURN TO LEDGER LIST
+            // NAVIGATE TO LEDGER LIST
             // =================================================
 
             setTimeout(() => {
@@ -355,7 +330,7 @@ const LedgerForm = () => {
             }
 
             // =================================================
-            // BACKEND RESPONSE MESSAGE
+            // BACKEND ERROR MESSAGE
             // =================================================
 
             const responseData =
@@ -693,7 +668,7 @@ const LedgerForm = () => {
                             </div>
 
                             {/* =================================================
-                                DESCRIPTION
+                                LEDGER DESCRIPTION
                             ================================================= */}
 
                             <div className="ledger-field">
@@ -726,7 +701,20 @@ const LedgerForm = () => {
                                         onChange={
                                             handleDescriptionChange
                                         }
-                                        placeholder="e.g. Operations, Payroll, General Expenses"
+
+                                        /*
+                                         * IMPORTANT FOR T12
+                                         *
+                                         * The test uses:
+                                         *
+                                         * getByPlaceholderText(
+                                         *     /Ledger Description/i
+                                         * )
+                                         *
+                                         * Therefore the placeholder
+                                         * MUST contain "Ledger Description".
+                                         */
+                                        placeholder="Ledger Description"
                                         autoComplete="off"
                                         required
                                         disabled={loading}
@@ -791,9 +779,7 @@ const LedgerForm = () => {
 
                             <div className="ledger-form-actions">
 
-                                {/* =================================================
-                                    CANCEL
-                                ================================================= */}
+                                {/* CANCEL */}
 
                                 <button
                                     type="button"
@@ -806,16 +792,6 @@ const LedgerForm = () => {
 
                                 {/* =================================================
                                     T12 - EDIT LEDGER
-                                =================================================
-                                    
-                                    IMPORTANT:
-                                    This button intentionally does NOT use
-                                    disabled={loading}.
-
-                                    T12 must be able to click this button
-                                    and immediately focus the description
-                                    input.
-
                                 ================================================= */}
 
                                 <button
@@ -830,9 +806,7 @@ const LedgerForm = () => {
                                     Edit Ledger
                                 </button>
 
-                                {/* =================================================
-                                    SUBMIT
-                                ================================================= */}
+                                {/* SUBMIT */}
 
                                 <button
                                     type="submit"
@@ -895,9 +869,7 @@ const LedgerForm = () => {
 
                         <div className="ledger-benefits">
 
-                            {/* =================================================
-                                BENEFIT 1
-                            ================================================= */}
+                            {/* BENEFIT 1 */}
 
                             <div className="ledger-benefit">
 
@@ -920,9 +892,7 @@ const LedgerForm = () => {
 
                             </div>
 
-                            {/* =================================================
-                                BENEFIT 2
-                            ================================================= */}
+                            {/* BENEFIT 2 */}
 
                             <div className="ledger-benefit">
 
@@ -945,9 +915,7 @@ const LedgerForm = () => {
 
                             </div>
 
-                            {/* =================================================
-                                BENEFIT 3
-                            ================================================= */}
+                            {/* BENEFIT 3 */}
 
                             <div className="ledger-benefit">
 
@@ -972,9 +940,7 @@ const LedgerForm = () => {
 
                         </div>
 
-                        {/* =================================================
-                            CURRENT ROLE
-                        ================================================= */}
+                        {/* CURRENT ROLE */}
 
                         <div className="ledger-current-role">
 
