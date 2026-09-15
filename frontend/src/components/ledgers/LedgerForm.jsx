@@ -20,15 +20,8 @@ const LedgerForm = () => {
      */
     const descriptionRef = useRef(null);
 
-    /*
-     * =========================================================
-     * T12 — EDIT LEDGER
-     *
-     * Must be synchronous.
-     * Do NOT navigate here.
-     * Do NOT use setTimeout here.
-     * =========================================================
-     */
+    
+    
     const handleEdit = () => {
         if (descriptionRef.current) {
             descriptionRef.current.focus();
