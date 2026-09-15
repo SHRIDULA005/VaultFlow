@@ -1,89 +1,89 @@
-package com.example.demo.controller;
+// package com.example.demo.controller;
 
-import java.util.List;
+// import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.security.access.prepost.PreAuthorize;
+// import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.model.Ledger;
-import com.example.demo.service.LedgerService;
-
-
-@RestController
-@RequestMapping("/api/ledgers")
-public class LedgerController {
+// import com.example.demo.model.Ledger;
+// import com.example.demo.service.LedgerService;
 
 
-    @Autowired
-    private LedgerService ledgerService;
+// @RestController
+// @RequestMapping("/api/ledgers")
+// public class LedgerController {
 
 
-    // =========================================================
-    // GET ALL LEDGERS
-    // =========================================================
-
-    @GetMapping
-    public List<Ledger> getAllLedgers() {
-
-        return ledgerService.getAllLedgers();
-    }
+//     @Autowired
+//     private LedgerService ledgerService;
 
 
-    // =========================================================
-    // GET LEDGER BY ID
-    // =========================================================
+//     // =========================================================
+//     // GET ALL LEDGERS
+//     // =========================================================
 
-    @GetMapping("/{id}")
-    public Ledger getLedgerById(
-            @PathVariable Long id) {
+//     @GetMapping
+//     public List<Ledger> getAllLedgers() {
 
-        return ledgerService.getLedgerById(id);
-    }
-
-
-    // =========================================================
-    // CREATE LEDGER
-    // AUDITOR + ADMIN
-    // =========================================================
-
-    @PostMapping
-    @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
-    public Ledger createLedger(
-            @RequestBody Ledger ledger) {
-
-        return ledgerService.createLedger(ledger);
-    }
+//         return ledgerService.getAllLedgers();
+//     }
 
 
-    // =========================================================
-    // UPDATE LEDGER
-    // AUDITOR + ADMIN
-    // =========================================================
+//     // =========================================================
+//     // GET LEDGER BY ID
+//     // =========================================================
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
-    public Ledger updateLedger(
-            @PathVariable Long id,
-            @RequestBody Ledger ledger) {
+//     @GetMapping("/{id}")
+//     public Ledger getLedgerById(
+//             @PathVariable Long id) {
 
-        return ledgerService.updateLedger(
-                id,
-                ledger
-        );
-    }
+//         return ledgerService.getLedgerById(id);
+//     }
 
 
-    // =========================================================
-    // DELETE LEDGER
-    // AUDITOR + ADMIN
-    // =========================================================
+//     // =========================================================
+//     // CREATE LEDGER
+//     // AUDITOR + ADMIN
+//     // =========================================================
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
-    public void deleteLedger(
-            @PathVariable Long id) {
+//     @PostMapping
+//     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
+//     public Ledger createLedger(
+//             @RequestBody Ledger ledger) {
 
-        ledgerService.deleteLedger(id);
-    }
-}
+//         return ledgerService.createLedger(ledger);
+//     }
+
+
+//     // =========================================================
+//     // UPDATE LEDGER
+//     // AUDITOR + ADMIN
+//     // =========================================================
+
+//     @PutMapping("/{id}")
+//     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
+//     public Ledger updateLedger(
+//             @PathVariable Long id,
+//             @RequestBody Ledger ledger) {
+
+//         return ledgerService.updateLedger(
+//                 id,
+//                 ledger
+//         );
+//     }
+
+
+//     // =========================================================
+//     // DELETE LEDGER
+//     // AUDITOR + ADMIN
+//     // =========================================================
+
+//     @DeleteMapping("/{id}")
+//     @PreAuthorize("hasAnyRole('AUDITOR', 'ADMIN')")
+//     public void deleteLedger(
+//             @PathVariable Long id) {
+
+//         ledgerService.deleteLedger(id);
+//     }
+// }
