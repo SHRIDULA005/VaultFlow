@@ -4,87 +4,72 @@ import "./LedgerForm.css";
 
 /*
  * =========================================================
- * VAULTFLOW API CONFIGURATION
+ * VAULTFLOW LEDGER FORM
  * =========================================================
  *
- * React:
+ * Frontend:
  *     http://127.0.0.1:3000
  *
- * Spring Boot:
+ * Backend:
  *     http://localhost:8080
  *
- * Ledger API:
- *     http://localhost:8080/api/ledgers
+ * CRA proxy:
+ *     /api/* -> http://localhost:8080/api/*
  *
- * IMPORTANT:
- * Do not use only "/api/ledgers" here.
- * That would send the request to the React server on port 3000.
+ * Using relative API paths keeps the component compatible
+ * with both the browser and the Jest test environment.
+ * =========================================================
  */
-const API_BASE_URL = "http://localhost:8080/api";
-
 
 const LedgerForm = () => {
-    // =========================================================
+    // =====================================================
     // FORM STATE
-    // =========================================================
+    // =====================================================
 
     const [ledgerId, setLedgerId] = useState("");
     const [description, setDescription] = useState("");
     const [createdAt, setCreatedAt] = useState("");
 
 
-    // =========================================================
+    // =====================================================
     // UI STATE
-    // =========================================================
+    // =====================================================
 
+    const [loading, setLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [loading, setLoading] = useState(false);
 
 
-    // =========================================================
-    // DESCRIPTION INPUT REF
-    // =========================================================
-    //
-    // T12:
-    // Clicking "Edit Ledger" must focus the description field.
-    //
-    // =========================================================
+    // =====================================================
+    // T12 - DESCRIPTION INPUT REF
+    // =====================================================
 
     const descriptionRef = useRef(null);
 
 
-    // =========================================================
+    // =====================================================
     // ROLE
-    // =========================================================
+    // =====================================================
 
-    const getCurrentRole = () => {
-        const storedRole =
-            localStorage.getItem("role") || "USER";
-
-        return storedRole
+    const getRole = () => {
+        return (
+            localStorage.getItem("role") || "USER"
+        )
             .trim()
             .toUpperCase()
             .replace(/^ROLE_/, "");
     };
 
-    const role = getCurrentRole();
+    const role = getRole();
 
     const canCreate =
         role === "AUDITOR" ||
         role === "ADMIN";
 
 
-    // =========================================================
+    // =====================================================
     // NAVIGATION
-    // =========================================================
-    //
-    // Router-independent navigation.
-    //
-    // This component can be rendered directly by Jest without
-    // requiring BrowserRouter.
-    //
-    // =========================================================
+    // =====================================================
 
     const navigate = (path, options = {}) => {
         try {
@@ -114,44 +99,39 @@ const LedgerForm = () => {
     };
 
 
-    // =========================================================
-    // CLEAR ALERTS
-    // =========================================================
-
-    const clearMessages = () => {
-        setSuccessMessage("");
-        setErrorMessage("");
-    };
-
-
-    // =========================================================
-    // EDIT LEDGER BUTTON
-    // =========================================================
-    //
-    // T12 REQUIREMENT
-    //
-    // =========================================================
+    // =====================================================
+    // T12 - EDIT LEDGER
+    // =====================================================
 
     const handleEdit = () => {
-        if (descriptionRef.current) {
-            descriptionRef.current.focus();
+        const input = descriptionRef.current;
+
+        if (input) {
+            input.focus();
+
+            /*
+             * Select existing text when possible.
+             * This makes the edit action more useful for
+             * real users while keeping the focus requirement.
+             */
+            if (
+                typeof input.select === "function"
+            ) {
+                input.select();
+            }
         }
     };
 
 
-    // =========================================================
-    // FIELD CHANGE HANDLERS
-    // =========================================================
+    // =====================================================
+    // FIELD HANDLERS
+    // =====================================================
 
     const handleLedgerIdChange = (event) => {
         setLedgerId(event.target.value);
 
         if (errorMessage) {
             setErrorMessage("");
-        }
-
-        if (successMessage) {
-            setSuccessMessage("");
         }
     };
 
@@ -161,10 +141,6 @@ const LedgerForm = () => {
 
         if (errorMessage) {
             setErrorMessage("");
-        }
-
-        if (successMessage) {
-            setSuccessMessage("");
         }
     };
 
@@ -178,15 +154,13 @@ const LedgerForm = () => {
     };
 
 
-    // =========================================================
+    // =====================================================
     // VALIDATION
-    // =========================================================
+    // =====================================================
 
     const validateForm = () => {
-        const cleanLedgerId = ledgerId.trim();
-        const cleanDescription = description.trim();
 
-        if (!cleanLedgerId) {
+        if (!ledgerId.trim()) {
             setErrorMessage(
                 "Ledger ID is required."
             );
@@ -194,7 +168,8 @@ const LedgerForm = () => {
             return false;
         }
 
-        if (!cleanDescription) {
+
+        if (!description.trim()) {
             setErrorMessage(
                 "Ledger Description is required."
             );
@@ -206,30 +181,33 @@ const LedgerForm = () => {
             return false;
         }
 
+
         return true;
     };
 
 
-    // =========================================================
-    // SUBMIT LEDGER
-    // =========================================================
+    // =====================================================
+    // SUBMIT
+    // =====================================================
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Prevent accidental double submission.
+
         if (loading) {
             return;
         }
 
-        clearMessages();
+
+        setErrorMessage("");
+        setSuccessMessage("");
 
 
-        // =====================================================
-        // ROLE PROTECTION
-        // =====================================================
+        // =================================================
+        // ROLE SECURITY
+        // =================================================
 
-        const currentRole = getCurrentRole();
+        const currentRole = getRole();
 
         if (
             currentRole !== "AUDITOR" &&
@@ -243,9 +221,9 @@ const LedgerForm = () => {
         }
 
 
-        // =====================================================
-        // FORM VALIDATION
-        // =====================================================
+        // =================================================
+        // VALIDATION
+        // =================================================
 
         if (!validateForm()) {
             return;
@@ -256,17 +234,17 @@ const LedgerForm = () => {
             setLoading(true);
 
 
-            // =================================================
+            // =============================================
             // JWT
-            // =================================================
+            // =============================================
 
             const token =
                 localStorage.getItem("token");
 
 
-            // =================================================
-            // REQUEST PAYLOAD
-            // =================================================
+            // =============================================
+            // PAYLOAD
+            // =============================================
 
             const ledgerData = {
                 id: ledgerId.trim(),
@@ -275,27 +253,21 @@ const LedgerForm = () => {
             };
 
 
-            /*
-             * =================================================
-             * CREATE LEDGER
-             * =================================================
-             *
-             * IMPORTANT:
-             *
-             * Old:
-             *     /api/ledgers
-             *
-             * This goes to:
-             *     http://localhost:3000/api/ledgers
-             *
-             * Correct:
-             *     http://localhost:8080/api/ledgers
-             *
-             * Spring Boot owns this endpoint.
-             */
+            // =============================================
+            // CREATE LEDGER
+            // =============================================
+            //
+            // IMPORTANT:
+            //
+            // Using /api/ledgers allows CRA's proxy to send
+            // the request to Spring Boot:
+            //
+            // localhost:8080/api/ledgers
+            //
+            // =============================================
 
             await axios.post(
-                `${API_BASE_URL}/ledgers`,
+                "/api/ledgers",
                 ledgerData,
                 {
                     headers: {
@@ -313,9 +285,9 @@ const LedgerForm = () => {
             );
 
 
-            // =================================================
+            // =============================================
             // SUCCESS
-            // =================================================
+            // =============================================
 
             setSuccessMessage(
                 "Ledger added successfully."
@@ -324,17 +296,13 @@ const LedgerForm = () => {
             setErrorMessage("");
 
 
-            // Clear form after successful creation.
+            // Clear form.
             setLedgerId("");
             setDescription("");
             setCreatedAt("");
 
 
-            /*
-             * Give the user enough time to see the success
-             * notification before returning to Ledgers.
-             */
-
+            // Return to ledger list.
             window.setTimeout(() => {
                 navigate(
                     "/ledgers",
@@ -357,9 +325,9 @@ const LedgerForm = () => {
                 error?.response?.status;
 
 
-            // =================================================
-            // 401 - SESSION EXPIRED
-            // =================================================
+            // =============================================
+            // 401
+            // =============================================
 
             if (status === 401) {
 
@@ -390,17 +358,15 @@ const LedgerForm = () => {
                     );
                 }, 900);
 
-
                 return;
             }
 
 
-            // =================================================
-            // 403 - FORBIDDEN
-            // =================================================
+            // =============================================
+            // 403
+            // =============================================
 
             if (status === 403) {
-
                 setErrorMessage(
                     "You are not authorized to create a ledger."
                 );
@@ -409,94 +375,56 @@ const LedgerForm = () => {
             }
 
 
-            // =================================================
-            // BACKEND ERROR MESSAGE
-            // =================================================
+            // =============================================
+            // BACKEND MESSAGE
+            // =============================================
 
-            const responseData =
+            const data =
                 error?.response?.data;
 
 
-            if (responseData) {
+            if (
+                typeof data === "string" &&
+                data.trim()
+            ) {
 
-                // Spring Boot may return:
-                //
-                // "Some error message"
-
+                /*
+                 * Don't expose raw Express/HTML error pages.
+                 */
                 if (
-                    typeof responseData ===
-                    "string"
+                    data
+                        .toLowerCase()
+                        .includes("<html")
                 ) {
 
-                    /*
-                     * Ignore raw HTML error pages.
-                     * They are not useful to the user.
-                     */
-
-                    if (
-                        responseData
-                            .toLowerCase()
-                            .includes("<!doctype html>") ||
-                        responseData
-                            .toLowerCase()
-                            .includes("<html")
-                    ) {
-
-                        setErrorMessage(
-                            "Unable to connect to the ledger service. Please make sure the backend is running."
-                        );
-
-                        return;
-                    }
-
-
                     setErrorMessage(
-                        responseData
+                        "Unable to connect to the ledger service. Please make sure the backend is running on port 8080."
                     );
 
                     return;
                 }
 
 
-                // Spring Boot JSON error:
-                //
-                // {
-                //     "message": "..."
-                // }
+                setErrorMessage(data);
 
-                if (
-                    typeof responseData.message ===
-                    "string" &&
-                    responseData.message.trim()
-                ) {
-
-                    setErrorMessage(
-                        responseData.message
-                    );
-
-                    return;
-                }
-
-
-                // Alternative error fields.
-                if (
-                    typeof responseData.error ===
-                    "string" &&
-                    responseData.error.trim()
-                ) {
-
-                    setErrorMessage(
-                        responseData.error
-                    );
-
-                    return;
-                }
+                return;
             }
 
 
-            // =================================================
+            if (
+                data?.message
+            ) {
+                setErrorMessage(
+                    data.message
+                );
+
+                return;
+            }
+
+
+            // =============================================
             // NETWORK ERROR
-            // =================================================
+            // =============================================
 
             if (
                 error?.code === "ERR_NETWORK" ||
@@ -504,16 +432,16 @@ const LedgerForm = () => {
             ) {
 
                 setErrorMessage(
-                    "Unable to connect to the ledger service. Please make sure the backend is running on port 8080."
+                    "Unable to connect to the ledger service. Please make sure the backend is running."
                 );
 
                 return;
             }
 
 
-            // =================================================
-            // GENERIC ERROR
-            // =================================================
+            // =============================================
+            // GENERIC
+            // =============================================
 
             setErrorMessage(
                 "Unable to create ledger. Please try again."
@@ -525,9 +453,9 @@ const LedgerForm = () => {
     };
 
 
-    // =========================================================
+    // =====================================================
     // CANCEL
-    // =========================================================
+    // =====================================================
 
     const handleCancel = () => {
 
@@ -539,96 +467,18 @@ const LedgerForm = () => {
     };
 
 
-    // =========================================================
-    // UNAUTHORIZED STATE
-    // =========================================================
-
-    if (!canCreate) {
-
-        return (
-            <main className="ledger-create-page">
-
-                <div className="ledger-create-shell">
-
-                    <header className="ledger-create-topbar">
-
-                        <div className="ledger-brand">
-
-                            <div className="ledger-brand-logo">
-                                VF
-                            </div>
-
-                            <div>
-                                <strong>
-                                    VaultFlow
-                                </strong>
-
-                                <span>
-                                    FINANCIAL OPERATIONS
-                                </span>
-                            </div>
-
-                        </div>
-
-
-                        <div className="ledger-role-pill">
-
-                            <span></span>
-
-                            {role}
-
-                        </div>
-
-                    </header>
-
-
-                    <section className="ledger-unauthorized">
-
-                        <div className="ledger-unauthorized-icon">
-                            !
-                        </div>
-
-                        <h1>
-                            Access Restricted
-                        </h1>
-
-                        <p>
-                            Your current role does not have
-                            permission to create financial ledgers.
-                        </p>
-
-                        <button
-                            type="button"
-                            className="ledger-secondary-button"
-                            onClick={() =>
-                                navigate("/ledgers")
-                            }
-                        >
-                            ← Back to Ledgers
-                        </button>
-
-                    </section>
-
-                </div>
-
-            </main>
-        );
-    }
-
-
-    // =========================================================
-    // MAIN UI
-    // =========================================================
+    // =====================================================
+    // UI
+    // =====================================================
 
     return (
-
         <main className="ledger-create-page">
 
             <div className="ledger-create-shell">
 
 
                 {/* =================================================
-                    TOP BAR
+                    HEADER
                 ================================================= */}
 
                 <header className="ledger-create-topbar">
@@ -680,7 +530,7 @@ const LedgerForm = () => {
 
 
                 {/* =================================================
-                    PAGE INTRO
+                    INTRO
                 ================================================= */}
 
                 <section className="ledger-create-intro">
@@ -695,11 +545,9 @@ const LedgerForm = () => {
 
                         </div>
 
-
                         <h1>
                             Create Ledger
                         </h1>
-
 
                         <p>
                             Add a new financial ledger to
@@ -725,7 +573,7 @@ const LedgerForm = () => {
 
 
                 {/* =================================================
-                    ALERTS
+                    SUCCESS
                 ================================================= */}
 
                 {successMessage && (
@@ -752,7 +600,6 @@ const LedgerForm = () => {
 
                         </div>
 
-
                         <button
                             type="button"
                             aria-label="Close success message"
@@ -766,6 +613,10 @@ const LedgerForm = () => {
                     </div>
                 )}
 
+
+                {/* =================================================
+                    ERROR
+                ================================================= */}
 
                 {errorMessage && (
 
@@ -791,7 +642,6 @@ const LedgerForm = () => {
 
                         </div>
 
-
                         <button
                             type="button"
                             aria-label="Close error message"
@@ -807,14 +657,14 @@ const LedgerForm = () => {
 
 
                 {/* =================================================
-                    MAIN GRID
+                    CONTENT
                 ================================================= */}
 
                 <section className="ledger-create-grid">
 
 
                     {/* =================================================
-                        FORM CARD
+                        FORM
                     ================================================= */}
 
                     <div className="ledger-form-card">
@@ -841,8 +691,7 @@ const LedgerForm = () => {
                         </div>
 
 
-                        <div className="ledger-form-divider">
-                        </div>
+                        <div className="ledger-form-divider" />
 
 
                         <form
@@ -852,9 +701,9 @@ const LedgerForm = () => {
                         >
 
 
-                            {/* =====================================
+                            {/* =================================================
                                 LEDGER ID
-                            ===================================== */}
+                            ================================================= */}
 
                             <div className="ledger-field">
 
@@ -893,7 +742,6 @@ const LedgerForm = () => {
                                         autoComplete="off"
                                         required
                                         disabled={loading}
-                                        maxLength={100}
                                     />
 
                                 </div>
@@ -907,9 +755,9 @@ const LedgerForm = () => {
                             </div>
 
 
-                            {/* =====================================
+                            {/* =================================================
                                 DESCRIPTION
-                            ===================================== */}
+                            ================================================= */}
 
                             <div className="ledger-field">
 
@@ -949,7 +797,6 @@ const LedgerForm = () => {
                                         autoComplete="off"
                                         required
                                         disabled={loading}
-                                        maxLength={255}
                                     />
 
                                 </div>
@@ -963,9 +810,9 @@ const LedgerForm = () => {
                             </div>
 
 
-                            {/* =====================================
-                                CREATED DATE
-                            ===================================== */}
+                            {/* =================================================
+                                DATE
+                            ================================================= */}
 
                             <div className="ledger-field">
 
@@ -1013,14 +860,12 @@ const LedgerForm = () => {
                             </div>
 
 
-                            {/* =====================================
+                            {/* =================================================
                                 ACTIONS
-                            ===================================== */}
+                            ================================================= */}
 
                             <div className="ledger-form-actions">
 
-
-                                {/* CANCEL */}
 
                                 <button
                                     type="button"
@@ -1032,12 +877,9 @@ const LedgerForm = () => {
                                 </button>
 
 
-                                {/* =================================
-                                    EDIT LEDGER
-
-                                    IMPORTANT:
-                                    Keep this button for T12.
-                                ================================= */}
+                                {/* =============================================
+                                    T12
+                                    ============================================= */}
 
                                 <button
                                     type="button"
@@ -1049,14 +891,18 @@ const LedgerForm = () => {
                                 </button>
 
 
-                                {/* =================================
-                                    SUBMIT
-                                ================================= */}
-
                                 <button
                                     type="submit"
                                     className="ledger-submit-button"
-                                    disabled={loading}
+                                    disabled={
+                                        loading ||
+                                        !canCreate
+                                    }
+                                    title={
+                                        !canCreate
+                                            ? "Only AUDITOR and ADMIN users can create ledgers."
+                                            : ""
+                                    }
                                 >
 
                                     {loading ? (
@@ -1065,8 +911,7 @@ const LedgerForm = () => {
                                             <span
                                                 className="ledger-spinner"
                                                 aria-hidden="true"
-                                            >
-                                            </span>
+                                            />
 
                                             Creating Ledger...
                                         </>
@@ -1089,6 +934,32 @@ const LedgerForm = () => {
                                 </button>
 
                             </div>
+
+
+                            {/* =================================================
+                                ROLE NOTICE
+                            ================================================= */}
+
+                            {!canCreate && (
+
+                                <div
+                                    className="ledger-role-notice"
+                                    role="status"
+                                >
+                                    <strong>
+                                        Access limited
+                                    </strong>
+
+                                    <span>
+                                        Your current role (
+                                        {role}
+                                        ) cannot create ledgers.
+                                        Contact an administrator if
+                                        you need access.
+                                    </span>
+                                </div>
+
+                            )}
 
                         </form>
 
@@ -1128,7 +999,6 @@ const LedgerForm = () => {
 
 
                         <div className="ledger-benefits">
-
 
                             <div className="ledger-benefit">
 
@@ -1215,10 +1085,6 @@ const LedgerForm = () => {
                 </section>
 
 
-                {/* =================================================
-                    FOOTER
-                ================================================= */}
-
                 <footer className="ledger-create-footer">
 
                     <span>
@@ -1230,7 +1096,6 @@ const LedgerForm = () => {
                     </span>
 
                 </footer>
-
 
             </div>
 
