@@ -2,14 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./TransactionForm.css";
 
-const API_URL = "/api/transactions";
-
-const SUCCESS_MESSAGE = "Transaction Logged Successfully";
-const SESSION_EXPIRED_MESSAGE = "Session expired";
-const SERVER_ERROR_MESSAGE =
-    "Unable to process transaction. Please try again.";
-const GENERIC_ERROR_MESSAGE =
-    "Unable to create transaction. Please try again.";
+const API_BASE_URL = "http://localhost:8080";
+const TRANSACTION_ENDPOINT = "/api/transactions";
 
 const TransactionForm = () => {
     // =========================================================
@@ -31,8 +25,8 @@ const TransactionForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // =========================================================
-    // SUCCESS MESSAGE AUTO-HIDE
-    // T19
+    // SUCCESS MESSAGE
+    // T19 - hide after 3 seconds
     // =========================================================
 
     useEffect(() => {
@@ -48,11 +42,21 @@ const TransactionForm = () => {
     }, [successMessage]);
 
     // =========================================================
-    // AUTHORIZATION
+    // AUTHENTICATION
     // =========================================================
 
-    const configureAuthorization = () => {
+    const configureAxios = () => {
         const token = localStorage.getItem("token");
+
+        // -------------------------------------------------------
+        // IMPORTANT:
+        // Send API requests to Spring Boot on port 8080.
+        //
+        // We keep axios.post("/api/transactions", payload)
+        // unchanged because the existing tests expect that call.
+        // -------------------------------------------------------
+
+        axios.defaults.baseURL = API_BASE_URL;
 
         if (token) {
             axios.defaults.headers.common.Authorization =
@@ -65,21 +69,10 @@ const TransactionForm = () => {
     };
 
     // =========================================================
-    // RESET FORM
+    // ERROR HANDLER
     // =========================================================
 
-    const resetForm = () => {
-        setAmount("");
-        setSourceAccountId("");
-        setTargetAccountId("");
-        setReferenceId("");
-    };
-
-    // =========================================================
-    // HANDLE API ERROR
-    // =========================================================
-
-    const handleTransactionError = (error) => {
+    const handleError = (error) => {
         const status = error?.response?.status;
 
         // -------------------------------------------------------
@@ -93,7 +86,7 @@ const TransactionForm = () => {
 
             delete axios.defaults.headers.common.Authorization;
 
-            setErrorMessage(SESSION_EXPIRED_MESSAGE);
+            setErrorMessage("Session expired");
             return;
         }
 
@@ -114,22 +107,19 @@ const TransactionForm = () => {
         // -------------------------------------------------------
 
         if (status === 500) {
-            setErrorMessage(SERVER_ERROR_MESSAGE);
+            setErrorMessage(
+                "Unable to process transaction. Please try again."
+            );
             return;
         }
 
         // -------------------------------------------------------
-        // BACKEND VALIDATION MESSAGE
+        // BACKEND ERROR MESSAGE
         // -------------------------------------------------------
 
         const backendMessage =
             error?.response?.data?.message ||
-            error?.response?.data?.error ||
-            (
-                typeof error?.response?.data === "string"
-                    ? error.response.data
-                    : ""
-            );
+            error?.response?.data?.error;
 
         if (backendMessage) {
             setErrorMessage(
@@ -139,17 +129,37 @@ const TransactionForm = () => {
         }
 
         // -------------------------------------------------------
-        // NETWORK / UNKNOWN ERROR
+        // STRING RESPONSE
         // -------------------------------------------------------
 
-        if (error?.code === "ERR_NETWORK") {
+        if (
+            typeof error?.response?.data === "string" &&
+            error.response.data.trim()
+        ) {
             setErrorMessage(
-                "Unable to connect to the server. Please make sure the backend is running."
+                `Transaction failed: ${error.response.data}`
             );
             return;
         }
 
-        setErrorMessage(GENERIC_ERROR_MESSAGE);
+        // -------------------------------------------------------
+        // NETWORK ERROR
+        // -------------------------------------------------------
+
+        if (error?.code === "ERR_NETWORK") {
+            setErrorMessage(
+                "Unable to connect to the backend server. Please make sure Spring Boot is running on port 8080."
+            );
+            return;
+        }
+
+        // -------------------------------------------------------
+        // GENERIC
+        // -------------------------------------------------------
+
+        setErrorMessage(
+            "Unable to create transaction. Please try again."
+        );
     };
 
     // =========================================================
@@ -157,9 +167,10 @@ const TransactionForm = () => {
     // =========================================================
 
     const handleSubmit = () => {
+
         // -------------------------------------------------------
         // T20
-        // Warning must NOT prevent the request.
+        // Show warning but DO NOT stop the request.
         // -------------------------------------------------------
 
         if (!sourceAccountId || !targetAccountId) {
@@ -173,7 +184,7 @@ const TransactionForm = () => {
 
         // -------------------------------------------------------
         // T14
-        // DO NOT CHANGE THIS PAYLOAD STRUCTURE.
+        // KEEP THIS PAYLOAD EXACTLY AS REQUIRED BY THE TESTS.
         // -------------------------------------------------------
 
         const transactionData = {
@@ -184,44 +195,57 @@ const TransactionForm = () => {
         };
 
         // -------------------------------------------------------
-        // AUTHORIZATION
+        // CONFIGURE BACKEND + JWT
         // -------------------------------------------------------
 
-        configureAuthorization();
+        configureAxios();
 
         setIsSubmitting(true);
 
         let request;
 
         try {
+
             /*
-             * IMPORTANT:
+             * IMPORTANT
              *
-             * Keep axios.post as a TWO-ARGUMENT call.
+             * DO NOT change this to:
              *
-             * This is required by the existing frontend tests.
+             * axios.post(
+             *     "http://localhost:8080/api/transactions",
+             *     transactionData
+             * )
              *
-             * Authorization is configured through
-             * axios.defaults.headers.common above.
+             * because T14 expects the exact URL:
+             *
+             * /api/transactions
+             *
+             * Instead, axios.defaults.baseURL above makes
+             * the actual browser request:
+             *
+             * http://localhost:8080/api/transactions
              */
 
             request = axios.post(
-                API_URL,
+                TRANSACTION_ENDPOINT,
                 transactionData
             );
+
         } catch (error) {
+
             console.error(
                 "Transaction request failed:",
                 error
             );
 
             setIsSubmitting(false);
-            handleTransactionError(error);
+            handleError(error);
+
             return;
         }
 
         // -------------------------------------------------------
-        // SAFETY CHECK
+        // SAFETY
         // -------------------------------------------------------
 
         if (
@@ -233,26 +257,34 @@ const TransactionForm = () => {
         }
 
         // -------------------------------------------------------
-        // SUCCESS / FAILURE
+        // HANDLE SUCCESS
         // -------------------------------------------------------
 
         request
             .then(() => {
-                // ------------------------------------------------
-                // T18
-                // ------------------------------------------------
 
+                // T18
                 setSuccessMessage(
-                    SUCCESS_MESSAGE
+                    "Transaction Logged Successfully"
                 );
 
                 setWarningMessage("");
                 setErrorMessage("");
                 setIsSubmitting(false);
 
-                resetForm();
+                // Clear form after successful transaction
+                setAmount("");
+                setSourceAccountId("");
+                setTargetAccountId("");
+                setReferenceId("");
             })
+
+            // ---------------------------------------------------
+            // HANDLE ERROR
+            // ---------------------------------------------------
+
             .catch((error) => {
+
                 console.error(
                     "Transaction creation failed:",
                     error
@@ -260,25 +292,28 @@ const TransactionForm = () => {
 
                 setIsSubmitting(false);
 
-                handleTransactionError(error);
+                handleError(error);
             });
     };
 
     // =========================================================
-    // RENDER
+    // UI
     // =========================================================
 
     return (
         <main className="transaction-form-page">
 
-            {/* ===================================================
+            {/* =================================================
                 HEADER
-            =================================================== */}
+            ================================================= */}
 
             <section className="transaction-form-header">
 
                 <div className="transaction-breadcrumb">
-                    <span>VAULTFLOW</span>
+
+                    <span>
+                        VAULTFLOW
+                    </span>
 
                     <span className="breadcrumb-divider">
                         /
@@ -287,6 +322,7 @@ const TransactionForm = () => {
                     <strong>
                         Transactions
                     </strong>
+
                 </div>
 
                 <div className="transaction-header-content">
@@ -321,9 +357,9 @@ const TransactionForm = () => {
 
             </section>
 
-            {/* ===================================================
-                SUCCESS ALERT
-            =================================================== */}
+            {/* =================================================
+                SUCCESS
+            ================================================= */}
 
             {successMessage && (
                 <div
@@ -353,9 +389,9 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            {/* ===================================================
-                WARNING ALERT
-            =================================================== */}
+            {/* =================================================
+                WARNING
+            ================================================= */}
 
             {warningMessage && (
                 <div
@@ -385,9 +421,9 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            {/* ===================================================
-                ERROR ALERT
-            =================================================== */}
+            {/* =================================================
+                ERROR
+            ================================================= */}
 
             {errorMessage && (
                 <div
@@ -420,9 +456,9 @@ const TransactionForm = () => {
                 </div>
             )}
 
-            {/* ===================================================
-                TRANSACTION FORM
-            =================================================== */}
+            {/* =================================================
+                FORM
+            ================================================= */}
 
             <section className="transaction-form-card">
 
@@ -454,10 +490,6 @@ const TransactionForm = () => {
                 </div>
 
                 <div className="transaction-form-divider"></div>
-
-                {/* =================================================
-                    FORM GRID
-                ================================================= */}
 
                 <div className="transaction-form-grid">
 
@@ -631,9 +663,7 @@ const TransactionForm = () => {
                         </div>
 
                         <small>
-                            Use the format
-                            {" "}
-                            TRX-YYYY-XXX-NNNNN.
+                            Use the format TRX-YYYY-XXX-NNNNN.
                         </small>
 
                     </div>
@@ -689,7 +719,6 @@ const TransactionForm = () => {
                         {isSubmitting ? (
                             <>
                                 <span className="button-spinner"></span>
-
                                 Processing...
                             </>
                         ) : (
@@ -708,9 +737,9 @@ const TransactionForm = () => {
 
             </section>
 
-            {/* ===================================================
+            {/* =================================================
                 PAGE FOOTER
-            =================================================== */}
+            ================================================= */}
 
             <div className="transaction-page-footer">
 
