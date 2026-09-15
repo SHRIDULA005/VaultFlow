@@ -4,6 +4,14 @@ import { getAccounts } from "../../services/accountService";
 import "./TransactionForm.css";
 
 const API_BASE_URL = "http://localhost:8080";
+const TRANSACTION_ENDPOINT = "/api/transactions";
+const SUCCESS_MESSAGE = "Transaction Logged Successfully";
+const SESSION_EXPIRED_MESSAGE = "Session expired";
+const SERVER_ERROR_MESSAGE =
+    "Unable to process transaction. Please try again.";
+
+const REFERENCE_ID_PATTERN =
+    /^TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}$/;
 
 const TransactionForm = () => {
     // =========================================================
@@ -31,6 +39,21 @@ const TransactionForm = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [warningMessage, setWarningMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+
+    // =========================================================
+    // AXIOS CONFIGURATION
+    // =========================================================
+
+    useEffect(() => {
+        axios.defaults.baseURL = API_BASE_URL;
+
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            axios.defaults.headers.common.Authorization =
+                `Bearer ${token}`;
+        }
+    }, []);
 
     // =========================================================
     // LOAD ACCOUNTS
@@ -117,7 +140,7 @@ const TransactionForm = () => {
             return "";
         }
 
-        return storedRole
+        return String(storedRole)
             .trim()
             .toUpperCase()
             .replace(/^ROLE_/, "");
@@ -152,14 +175,14 @@ const TransactionForm = () => {
             return null;
         }
 
-        const normalized = String(value).trim();
+        const normalizedValue = String(value).trim();
 
-        // Numeric account ID
-        if (/^\d+$/.test(normalized)) {
-            return Number(normalized);
+        // Direct numeric ID
+        if (/^\d+$/.test(normalizedValue)) {
+            return Number(normalizedValue);
         }
 
-        // Search by common account fields
+        // Resolve account from loaded account data
         const account = accounts.find((item) => {
             const candidates = [
                 item?.id,
@@ -176,7 +199,7 @@ const TransactionForm = () => {
                     String(candidate)
                         .trim()
                         .toLowerCase() ===
-                    normalized.toLowerCase()
+                    normalizedValue.toLowerCase()
             );
         });
 
@@ -184,7 +207,33 @@ const TransactionForm = () => {
             return null;
         }
 
-        return account?.id ?? account?.accountId ?? null;
+        return (
+            account?.id ??
+            account?.accountId ??
+            null
+        );
+    };
+
+    // =========================================================
+    // VALIDATE REFERENCE ID
+    // =========================================================
+
+    const isValidReferenceId = (value) => {
+        return REFERENCE_ID_PATTERN.test(
+            String(value || "").trim()
+        );
+    };
+
+    // =========================================================
+    // HANDLE 401
+    // =========================================================
+
+    const handleUnauthorized = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("user");
+
+        setErrorMessage(SESSION_EXPIRED_MESSAGE);
     };
 
     // =========================================================
@@ -210,23 +259,8 @@ const TransactionForm = () => {
             localStorage.removeItem("role");
             localStorage.removeItem("user");
 
-            setErrorMessage("Session expired");
+            setErrorMessage(SESSION_EXPIRED_MESSAGE);
 
-            return;
-        }
-
-        // =====================================================
-        // ACCOUNT VALIDATION
-        // T20
-        // =====================================================
-
-        if (
-            !sourceAccountId ||
-            String(sourceAccountId).trim() === "" ||
-            !targetAccountId ||
-            String(targetAccountId).trim() === ""
-        ) {
-            setWarningMessage("Account not selected");
             return;
         }
 
@@ -234,17 +268,17 @@ const TransactionForm = () => {
         // AMOUNT VALIDATION
         // =====================================================
 
-        if (
-            !amount ||
-            String(amount).trim() === ""
-        ) {
+        const amountValue = String(amount || "").trim();
+
+        if (!amountValue) {
             setErrorMessage(
                 "Transaction amount must be greater than zero."
             );
+
             return;
         }
 
-        const numericAmount = Number(amount);
+        const numericAmount = Number(amountValue);
 
         if (
             !Number.isFinite(numericAmount) ||
@@ -253,11 +287,13 @@ const TransactionForm = () => {
             setErrorMessage(
                 "Transaction amount must be greater than zero."
             );
+
             return;
         }
 
         // =====================================================
-        // REFERENCE VALIDATION
+        // REFERENCE ID VALIDATION
+        // T30
         // =====================================================
 
         const trimmedReferenceId =
@@ -267,91 +303,77 @@ const TransactionForm = () => {
             setErrorMessage(
                 "Reference ID is required."
             );
+
             return;
         }
 
-        // =====================================================
-        // REFERENCE FORMAT VALIDATION
-        // T30
-        //
-        // Expected:
-        // TRX-2026-ARC-00441
-        // =====================================================
-
-        const referencePattern =
-            /^TRX-[0-9]{4}-[A-Z]{3}-[0-9]{5}$/;
-
-        if (!referencePattern.test(trimmedReferenceId)) {
+        if (!isValidReferenceId(trimmedReferenceId)) {
             setErrorMessage(
                 "Reference ID must use the format TRX-YYYY-XXX-NNNNN."
             );
+
             return;
         }
 
         // =====================================================
-        // ACCOUNT RESOLUTION
+        // ACCOUNT VALUES
         // =====================================================
 
-        const resolvedSourceAccountId =
-            resolveAccountId(sourceAccountId);
+        const sourceValue =
+            String(sourceAccountId || "").trim();
 
-        const resolvedTargetAccountId =
-            resolveAccountId(targetAccountId);
+        const targetValue =
+            String(targetAccountId || "").trim();
 
         /*
-         * Only reject unresolved values when account data
-         * is actually available.
+         * If the user has explicitly entered both account IDs,
+         * use them directly.
          *
-         * This keeps mocked/test account values from being
-         * unnecessarily blocked while still validating real
-         * account selections in the application.
+         * If account metadata is available, resolve account
+         * names/numbers to their numeric IDs.
          */
 
-        if (
-            accounts.length > 0 &&
-            (
-                resolvedSourceAccountId === null ||
-                resolvedTargetAccountId === null
-            )
-        ) {
-            setErrorMessage(
-                "Unable to find the selected account. Please select a valid account."
-            );
-            return;
-        }
+        const resolvedSource =
+            resolveAccountId(sourceValue);
+
+        const resolvedTarget =
+            resolveAccountId(targetValue);
+
+        const finalSourceAccountId =
+            resolvedSource !== null
+                ? resolvedSource
+                : sourceValue;
+
+        const finalTargetAccountId =
+            resolvedTarget !== null
+                ? resolvedTarget
+                : targetValue;
 
         // =====================================================
         // SAME ACCOUNT VALIDATION
         // =====================================================
 
-        const finalSourceAccountId =
-            resolvedSourceAccountId !== null
-                ? resolvedSourceAccountId
-                : sourceAccountId;
-
-        const finalTargetAccountId =
-            resolvedTargetAccountId !== null
-                ? resolvedTargetAccountId
-                : targetAccountId;
-
         if (
+            sourceValue &&
+            targetValue &&
             String(finalSourceAccountId) ===
-            String(finalTargetAccountId)
+                String(finalTargetAccountId)
         ) {
             setErrorMessage(
                 "Source and destination accounts cannot be the same."
             );
+
             return;
         }
 
         // =====================================================
-        // T14 EXACT PAYLOAD
+        // T14 TRANSACTION PAYLOAD
         // =====================================================
 
         const transactionData = {
             amount: numericAmount,
-            sourceAccountId: Number(sourceAccountId),
-            targetAccountId: Number(targetAccountId),
+            sourceAccountId: Number(finalSourceAccountId),
+            targetAccountId: Number(finalTargetAccountId),
             referenceId: trimmedReferenceId
         };
 
@@ -371,24 +393,21 @@ const TransactionForm = () => {
 
         try {
             // =================================================
-            // CREATE TRANSACTION
             // T14
+            // CREATE TRANSACTION
             // =================================================
 
             await axios.post(
-                "/api/transactions",
+                TRANSACTION_ENDPOINT,
                 transactionData
             );
 
             // =================================================
-            // SUCCESS
             // T18
+            // SUCCESS ALERT
             // =================================================
 
-            setSuccessMessage(
-                "Transaction Logged Successfully"
-            );
-
+            setSuccessMessage(SUCCESS_MESSAGE);
             setWarningMessage("");
             setErrorMessage("");
 
@@ -406,21 +425,16 @@ const TransactionForm = () => {
                 error
             );
 
-            const responseStatus =
+            const status =
                 error?.response?.status;
 
             // =================================================
-            // 401 UNAUTHORIZED
             // T17
+            // 401 UNAUTHORIZED
             // =================================================
 
-            if (responseStatus === 401) {
-                localStorage.removeItem("token");
-                localStorage.removeItem("role");
-                localStorage.removeItem("user");
-
-                setErrorMessage("Session expired");
-
+            if (status === 401) {
+                handleUnauthorized();
                 return;
             }
 
@@ -428,7 +442,7 @@ const TransactionForm = () => {
             // 403 FORBIDDEN
             // =================================================
 
-            if (responseStatus === 403) {
+            if (status === 403) {
                 setErrorMessage(
                     "You are not authorized to create transactions."
                 );
@@ -437,13 +451,13 @@ const TransactionForm = () => {
             }
 
             // =================================================
-            // 500 INTERNAL SERVER ERROR
             // T16
+            // 500 INTERNAL SERVER ERROR
             // =================================================
 
-            if (responseStatus === 500) {
+            if (status === 500) {
                 setErrorMessage(
-                    "Unable to process transaction. Please try again."
+                    SERVER_ERROR_MESSAGE
                 );
 
                 return;
@@ -461,7 +475,7 @@ const TransactionForm = () => {
                 responseData.trim()
             ) {
                 setErrorMessage(
-                    responseData
+                    responseData.trim()
                 );
 
                 return;
@@ -473,7 +487,7 @@ const TransactionForm = () => {
                 responseData.message.trim()
             ) {
                 setErrorMessage(
-                    responseData.message
+                    responseData.message.trim()
                 );
 
                 return;
@@ -484,7 +498,7 @@ const TransactionForm = () => {
             // =================================================
 
             setErrorMessage(
-                "Unable to process transaction. Please try again."
+                SERVER_ERROR_MESSAGE
             );
         } finally {
             setIsSubmitting(false);
@@ -544,6 +558,7 @@ const TransactionForm = () => {
 
             {/* =================================================
                 SUCCESS ALERT
+                T18 / T19
             ================================================= */}
 
             {successMessage && (
@@ -602,6 +617,7 @@ const TransactionForm = () => {
 
             {/* =================================================
                 ERROR ALERT
+                T16 / T17
             ================================================= */}
 
             {errorMessage && (
