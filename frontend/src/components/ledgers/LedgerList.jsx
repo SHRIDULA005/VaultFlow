@@ -1,816 +1,1561 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
 import axios from "axios";
+
 import "./LedgerList.css";
 
 const API_BASE_URL = "http://localhost:8080";
 
-const SESSION_EXPIRED = "Session expired. Please log in again.";
-
 const LedgerList = () => {
-  // =========================================================
-  // STATE
-  // =========================================================
 
-  const [ledgers, setLedgers] = useState([]);
-  const [loading, setLoading] = useState(true);
+    // =========================================================
+    // STATE
+    // =========================================================
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
+    const [ledgers, setLedgers] = useState([]);
 
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+    const [loading, setLoading] =
+        useState(true);
 
-  const [deletingId, setDeletingId] = useState(null);
+    const [searchTerm, setSearchTerm] =
+        useState("");
 
-  const [editingLedger, setEditingLedger] = useState(null);
-  const [editDescription, setEditDescription] = useState("");
-  const [editCreatedAt, setEditCreatedAt] = useState("");
-  const [savingEdit, setSavingEdit] = useState(false);
+    const [sortOrder, setSortOrder] =
+        useState("asc");
 
-  // =========================================================
-  // AUTH / ROLE
-  // =========================================================
+    const [errorMessage, setErrorMessage] =
+        useState("");
 
-  const getRole = () =>
-    (localStorage.getItem("role") || "")
-      .trim()
-      .toUpperCase()
-      .replace(/^ROLE_/, "");
+    const [successMessage, setSuccessMessage] =
+        useState("");
 
-  const role = getRole();
+    const [deletingId, setDeletingId] =
+        useState(null);
 
-  const canManageLedgers =
-    role === "ADMIN" || role === "AUDITOR";
+    const [editingLedger, setEditingLedger] =
+        useState(null);
 
-  const getAuthConfig = () => ({
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json",
-    },
-  });
+    const [editDescription, setEditDescription] =
+        useState("");
 
-  // =========================================================
-  // NAVIGATION
-  // =========================================================
-  // Router-independent so Jest tests can render this component
-  // without wrapping it in BrowserRouter.
+    const [editCreatedAt, setEditCreatedAt] =
+        useState("");
 
-  const navigate = (path, replace = false) => {
-    if (replace) {
-      window.history.replaceState({}, "", path);
-    } else {
-      window.history.pushState({}, "", path);
-    }
+    const [savingEdit, setSavingEdit] =
+        useState(false);
 
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  };
 
-  // =========================================================
-  // ERROR HANDLING
-  // =========================================================
+    // =========================================================
+    // ROLE
+    // =========================================================
 
-  const handleApiError = (error, fallbackMessage) => {
-    const status = error?.response?.status;
+    const getRole = () => {
 
-    if (status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("user");
+        let role =
+            localStorage.getItem("role") || "";
 
-      setErrorMessage(SESSION_EXPIRED);
-      return;
-    }
+        role = role
+            .trim()
+            .toUpperCase()
+            .replace(/^ROLE_/, "");
 
-    if (status === 403) {
-      setErrorMessage("You are not authorized to perform this action.");
-      return;
-    }
+        return role;
+    };
 
-    const backendMessage = error?.response?.data?.message;
 
-    setErrorMessage(backendMessage || fallbackMessage);
-  };
+    const role = getRole();
 
-  // =========================================================
-  // LOAD LEDGERS
-  // =========================================================
 
-  useEffect(() => {
-    let mounted = true;
+    /*
+     * IMPORTANT
+     *
+     * Backend currently allows ledger modification
+     * for AUDITOR and ADMIN.
+     *
+     * Do not give TREASURER unauthorized buttons.
+     */
 
-    const loadLedgers = async () => {
-      const token = localStorage.getItem("token");
+    const canManageLedgers =
+        role === "AUDITOR" ||
+        role === "ADMIN";
 
-      if (!token) {
-        if (mounted) {
-          setErrorMessage(SESSION_EXPIRED);
-          setLoading(false);
+
+    // =========================================================
+    // AUTH HEADERS
+    // =========================================================
+
+    const getAuthHeaders = () => {
+
+        const token =
+            localStorage.getItem("token");
+
+        return {
+            Authorization: `Bearer ${token}`,
+            "Content-Type":
+                "application/json"
+        };
+    };
+
+
+    // =========================================================
+    // NAVIGATION
+    //
+    // Router-independent so the component can also be
+    // rendered directly by the Jest tests.
+    // =========================================================
+
+    const navigateTo = (path) => {
+
+        window.history.pushState(
+            {},
+            "",
+            path
+        );
+
+        window.dispatchEvent(
+            new PopStateEvent("popstate")
+        );
+    };
+
+
+    // =========================================================
+    // LOAD LEDGERS
+    // =========================================================
+
+    useEffect(() => {
+
+        let mounted = true;
+
+        const loadLedgers = async () => {
+
+            try {
+
+                setLoading(true);
+
+                setErrorMessage("");
+
+                const token =
+                    localStorage.getItem("token");
+
+
+                // -------------------------------------------------
+                // TOKEN CHECK
+                // -------------------------------------------------
+
+                if (!token) {
+
+                    if (mounted) {
+
+                        localStorage.removeItem(
+                            "token"
+                        );
+
+                        localStorage.removeItem(
+                            "role"
+                        );
+
+                        localStorage.removeItem(
+                            "user"
+                        );
+
+                        setErrorMessage(
+                            "Session expired. Please log in again"
+                        );
+
+                        setLoading(false);
+                    }
+
+                    return;
+                }
+
+
+                // -------------------------------------------------
+                // GET LEDGERS
+                // -------------------------------------------------
+
+                const response =
+                    await axios.get(
+                        `${API_BASE_URL}/api/ledgers`,
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bearer ${token}`,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                if (!mounted) {
+                    return;
+                }
+
+
+                const responseData =
+                    response?.data;
+
+
+                // -------------------------------------------------
+                // NORMAL ARRAY
+                // -------------------------------------------------
+
+                if (
+                    Array.isArray(responseData)
+                ) {
+
+                    setLedgers(
+                        responseData
+                    );
+
+                }
+
+                // -------------------------------------------------
+                // SPRING PAGE RESPONSE
+                // -------------------------------------------------
+
+                else if (
+                    responseData &&
+                    Array.isArray(
+                        responseData.content
+                    )
+                ) {
+
+                    setLedgers(
+                        responseData.content
+                    );
+
+                }
+
+                // -------------------------------------------------
+                // UNKNOWN RESPONSE
+                // -------------------------------------------------
+
+                else {
+
+                    setLedgers([]);
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error loading ledgers:",
+                    error
+                );
+
+
+                if (!mounted) {
+                    return;
+                }
+
+
+                const status =
+                    error?.response?.status;
+
+
+                // -------------------------------------------------
+                // 401
+                // -------------------------------------------------
+
+                if (status === 401) {
+
+                    localStorage.removeItem(
+                        "token"
+                    );
+
+                    localStorage.removeItem(
+                        "role"
+                    );
+
+                    localStorage.removeItem(
+                        "user"
+                    );
+
+                    setErrorMessage(
+                        "Session expired. Please log in again"
+                    );
+
+                }
+
+                // -------------------------------------------------
+                // 403
+                // -------------------------------------------------
+
+                else if (status === 403) {
+
+                    setErrorMessage(
+                        "You are not authorized to view ledgers."
+                    );
+
+                }
+
+                // -------------------------------------------------
+                // OTHER
+                // -------------------------------------------------
+
+                else {
+
+                    setErrorMessage(
+                        "Unable to load ledgers. Please try again."
+                    );
+                }
+
+
+            } finally {
+
+                if (mounted) {
+
+                    setLoading(false);
+                }
+            }
+        };
+
+
+        loadLedgers();
+
+
+        return () => {
+
+            mounted = false;
+        };
+
+    }, []);
+
+
+    // =========================================================
+    // FILTER + SORT
+    // =========================================================
+
+    const filteredLedgers =
+        useMemo(() => {
+
+            const search =
+                searchTerm
+                    .trim()
+                    .toLowerCase();
+
+
+            const filtered =
+                ledgers.filter(
+                    (ledger) => {
+
+                        if (!search) {
+                            return true;
+                        }
+
+
+                        const id =
+                            String(
+                                ledger?.id ?? ""
+                            ).toLowerCase();
+
+
+                        const description =
+                            String(
+                                ledger?.description ?? ""
+                            ).toLowerCase();
+
+
+                        return (
+                            id.includes(search) ||
+                            description.includes(search)
+                        );
+                    }
+                );
+
+
+            return [...filtered].sort(
+                (a, b) => {
+
+                    const idA =
+                        Number(a?.id || 0);
+
+                    const idB =
+                        Number(b?.id || 0);
+
+
+                    return sortOrder === "asc"
+                        ? idA - idB
+                        : idB - idA;
+                }
+            );
+
+        }, [
+            ledgers,
+            searchTerm,
+            sortOrder
+        ]);
+
+
+    // =========================================================
+    // CREATE
+    // =========================================================
+
+    const handleCreateLedger = () => {
+
+        if (!canManageLedgers) {
+
+            setErrorMessage(
+                "You are not authorized to create ledgers."
+            );
+
+            return;
         }
-        return;
-      }
 
-      try {
-        setLoading(true);
+
+        navigateTo(
+            "/ledgers/new"
+        );
+    };
+
+
+    // =========================================================
+    // EDIT
+    // =========================================================
+
+    const handleEdit = (ledger) => {
+
+        if (!canManageLedgers) {
+
+            setErrorMessage(
+                "You are not authorized to edit ledgers."
+            );
+
+            return;
+        }
+
+
         setErrorMessage("");
 
-        const response = await axios.get(
-          `${API_BASE_URL}/api/ledgers`,
-          getAuthConfig()
+        setSuccessMessage("");
+
+        setEditingLedger(ledger);
+
+        setEditDescription(
+            ledger?.description || ""
         );
 
-        if (!mounted) return;
 
-        const data = response.data;
+        if (ledger?.createdAt) {
 
-        if (Array.isArray(data)) {
-          setLedgers(data);
-        } else if (Array.isArray(data?.content)) {
-          setLedgers(data.content);
+            setEditCreatedAt(
+                String(
+                    ledger.createdAt
+                ).substring(0, 10)
+            );
+
         } else {
-          setLedgers([]);
-        }
-      } catch (error) {
-        console.error("Error loading ledgers:", error);
 
-        if (mounted) {
-          handleApiError(
-            error,
-            "Unable to load ledgers. Please try again."
-          );
+            setEditCreatedAt("");
         }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
     };
 
-    loadLedgers();
 
-    return () => {
-      mounted = false;
+    // =========================================================
+    // CLOSE EDIT MODAL
+    // =========================================================
+
+    const closeEditModal = () => {
+
+        if (savingEdit) {
+            return;
+        }
+
+
+        setEditingLedger(null);
+
+        setEditDescription("");
+
+        setEditCreatedAt("");
     };
-  }, []);
 
-  // =========================================================
-  // FILTER + SORT
-  // =========================================================
 
-  const filteredLedgers = useMemo(() => {
-    const search = searchTerm.trim().toLowerCase();
+    // =========================================================
+    // SAVE EDIT
+    // =========================================================
 
-    return [...ledgers]
-      .filter((ledger) => {
-        if (!search) return true;
+    const handleSaveEdit = async (event) => {
 
-        const id = String(ledger.id ?? "").toLowerCase();
-        const description = String(
-          ledger.description ?? ""
-        ).toLowerCase();
+        event.preventDefault();
+
+
+        if (!editingLedger) {
+            return;
+        }
+
+
+        if (!canManageLedgers) {
+
+            setErrorMessage(
+                "You are not authorized to edit ledgers."
+            );
+
+            return;
+        }
+
+
+        if (!editDescription.trim()) {
+
+            setErrorMessage(
+                "Ledger description cannot be empty."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            setSavingEdit(true);
+
+            setErrorMessage("");
+
+            setSuccessMessage("");
+
+
+            const payload = {
+                description:
+                    editDescription.trim()
+            };
+
+
+            if (editCreatedAt) {
+
+                payload.createdAt =
+                    editCreatedAt;
+            }
+
+
+            const response =
+                await axios.put(
+                    `${API_BASE_URL}/api/ledgers/${editingLedger.id}`,
+                    payload,
+                    {
+                        headers:
+                            getAuthHeaders()
+                    }
+                );
+
+
+            const updatedLedger =
+                response?.data || {};
+
+
+            setLedgers(
+                (previous) =>
+                    previous.map(
+                        (ledger) => {
+
+                            if (
+                                ledger.id !==
+                                editingLedger.id
+                            ) {
+
+                                return ledger;
+                            }
+
+
+                            return {
+                                ...ledger,
+                                ...updatedLedger,
+
+                                description:
+                                    updatedLedger.description ??
+                                    editDescription.trim(),
+
+                                createdAt:
+                                    updatedLedger.createdAt ??
+                                    ledger.createdAt
+                            };
+                        }
+                    )
+            );
+
+
+            setSuccessMessage(
+                `Ledger #${editingLedger.id} updated successfully.`
+            );
+
+
+            closeEditModal();
+
+
+        } catch (error) {
+
+            console.error(
+                "Error updating ledger:",
+                error
+            );
+
+
+            const status =
+                error?.response?.status;
+
+
+            if (status === 401) {
+
+                localStorage.removeItem(
+                    "token"
+                );
+
+                localStorage.removeItem(
+                    "role"
+                );
+
+                localStorage.removeItem(
+                    "user"
+                );
+
+                setErrorMessage(
+                    "Session expired. Please log in again"
+                );
+
+            } else if (status === 403) {
+
+                setErrorMessage(
+                    "You are not authorized to edit this ledger."
+                );
+
+            } else if (
+                error?.response?.data?.message
+            ) {
+
+                setErrorMessage(
+                    error.response.data.message
+                );
+
+            } else {
+
+                setErrorMessage(
+                    "Unable to update ledger. Please try again."
+                );
+            }
+
+        } finally {
+
+            setSavingEdit(false);
+        }
+    };
+
+
+    // =========================================================
+    // DELETE
+    // =========================================================
+
+    const handleDelete = async (
+        ledgerId,
+        description
+    ) => {
+
+        if (!canManageLedgers) {
+
+            setErrorMessage(
+                "You are not authorized to delete ledgers."
+            );
+
+            return;
+        }
+
+
+        const confirmed =
+            window.confirm(
+                `Are you sure you want to delete ledger "${description || `#${ledgerId}`}"?`
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            setDeletingId(ledgerId);
+
+            setErrorMessage("");
+
+            setSuccessMessage("");
+
+
+            await axios.delete(
+                `${API_BASE_URL}/api/ledgers/${ledgerId}`,
+                {
+                    headers:
+                        getAuthHeaders()
+                }
+            );
+
+
+            setLedgers(
+                (previous) =>
+                    previous.filter(
+                        (ledger) =>
+                            ledger.id !==
+                            ledgerId
+                    )
+            );
+
+
+            setSuccessMessage(
+                `Ledger #${ledgerId} deleted successfully.`
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Error deleting ledger:",
+                error
+            );
+
+
+            const status =
+                error?.response?.status;
+
+
+            if (status === 401) {
+
+                localStorage.removeItem(
+                    "token"
+                );
+
+                localStorage.removeItem(
+                    "role"
+                );
+
+                localStorage.removeItem(
+                    "user"
+                );
+
+                setErrorMessage(
+                    "Session expired. Please log in again"
+                );
+
+            } else if (status === 403) {
+
+                setErrorMessage(
+                    "You are not authorized to delete this ledger."
+                );
+
+            } else {
+
+                setErrorMessage(
+                    "Unable to delete ledger. Please try again."
+                );
+            }
+
+        } finally {
+
+            setDeletingId(null);
+        }
+    };
+
+
+    // =========================================================
+    // DATE
+    // =========================================================
+
+    const formatDate = (value) => {
+
+        if (!value) {
+            return "Not available";
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return String(value)
+                .substring(0, 10);
+        }
+
+
+        return date
+            .toISOString()
+            .substring(0, 10);
+    };
+
+
+    // =========================================================
+    // LOADING
+    // =========================================================
+
+    if (loading) {
 
         return (
-          id.includes(search) ||
-          description.includes(search)
+            <div className="ledger-page">
+
+                <main className="ledger-main">
+
+                    <div className="ledger-loading-card">
+
+                        <div className="ledger-loading-spinner">
+                        </div>
+
+                        <h2>
+                            Loading ledgers
+                        </h2>
+
+                        <p>
+                            Retrieving your financial
+                            ledger information...
+                        </p>
+
+                    </div>
+
+                </main>
+
+            </div>
         );
-      })
-      .sort((a, b) => {
-        const idA = Number(a.id || 0);
-        const idB = Number(b.id || 0);
-
-        return sortOrder === "asc"
-          ? idA - idB
-          : idB - idA;
-      });
-  }, [ledgers, searchTerm, sortOrder]);
-
-  // =========================================================
-  // CREATE
-  // =========================================================
-
-  const handleCreateLedger = () => {
-    if (!canManageLedgers) {
-      setErrorMessage(
-        "You are not authorized to create ledgers."
-      );
-      return;
     }
 
-    navigate("/ledgers/new");
-  };
 
-  // =========================================================
-  // EDIT
-  // =========================================================
+    // =========================================================
+    // MAIN UI
+    // =========================================================
 
-  const handleEdit = (ledger) => {
-    if (!canManageLedgers) {
-      setErrorMessage(
-        "You are not authorized to edit ledgers."
-      );
-      return;
-    }
-
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    setEditingLedger(ledger);
-    setEditDescription(ledger.description || "");
-
-    setEditCreatedAt(
-      ledger.createdAt
-        ? String(ledger.createdAt).substring(0, 10)
-        : ""
-    );
-  };
-
-  const closeEditModal = () => {
-    if (savingEdit) return;
-
-    setEditingLedger(null);
-    setEditDescription("");
-    setEditCreatedAt("");
-  };
-
-  const handleSaveEdit = async (event) => {
-    event.preventDefault();
-
-    if (!editingLedger) return;
-
-    if (!canManageLedgers) {
-      setErrorMessage(
-        "You are not authorized to edit ledgers."
-      );
-      return;
-    }
-
-    const description = editDescription.trim();
-
-    if (!description) {
-      setErrorMessage(
-        "Ledger description cannot be empty."
-      );
-      return;
-    }
-
-    const payload = {
-      description,
-    };
-
-    if (editCreatedAt) {
-      payload.createdAt = editCreatedAt;
-    }
-
-    try {
-      setSavingEdit(true);
-      setErrorMessage("");
-      setSuccessMessage("");
-
-      const response = await axios.put(
-        `${API_BASE_URL}/api/ledgers/${editingLedger.id}`,
-        payload,
-        getAuthConfig()
-      );
-
-      const updatedLedger = response.data || {};
-
-      setLedgers((current) =>
-        current.map((ledger) =>
-          ledger.id === editingLedger.id
-            ? {
-                ...ledger,
-                ...updatedLedger,
-                description:
-                  updatedLedger.description ?? description,
-                createdAt:
-                  updatedLedger.createdAt ?? ledger.createdAt,
-              }
-            : ledger
-        )
-      );
-
-      setSuccessMessage(
-        `Ledger #${editingLedger.id} updated successfully.`
-      );
-
-      closeEditModal();
-    } catch (error) {
-      console.error("Error updating ledger:", error);
-
-      const status = error?.response?.status;
-
-      if (status === 403) {
-        setErrorMessage(
-          "You are not authorized to edit this ledger."
-        );
-      } else {
-        handleApiError(
-          error,
-          "Unable to update ledger. Please try again."
-        );
-      }
-    } finally {
-      setSavingEdit(false);
-    }
-  };
-
-  // =========================================================
-  // DELETE
-  // =========================================================
-
-  const handleDelete = async (ledgerId) => {
-    if (!canManageLedgers) {
-      setErrorMessage(
-        "You are not authorized to delete ledgers."
-      );
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Are you sure you want to delete Ledger #${ledgerId}?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setDeletingId(ledgerId);
-      setErrorMessage("");
-      setSuccessMessage("");
-
-      await axios.delete(
-        `${API_BASE_URL}/api/ledgers/${ledgerId}`,
-        getAuthConfig()
-      );
-
-      setLedgers((current) =>
-        current.filter((ledger) => ledger.id !== ledgerId)
-      );
-
-      setSuccessMessage(
-        `Ledger #${ledgerId} deleted successfully.`
-      );
-    } catch (error) {
-      console.error("Error deleting ledger:", error);
-
-      const status = error?.response?.status;
-
-      if (status === 403) {
-        setErrorMessage(
-          "You are not authorized to delete this ledger."
-        );
-      } else {
-        handleApiError(
-          error,
-          "Unable to delete ledger. Please try again."
-        );
-      }
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  // =========================================================
-  // DATE FORMATTER
-  // =========================================================
-
-  const formatDate = (value) => {
-    if (!value) return "Not available";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return String(value).substring(0, 10);
-    }
-
-    return date.toISOString().substring(0, 10);
-  };
-
-  // =========================================================
-  // LOADING
-  // =========================================================
-
-  if (loading) {
     return (
-      <div className="ledger-page">
-        <div className="ledger-main">
-          <div className="ledger-loading-card">
-            <div className="ledger-spinner"></div>
 
-            <h3>Loading ledgers...</h3>
+        <div className="ledger-page">
 
-            <p>
-              Please wait while we retrieve your financial
-              ledgers.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+            <main className="ledger-main">
 
-  // =========================================================
-  // UI
-  // =========================================================
 
-  return (
-    <div className="ledger-page">
-      <main className="ledger-main">
+                {/* =================================================
+                    HEADER
+                ================================================= */}
 
-        {/* HEADER */}
-        <section className="ledger-page-header">
-          <div>
-            <div className="ledger-brand-label">
-              <span className="ledger-brand-dot"></span>
-              VAULTFLOW
-            </div>
+                <header className="ledger-page-header">
 
-            <h1>Ledgers</h1>
+                    <div>
 
-            <p>
-              View and manage your financial ledgers.
-            </p>
-          </div>
+                        <div className="ledger-eyebrow">
 
-          {canManageLedgers && (
-            <button
-              className="ledger-create-button"
-              onClick={handleCreateLedger}
-              type="button"
-            >
-              <span className="button-plus">+</span>
-              Create Ledger
-            </button>
-          )}
-        </section>
+                            <span className="ledger-eyebrow-dot">
+                            </span>
 
-        {/* ERROR */}
-        {errorMessage && (
-          <div className="ledger-alert ledger-alert-error">
-            <span className="alert-icon">!</span>
-
-            <div>
-              <strong>Action failed</strong>
-              <p>{errorMessage}</p>
-            </div>
-
-            <button
-              type="button"
-              className="alert-close"
-              onClick={() => setErrorMessage("")}
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        {/* SUCCESS */}
-        {successMessage && (
-          <div className="ledger-alert ledger-alert-success">
-            <span className="alert-icon">✓</span>
-
-            <div>
-              <strong>Success</strong>
-              <p>{successMessage}</p>
-            </div>
-
-            <button
-              type="button"
-              className="alert-close"
-              onClick={() => setSuccessMessage("")}
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        {/* TOOLBAR */}
-        <section className="ledger-toolbar">
-
-          <div className="ledger-search-section">
-            <label>Search Ledgers</label>
-
-            <div className="ledger-search-box">
-              <span className="search-icon">⌕</span>
-
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by Ledger ID or Description"
-              />
-
-              {searchTerm && (
-                <button
-                  className="search-clear"
-                  type="button"
-                  onClick={() => setSearchTerm("")}
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="ledger-sort-section">
-            <label>Sort By</label>
-
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-            >
-              <option value="asc">
-                Ledger ID (Ascending)
-              </option>
-
-              <option value="desc">
-                Ledger ID (Descending)
-              </option>
-            </select>
-          </div>
-
-          <div className="ledger-total-section">
-            <div className="ledger-total-icon">▱</div>
-
-            <div>
-              <span>Total Ledgers</span>
-              <strong>{ledgers.length}</strong>
-            </div>
-          </div>
-        </section>
-
-        {/* CONTENT */}
-        <section className="ledger-content">
-
-          {filteredLedgers.length === 0 ? (
-            <div className="ledger-empty-state">
-              <div className="empty-icon">▱</div>
-
-              <h3>
-                {searchTerm
-                  ? "No ledgers found"
-                  : "No ledgers available"}
-              </h3>
-
-              <p>
-                {searchTerm
-                  ? "Try changing your search criteria."
-                  : "Create your first financial ledger to get started."}
-              </p>
-
-              {!searchTerm && canManageLedgers && (
-                <button
-                  className="ledger-create-button"
-                  onClick={handleCreateLedger}
-                  type="button"
-                >
-                  <span className="button-plus">+</span>
-                  Create Ledger
-                </button>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="ledger-grid">
-                {filteredLedgers.map((ledger) => (
-                  <article
-                    className="ledger-card"
-                    key={ledger.id}
-                  >
-                    <div className="ledger-card-top-line"></div>
-
-                    {/* CARD HEADER */}
-                    <div className="ledger-card-header">
-                      <div>
-                        <span className="ledger-card-label">
-                          LEDGER ID
-                        </span>
-
-                        <h2>#{ledger.id}</h2>
-                      </div>
-
-                      <div className="ledger-card-icon">
-                        L
-                      </div>
-                    </div>
-
-                    {/* CARD BODY */}
-                    <div className="ledger-card-body">
-
-                      <div className="ledger-info-block">
-                        <span>Description</span>
-
-                        <strong>
-                          {ledger.description ||
-                            "No description"}
-                        </strong>
-                      </div>
-
-                      <div className="ledger-divider"></div>
-
-                      <div className="ledger-info-block">
-                        <span>Created Date</span>
-
-                        <strong className="ledger-date">
-                          <span className="calendar-icon">
-                            ▣
-                          </span>
-
-                          {formatDate(ledger.createdAt)}
-                        </strong>
-                      </div>
-                    </div>
-
-                    {/* ACTIONS */}
-                    {canManageLedgers && (
-                      <div className="ledger-card-footer">
-                        <span className="actions-label">
-                          Actions
-                        </span>
-
-                        <div className="ledger-actions">
-
-                          <button
-                            className="ledger-edit-button"
-                            type="button"
-                            onClick={() =>
-                              handleEdit(ledger)
-                            }
-                          >
-                            <span>✎</span>
-                            Edit
-                          </button>
-
-                          <button
-                            className="ledger-delete-button"
-                            type="button"
-                            onClick={() =>
-                              handleDelete(ledger.id)
-                            }
-                            disabled={
-                              deletingId === ledger.id
-                            }
-                          >
-                            <span>♲</span>
-
-                            {deletingId === ledger.id
-                              ? "Deleting..."
-                              : "Delete"}
-                          </button>
+                            VAULTFLOW
 
                         </div>
-                      </div>
-                    )}
-                  </article>
-                ))}
-              </div>
 
-              <div className="ledger-result-count">
-                Showing{" "}
-                <strong>
-                  {filteredLedgers.length}
-                </strong>{" "}
-                ledger
-                {filteredLedgers.length !== 1
-                  ? "s"
-                  : ""}
-              </div>
-            </>
-          )}
-        </section>
-      </main>
+                        <h1>
+                            Ledgers
+                        </h1>
 
-      {/* =====================================================
-          EDIT MODAL
-      ===================================================== */}
+                        <p>
+                            Manage and monitor your
+                            financial ledger records.
+                        </p>
 
-      {editingLedger && (
-        <div
-          className="ledger-modal-overlay"
-          onMouseDown={(event) => {
-            if (
-              event.target === event.currentTarget &&
-              !savingEdit
-            ) {
-              closeEditModal();
-            }
-          }}
-        >
-          <div className="ledger-edit-modal">
+                    </div>
 
-            {/* MODAL HEADER */}
-            <div className="ledger-modal-header">
-              <div className="ledger-modal-title-area">
-                <div className="ledger-modal-icon">
-                  ✎
+
+                    <div className="ledger-header-actions">
+
+                        <div className="ledger-role-badge">
+
+                            <span className="role-dot">
+                            </span>
+
+                            {role || "USER"}
+
+                        </div>
+
+
+                        {canManageLedgers && (
+
+                            <button
+                                type="button"
+                                className="ledger-create-button"
+                                onClick={
+                                    handleCreateLedger
+                                }
+                            >
+
+                                <span>
+                                    +
+                                </span>
+
+                                Create Ledger
+
+                            </button>
+
+                        )}
+
+                    </div>
+
+                </header>
+
+
+                {/* =================================================
+                    ALERTS
+                ================================================= */}
+
+                {errorMessage && (
+
+                    <div
+                        className="ledger-alert ledger-alert-error"
+                        role="alert"
+                    >
+
+                        <div className="ledger-alert-icon">
+                            !
+                        </div>
+
+                        <div className="ledger-alert-content">
+
+                            <strong>
+                                Action failed
+                            </strong>
+
+                            <span>
+                                {errorMessage}
+                            </span>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setErrorMessage("")
+                            }
+                            className="ledger-alert-close"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+                )}
+
+
+                {successMessage && (
+
+                    <div
+                        className="ledger-alert ledger-alert-success"
+                        role="status"
+                    >
+
+                        <div className="ledger-alert-icon">
+                            ✓
+                        </div>
+
+                        <div className="ledger-alert-content">
+
+                            <strong>
+                                Success
+                            </strong>
+
+                            <span>
+                                {successMessage}
+                            </span>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setSuccessMessage("")
+                            }
+                            className="ledger-alert-close"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+                )}
+
+
+                {/* =================================================
+                    STATISTICS
+                ================================================= */}
+
+                <section className="ledger-stats">
+
+                    <div className="ledger-stat-card">
+
+                        <div className="ledger-stat-icon">
+                            L
+                        </div>
+
+                        <div>
+
+                            <span>
+                                TOTAL LEDGERS
+                            </span>
+
+                            <strong>
+                                {ledgers.length}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div className="ledger-stat-card">
+
+                        <div className="ledger-stat-icon">
+                            #
+                        </div>
+
+                        <div>
+
+                            <span>
+                                DISPLAYED
+                            </span>
+
+                            <strong>
+                                {filteredLedgers.length}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div className="ledger-stat-card">
+
+                        <div className="ledger-stat-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <span>
+                                ACCESS LEVEL
+                            </span>
+
+                            <strong>
+                                {canManageLedgers
+                                    ? "MANAGER"
+                                    : "VIEWER"}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                {/* =================================================
+                    SEARCH / SORT
+                ================================================= */}
+
+                <section className="ledger-toolbar">
+
+                    <div className="ledger-search">
+
+                        <label>
+                            Search ledgers
+                        </label>
+
+                        <div className="ledger-search-input">
+
+                            <span>
+                                ⌕
+                            </span>
+
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(event) =>
+                                    setSearchTerm(
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="Search by ledger ID or description"
+                            />
+
+                            {searchTerm && (
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setSearchTerm("")
+                                    }
+                                >
+                                    ×
+                                </button>
+
+                            )}
+
+                        </div>
+
+                    </div>
+
+
+                    <div className="ledger-sort">
+
+                        <label>
+                            Sort
+                        </label>
+
+                        <select
+                            value={sortOrder}
+                            onChange={(event) =>
+                                setSortOrder(
+                                    event.target.value
+                                )
+                            }
+                        >
+
+                            <option value="asc">
+                                Ledger ID · Ascending
+                            </option>
+
+                            <option value="desc">
+                                Ledger ID · Descending
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </section>
+
+
+                {/* =================================================
+                    CONTENT HEADER
+                ================================================= */}
+
+                <div className="ledger-content-heading">
+
+                    <div>
+
+                        <h2>
+                            Financial Ledgers
+                        </h2>
+
+                        <p>
+                            {filteredLedgers.length}{" "}
+                            ledger
+                            {filteredLedgers.length !== 1
+                                ? "s"
+                                : ""}{" "}
+                            displayed
+                        </p>
+
+                    </div>
+
                 </div>
 
-                <div>
-                  <h2>Edit Ledger</h2>
 
-                  <p>
-                    Update the ledger information.
-                  </p>
-                </div>
-              </div>
+                {/* =================================================
+                    EMPTY
+                ================================================= */}
 
-              <button
-                className="ledger-modal-close"
-                type="button"
-                onClick={closeEditModal}
-                disabled={savingEdit}
-              >
-                ×
-              </button>
-            </div>
+                {filteredLedgers.length === 0 ? (
 
-            {/* LEDGER ID */}
-            <div className="ledger-id-preview">
-              <div>
-                <span>LEDGER ID</span>
+                    <section className="ledger-empty">
 
-                <strong>
-                  #{editingLedger.id}
-                </strong>
-              </div>
+                        <div className="ledger-empty-icon">
+                            L
+                        </div>
 
-              <div className="ledger-id-preview-icon">
-                L
-              </div>
-            </div>
+                        <h2>
+                            {searchTerm
+                                ? "No ledgers found"
+                                : "No ledgers available"}
+                        </h2>
 
-            {/* FORM */}
-            <form
-              onSubmit={handleSaveEdit}
-              className="ledger-edit-form"
-            >
-              <div className="form-field">
-                <label>
-                  Ledger Description
-                  <span>*</span>
-                </label>
+                        <p>
+                            {searchTerm
+                                ? "Try using a different ledger ID or description."
+                                : "Create your first financial ledger to begin managing your records."}
+                        </p>
 
-                <input
-                  type="text"
-                  value={editDescription}
-                  onChange={(e) =>
-                    setEditDescription(e.target.value)
-                  }
-                  placeholder="Enter ledger description"
-                  autoFocus
-                  required
-                  disabled={savingEdit}
-                />
-              </div>
+                        {!searchTerm &&
+                            canManageLedgers && (
 
-              <div className="form-field">
-                <label>Created Date</label>
+                                <button
+                                    type="button"
+                                    className="ledger-create-button"
+                                    onClick={
+                                        handleCreateLedger
+                                    }
+                                >
+                                    +
+                                    <span>
+                                        Create Ledger
+                                    </span>
+                                </button>
+                            )}
 
-                <div className="date-input-wrapper">
-                  <input
-                    type="date"
-                    value={editCreatedAt}
-                    onChange={(e) =>
-                      setEditCreatedAt(e.target.value)
-                    }
-                    disabled={savingEdit}
-                  />
-                </div>
-              </div>
+                    </section>
 
-              {/* FOOTER */}
-              <div className="ledger-modal-footer">
-                <button
-                  type="button"
-                  className="modal-cancel-button"
-                  onClick={closeEditModal}
-                  disabled={savingEdit}
+                ) : (
+
+                    /* =================================================
+                       LEDGER GRID
+                    ================================================= */
+
+                    <section className="ledger-grid">
+
+                        {filteredLedgers.map(
+                            (ledger) => (
+
+                                <article
+                                    className="ledger-card"
+                                    key={ledger.id}
+                                >
+
+                                    {/* TOP ACCENT */}
+
+                                    <div className="ledger-card-accent">
+                                    </div>
+
+
+                                    {/* HEADER */}
+
+                                    <div className="ledger-card-header">
+
+                                        <div>
+
+                                            <span className="ledger-card-label">
+                                                LEDGER
+                                            </span>
+
+                                            <h3>
+                                                #{ledger.id}
+                                            </h3>
+
+                                        </div>
+
+
+                                        <div className="ledger-card-symbol">
+                                            L
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* STATUS */}
+
+                                    <div className="ledger-card-status">
+
+                                        <span className="ledger-status-dot">
+                                        </span>
+
+                                        ACTIVE LEDGER
+
+                                    </div>
+
+
+                                    {/* DETAILS */}
+
+                                    <div className="ledger-card-details">
+
+                                        <div className="ledger-detail">
+
+                                            <span>
+                                                DESCRIPTION
+                                            </span>
+
+                                            <strong>
+                                                {ledger.description ||
+                                                    "No description"}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div className="ledger-detail">
+
+                                            <span>
+                                                CREATED
+                                            </span>
+
+                                            <strong>
+                                                {formatDate(
+                                                    ledger.createdAt ||
+                                                    ledger.createdDate
+                                                )}
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* ACTIONS */}
+
+                                    {canManageLedgers && (
+
+                                        <div className="ledger-card-actions">
+
+                                            <button
+                                                type="button"
+                                                className="ledger-edit-button"
+                                                onClick={() =>
+                                                    handleEdit(
+                                                        ledger
+                                                    )
+                                                }
+                                            >
+
+                                                <span>
+                                                    ✎
+                                                </span>
+
+                                                Edit
+
+                                            </button>
+
+
+                                            <button
+                                                type="button"
+                                                className="ledger-delete-button"
+                                                onClick={() =>
+                                                    handleDelete(
+                                                        ledger.id,
+                                                        ledger.description
+                                                    )
+                                                }
+                                                disabled={
+                                                    deletingId ===
+                                                    ledger.id
+                                                }
+                                            >
+
+                                                {deletingId ===
+                                                ledger.id
+                                                    ? (
+                                                        <>
+                                                            <span className="ledger-button-spinner">
+                                                            </span>
+                                                            Deleting
+                                                        </>
+                                                    )
+                                                    : (
+                                                        <>
+                                                            <span>
+                                                                ×
+                                                            </span>
+                                                            Delete
+                                                        </>
+                                                    )}
+
+                                            </button>
+
+                                        </div>
+
+                                    )}
+
+                                </article>
+                            )
+                        )}
+
+                    </section>
+                )}
+
+
+                {/* =================================================
+                    FOOTER
+                ================================================= */}
+
+                <footer className="ledger-footer">
+
+                    <span>
+                        VaultFlow Financial Management
+                    </span>
+
+                    <span>
+                        Secure ledger control
+                    </span>
+
+                </footer>
+
+            </main>
+
+
+            {/* =====================================================
+                EDIT MODAL
+            ===================================================== */}
+
+            {editingLedger && (
+
+                <div
+                    className="ledger-modal-overlay"
+                    onMouseDown={(event) => {
+
+                        if (
+                            event.target ===
+                            event.currentTarget
+                        ) {
+                            closeEditModal();
+                        }
+
+                    }}
                 >
-                  Cancel
-                </button>
 
-                <button
-                  type="submit"
-                  className="modal-save-button"
-                  disabled={savingEdit}
-                >
-                  {savingEdit ? (
-                    <>
-                      <span className="button-spinner"></span>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <span>▣</span>
-                      Save Changes
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+                    <section
+                        className="ledger-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="edit-ledger-title"
+                    >
+
+                        <div className="ledger-modal-header">
+
+                            <div>
+
+                                <span>
+                                    LEDGER MANAGEMENT
+                                </span>
+
+                                <h2 id="edit-ledger-title">
+                                    Edit Ledger #{editingLedger.id}
+                                </h2>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                className="ledger-modal-close"
+                                onClick={
+                                    closeEditModal
+                                }
+                                disabled={
+                                    savingEdit
+                                }
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+
+                        <form
+                            onSubmit={
+                                handleSaveEdit
+                            }
+                        >
+
+                            <div className="ledger-modal-body">
+
+                                <div className="ledger-modal-field">
+
+                                    <label htmlFor="editLedgerDescription">
+                                        Ledger Description
+                                    </label>
+
+                                    <input
+                                        id="editLedgerDescription"
+                                        type="text"
+                                        value={
+                                            editDescription
+                                        }
+                                        onChange={(event) =>
+                                            setEditDescription(
+                                                event.target.value
+                                            )
+                                        }
+                                        placeholder="Enter ledger description"
+                                        autoFocus
+                                        required
+                                    />
+
+                                    <small>
+                                        Provide a clear description
+                                        for this financial ledger.
+                                    </small>
+
+                                </div>
+
+
+                                <div className="ledger-modal-field">
+
+                                    <label htmlFor="editLedgerCreatedAt">
+                                        Created Date
+                                    </label>
+
+                                    <input
+                                        id="editLedgerCreatedAt"
+                                        type="date"
+                                        value={
+                                            editCreatedAt
+                                        }
+                                        onChange={(event) =>
+                                            setEditCreatedAt(
+                                                event.target.value
+                                            )
+                                        }
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="ledger-modal-actions">
+
+                                <button
+                                    type="button"
+                                    className="ledger-modal-cancel"
+                                    onClick={
+                                        closeEditModal
+                                    }
+                                    disabled={
+                                        savingEdit
+                                    }
+                                >
+                                    Cancel
+                                </button>
+
+
+                                <button
+                                    type="submit"
+                                    className="ledger-modal-save"
+                                    disabled={
+                                        savingEdit
+                                    }
+                                >
+
+                                    {savingEdit ? (
+
+                                        <>
+                                            <span className="ledger-button-spinner">
+                                            </span>
+
+                                            Saving...
+                                        </>
+
+                                    ) : (
+
+                                        <>
+                                            ✓ Save Changes
+                                        </>
+
+                                    )}
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </section>
+
+                </div>
+
+            )}
+
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default LedgerList;
